@@ -24,3 +24,5 @@
 *.suo
 *.aps
 *ipch/
+*.sdf
+*.opensdf
