@@ -26,3 +26,4 @@
 *ipch/
 *.sdf
 *.opensdf
+*Dll_File/

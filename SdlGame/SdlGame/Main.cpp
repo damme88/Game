@@ -29,6 +29,7 @@ const int kBPP = 32;
 SDL_Surface* gScreen = NULL;
 SDL_Surface* gBackGround = NULL;
 SDL_Event gEvent;
+Mix_Music* gMusic = NULL;
 
 
 bool InitSdl() {
@@ -90,6 +91,12 @@ int main(int arc, char* argv[]) {
 		return FAILED;
 	}
 
+	gMusic = Mix_LoadMUS("backsound.mid");
+	if (gMusic == NULL)
+	{
+		return FAILED;
+	}
+
 	while(!is_quit) {
 		while(SDL_PollEvent(&gEvent)) {
 			if(gEvent.type == SDL_QUIT) {
@@ -97,6 +104,16 @@ int main(int arc, char* argv[]) {
 			}
 		}
 	  ApplySurface(0, 0, gBackGround, gScreen);
+
+		if( Mix_PlayingMusic() == 0 )
+		{
+			//Play the music
+			if( Mix_PlayMusic(gMusic, -1 ) == FAILED )
+			{
+				return FAILED;
+			}
+		}
+
 		if ( SDL_Flip(gScreen) == FAILED)
 			return 1;
 	}
