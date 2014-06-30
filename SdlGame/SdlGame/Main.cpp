@@ -12,6 +12,8 @@
 *******************************************************************************/
 
 #include "Object.h"
+#include "Threats.h"
+#include "Amo.h"
 
 #define FAILED -1
 #define SUCCESS 0
@@ -24,10 +26,10 @@ SDL_Surface* gScreen = NULL;
 SDL_Surface* gBackGround = NULL;
 SDL_Surface* gObject = NULL;
 SDL_Surface* gThreats = NULL;
-
+SDL_Surface* gAmo = NULL;
 SDL_Event gEvent;
 Mix_Music* gMusic = NULL;
-
+Mix_Chunk* gMusicAmo = NULL;
 
 bool InitSdl() {
   // Init every thing for SDL
@@ -66,6 +68,12 @@ SDL_Surface* LoadImages(const char* image_path) {
 
 void CleanUp() {
 	SDL_FreeSurface(gScreen);
+	SDL_FreeSurface(gThreats);
+	SDL_FreeSurface(gObject);
+	SDL_FreeSurface(gBackGround);
+	Mix_FreeMusic(gMusic);
+	Mix_FreeChunk(gMusicAmo);
+	Mix_CloseAudio();
 	SDL_Quit();
 }
 
@@ -81,7 +89,11 @@ int main(int arc, char* argv[]) {
 	int bkgn_y = 0;
 
 	bool is_quit = false;
-	ObjectGame object_;
+	ObjectGame object;
+	Threats* Threats1 = new Threats(650, 280);
+	Threats* Threats2 = new Threats(950, 100);
+	Amo *amo = new Amo(object.GetBounding().x + 45, object.GetBounding().y);
+
 	SDL_Rect fraction;
 	fraction.x = 200;
 	fraction.y = 200;
@@ -98,14 +110,29 @@ int main(int arc, char* argv[]) {
 		return FAILED;
 	}
 
+	gMusic = Mix_LoadMUS("Action.mid");
+	if (gMusic == NULL)
+	{
+		return FAILED;
+	}
+
+	gMusicAmo = Mix_LoadWAV("Laser.wav");
+	if (gMusicAmo == NULL)
+	{
+		return FAILED;
+	}
+
 	gObject = LoadImages("object.bmp");
 	if (gObject == NULL) {
 		return FAILED;
 	}
 
-	gMusic = Mix_LoadMUS("backsound.mid");
-	if (gMusic == NULL)
-	{
+	gThreats = LoadImages("threats.bmp");
+	if (gThreats == NULL) {
+		return FAILED;
+	}
+	gAmo = LoadImages("amo.bmp");
+	if (gAmo == NULL) {
 		return FAILED;
 	}
 
@@ -114,7 +141,18 @@ int main(int arc, char* argv[]) {
 			if(gEvent.type == SDL_QUIT) {
 				is_quit = true;
 			}
-		   object_.HandleAction(gEvent);
+		   object.HandleAction(gEvent);
+
+			 amo->HandleAction(gEvent, object.GetBounding(), gMusicAmo);
+		}
+
+		if( Mix_PlayingMusic() == 0 )
+		{
+			//Play the music
+			if( Mix_PlayMusic(gMusic, -1 ) == FAILED )
+			{
+				return FAILED;
+			}
 		}
 
 		bkgn_x -= 1;
@@ -126,21 +164,27 @@ int main(int arc, char* argv[]) {
 	  ApplySurface(bkgn_x, bkgn_y, gBackGround, gScreen);
 		ApplySurface(bkgn_x + gBackGround->w, bkgn_y, gBackGround, gScreen);
 
-		object_.ShowObject(gObject, gScreen);
+		object.ShowObject(gObject, gScreen);
+		object.HandleMove(kScreenWidth, kScreenHeight, fraction);
 
-		if( Mix_PlayingMusic() == 0 )
-		{
-			//Play the music
-			if( Mix_PlayMusic(gMusic, -1 ) == FAILED )
-			{
-				return FAILED;
-			}
+		Threats1->ShowThreats(gThreats, gScreen);
+		Threats2->ShowThreats(gThreats, gScreen);
+
+		Threats1->HandleMove(kScreenWidth, kScreenHeight, fraction);
+		Threats2->HandleMove(kScreenWidth, kScreenHeight, fraction);
+
+		if (amo->IsMove()) {
+		  amo->Show(gAmo, gScreen);
+		  amo->Move(kScreenWidth, kScreenHeight, fraction);
 		}
 
 		if ( SDL_Flip(gScreen) == FAILED)
 			return FAILED;
-
-		object_.HandleMove(kScreenWidth, kScreenHeight, fraction);
 	}
+
+	delete Threats1;
+	delete Threats2;
+	delete amo;
+	CleanUp();
   return 0;
 }
