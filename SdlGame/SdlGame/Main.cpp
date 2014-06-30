@@ -11,13 +11,7 @@
 * CopyRight			: Passion Lab
 *******************************************************************************/
 
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_events.h>
-#include <SDL_ttf.h>
-#include <SDL_mixer.h>
-#include <Windows.h>
-#include <string>
+#include "Object.h"
 
 #define FAILED -1
 #define SUCCESS 0
@@ -28,6 +22,9 @@ const int kBPP = 32;
 // define global variable
 SDL_Surface* gScreen = NULL;
 SDL_Surface* gBackGround = NULL;
+SDL_Surface* gObject = NULL;
+SDL_Surface* gThreats = NULL;
+
 SDL_Event gEvent;
 Mix_Music* gMusic = NULL;
 
@@ -80,7 +77,17 @@ void ApplySurface(int x, int y, SDL_Surface* src, SDL_Surface* dest) {
 }
 
 int main(int arc, char* argv[]) {
+	int bkgn_x = 0;
+	int bkgn_y = 0;
+
 	bool is_quit = false;
+	ObjectGame object_;
+	SDL_Rect fraction;
+	fraction.x = 200;
+	fraction.y = 200;
+	fraction.w = 20;
+	fraction.h = 50;
+
 	if (!InitSdl())
 	{
 		return FAILED;
@@ -88,6 +95,11 @@ int main(int arc, char* argv[]) {
 	gBackGround = LoadImages("background.bmp");
 	if (gBackGround == NULL)
 	{
+		return FAILED;
+	}
+
+	gObject = LoadImages("object.bmp");
+	if (gObject == NULL) {
 		return FAILED;
 	}
 
@@ -102,8 +114,19 @@ int main(int arc, char* argv[]) {
 			if(gEvent.type == SDL_QUIT) {
 				is_quit = true;
 			}
+		   object_.HandleAction(gEvent);
 		}
-	  ApplySurface(0, 0, gBackGround, gScreen);
+
+		bkgn_x -= 1;
+		if (bkgn_x <= - gBackGround->w)
+		{
+			bkgn_x = 0;
+		}
+
+	  ApplySurface(bkgn_x, bkgn_y, gBackGround, gScreen);
+		ApplySurface(bkgn_x + gBackGround->w, bkgn_y, gBackGround, gScreen);
+
+		object_.ShowObject(gObject, gScreen);
 
 		if( Mix_PlayingMusic() == 0 )
 		{
@@ -115,7 +138,9 @@ int main(int arc, char* argv[]) {
 		}
 
 		if ( SDL_Flip(gScreen) == FAILED)
-			return 1;
+			return FAILED;
+
+		object_.HandleMove(kScreenWidth, kScreenHeight, fraction);
 	}
   return 0;
 }
