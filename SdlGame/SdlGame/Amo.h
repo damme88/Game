@@ -15,8 +15,9 @@ public:
 	void Show(SDL_Surface* src, SDL_Surface* des);
 	void HandleAction(SDL_Event events, SDL_Rect rect_obj, Mix_Chunk* gMusicAmo);
 	bool IsMove()const {return is_move_;}
+	SDL_Rect GetBounding() {return bounding_;}
 private:
-	SDL_Rect bouding_;
+	SDL_Rect bounding_;
 	bool is_move_;
 };
 
