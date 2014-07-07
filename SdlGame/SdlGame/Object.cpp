@@ -46,7 +46,7 @@ void ObjectGame::HandleMove(const int x_border, const int y_border, SDL_Rect oth
 	if (this->bounding_.x < 0 || this->bounding_.x + kObjectWidth > x_border || CheckCollision(other_object))
 		this->bounding_.x -= x_vel_; // keep position x
 
-	if (this->bounding_.y < 0 || this->bounding_.y + kObjectHeight > 400 || CheckCollision(other_object)) {
+	if (this->bounding_.y < 0 || this->bounding_.y + kObjectHeight > 430 || CheckCollision(other_object)) {
 		this->bounding_.y -= y_vel_; // keep position y
 	}
 }

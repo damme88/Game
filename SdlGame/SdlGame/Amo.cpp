@@ -36,10 +36,12 @@ void Amo::Show(SDL_Surface* src, SDL_Surface* des) {
 
 void Amo::HandleAction(SDL_Event events, SDL_Rect rect_obj, Mix_Chunk* gMusicAmo) {
 	if (events.type == SDL_MOUSEBUTTONDOWN) {
-		if( Mix_PlayChannel( -1, gMusicAmo, 0 ) == -1 )
-			return ;
-		is_move_ = true;
-		bounding_.x = rect_obj.x + 40;
-		bounding_.y = rect_obj.y + 10;
+		if (events.button.button == SDL_BUTTON_LEFT) {
+			if( Mix_PlayChannel( -1, gMusicAmo, 0 ) == -1 )
+				return ;
+			is_move_ = true;
+			bounding_.x = rect_obj.x + 40;
+			bounding_.y = rect_obj.y + 10;
+		}
 	}
 }

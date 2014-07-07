@@ -27,6 +27,7 @@ void Threats::HandleMove(const int x_boder, const int y_border, SDL_Rect other_o
 	if (bounding_.x < 0)
 	{
 		bounding_.x = x_boder + 10;
+		bounding_.y = rand()%400;
 	}
 	if (other_object.w < 640 && other_object.h < 480) {
 	  CheckCollision(other_object);
@@ -35,11 +36,7 @@ void Threats::HandleMove(const int x_boder, const int y_border, SDL_Rect other_o
 
 void Threats::SetPosAgain(const int x_boder, const int y_boder) {
 	bounding_.x = x_boder + 10;
-	bounding_.y += rand();
-
-	if (bounding_.y >= y_boder) {
-		bounding_.y = y_boder /2;
-	}
+	bounding_.y = rand()%400;
 }
 
 bool Threats::CheckCollision(SDL_Rect other_object) {

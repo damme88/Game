@@ -21,6 +21,7 @@
 const int kScreenWidth = 640;
 const int kScreenHeight = 480;
 const int kBPP = 32;
+const int kPlayTime = 60;
 
 // define global variable
 SDL_Surface* gScreen = NULL;
@@ -32,6 +33,11 @@ SDL_Event gEvent;
 Mix_Music* gMusic = NULL;
 Mix_Chunk* gMusicAmo = NULL;
 TTF_Font* gfont = NULL;
+TTF_Font* gFontTime = NULL;
+SDL_Surface* gTimeSecond = NULL;
+SDL_Surface* gMark = NULL;
+SDL_Color gTextColor = {0x00, 0x00, 0x00};
+SDL_Color gTextColormark = {0xFF, 0x00, 0x00};
 LogInfo::Log gLog;
 
 SDL_Surface* LoadImages(const char* image_path);
@@ -125,7 +131,7 @@ bool InitSdl() {
 		gLog.WriteLog("Init Sdl Success");
 	// Make video mode for screen
 	Uint32 flag = SDL_SWSURFACE;
-	if (MessageBox(NULL, "Would you like FullScreen", "Info", MB_YESNO) == IDYES) {
+	if (MessageBox(NULL, "Would you like FullScreen", "Info", MB_YESNO|MB_ICONINFORMATION) == IDYES) {
 		flag = SDL_SWSURFACE | SDL_FULLSCREEN;
 	}
 	gScreen = SDL_SetVideoMode(kScreenWidth, kScreenHeight, kBPP, flag);
@@ -179,6 +185,7 @@ void CleanUp() {
 	SDL_FreeSurface(gThreats);
 	SDL_FreeSurface(gObject);
 	SDL_FreeSurface(gBackGround);
+	SDL_FreeSurface(gTimeSecond);
 	Mix_FreeMusic(gMusic);
 	Mix_FreeChunk(gMusicAmo);
 	Mix_CloseAudio();
@@ -193,6 +200,10 @@ void ApplySurface(int x, int y, SDL_Surface* src, SDL_Surface* dest) {
 }
 
 int main(int arc, char* argv[]) {
+	Uint32 start = 0;
+	Uint32 sub_time = 0;
+	bool is_running = true;
+	int mark = 0;
 	int bkgn_x = 0;
 	int bkgn_y = 0;
 	bool is_quit = false;
@@ -211,7 +222,7 @@ int main(int arc, char* argv[]) {
 	{
 		return FAILED;
 	}
-	gBackGround = LoadImages("background2.bmp");
+	gBackGround = LoadImages("background.bmp");
 	if (gBackGround == NULL)
 	{
 		gLog.WriteLog("Load Background failed");
@@ -244,7 +255,7 @@ int main(int arc, char* argv[]) {
 	}
 	gLog.WriteLog("Load Object image success");
 
-	gThreats = LoadImages("threats2.bmp");
+	gThreats = LoadImages("threats.bmp");
 	if (gThreats == NULL) {
 		gLog.WriteLog("Load threats image failed");
 		return FAILED;
@@ -260,11 +271,14 @@ int main(int arc, char* argv[]) {
 
 
 	gfont = TTF_OpenFont("Xerox Sans Serif Wide Bold.ttf", 40);
-	if (gfont == NULL)
+	gFontTime = TTF_OpenFont("Xerox Sans Serif Wide Bold.ttf", 20);
+	if (gfont == NULL || gFontTime == NULL)
 	{
 	  gLog.WriteLog("Load font failed");
 		return FAILED;
 	}
+
+
 	gLog.WriteLog("Load font image success");
 
 	int ret = ShowMenu(gScreen, gfont);
@@ -274,21 +288,32 @@ int main(int arc, char* argv[]) {
 		while(SDL_PollEvent(&gEvent)) {
 			switch (gEvent.type) {
 			case SDL_QUIT:
+				mark = 0;
 				is_quit = true;
 				break;
 			case SDL_KEYDOWN:
 				switch(gEvent.key.keysym.sym)
 				{
-				case SDLK_ESCAPE:
-					int i = ShowMenu(gScreen, gfont);
-					if(i == 0)
-						is_quit = false;
-					else {
-						delete Threats1;
-						delete Threats2;
-						delete amo;
-						CleanUp();
-						return 0;
+				case SDLK_ESCAPE: {
+						mark = 0;
+						int i = ShowMenu(gScreen, gfont);
+						if (i == 0)
+							is_quit = false;
+						else {
+							delete Threats1;
+							delete Threats2;
+							delete amo;
+							CleanUp();
+							return 0;
+						}
+					}
+					break;
+				case SDLK_s: 
+					if (is_running) {
+						is_running = false;
+					} else {
+						is_running = true;
+						start = (SDL_GetTicks()/1000) - sub_time;
 					}
 					break;
 				}
@@ -318,9 +343,6 @@ int main(int arc, char* argv[]) {
 
 		object.ShowObject(gObject, gScreen);
 
-
-		Threats2->ShowThreats(gThreats, gScreen);
-
 		if (amo->IsMove()) {
 		  amo->Show(gAmo, gScreen);
 		  amo->Move(kScreenWidth, kScreenHeight, fraction);
@@ -332,11 +354,49 @@ int main(int arc, char* argv[]) {
 			Threats1->ShowThreats(gThreats, gScreen);
 			Threats1->HandleMove(kScreenWidth, kScreenHeight, amo->GetBounding());
 		} else {
+				mark++;
 				Threats1->SetIsCollision(false);
 				Threats1->SetPosAgain(kScreenWidth, kScreenHeight);
 		}
 
-		//Threats2->HandleMove(kScreenWidth, kScreenHeight, fraction);
+		if (Threats2->IsCollison() == false) {
+			Threats2->ShowThreats(gThreats, gScreen);
+			Threats2->HandleMove(kScreenWidth, kScreenHeight, amo->GetBounding());
+		} else {
+			mark++;
+			Threats2->SetIsCollision(false);
+			Threats2->SetPosAgain(kScreenWidth, kScreenHeight);
+		}
+
+		// Show time 
+		std::stringstream timestr;
+		if (is_running) {
+			sub_time = (SDL_GetTicks()/1000) - start;
+		}
+		timestr << "Time: " << kPlayTime - sub_time;
+
+		if (kPlayTime - sub_time < 15) {
+			gTextColor.r = 0xFF;
+			gTextColor.g = 0x00;
+			gTextColor.b = 0x00;
+		}
+
+		if (kPlayTime - sub_time <= 0) {
+			is_running = false;
+			if (MessageBox(NULL, "Time has been finished, Game Over", "Info", MB_OK|MB_ICONSTOP) == IDOK) {
+				is_quit = true;
+			}
+		}
+
+		gTimeSecond = TTF_RenderText_Solid(gFontTime, timestr.str().c_str(), gTextColor);
+		ApplySurface(500, 10, gTimeSecond, gScreen);
+
+		char str[10];
+		itoa(mark, str, 10);
+		std::string strMark("Mark : ");
+		strMark += (std::string)str;
+		gMark = TTF_RenderText_Solid(gFontTime, strMark.c_str(), gTextColormark);
+		ApplySurface(20, 10, gMark, gScreen);
 
 		if ( SDL_Flip(gScreen) == FAILED)
 			return FAILED;
