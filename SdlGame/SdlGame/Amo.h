@@ -10,7 +10,7 @@ public:
 	Amo();
 	Amo(int x, int y);
 	~Amo();
-	void Move(const int x_boder, const int y_boder, SDL_Rect other_object);
+	void Move(const int x_boder, const int y_boder);
 	bool CheckCollision(SDL_Rect* other_obj);
 	void Show(SDL_Surface* src, SDL_Surface* des);
 	void HandleAction(SDL_Event events, SDL_Rect rect_obj, Mix_Chunk* gMusicAmo);

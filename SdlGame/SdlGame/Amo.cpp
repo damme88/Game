@@ -19,8 +19,8 @@ Amo::~Amo() {
 
 }
 
-void Amo::Move(const int x_boder, const int y_border, SDL_Rect other_object) {
-  bounding_.x += 6;
+void Amo::Move(const int x_boder, const int y_border) {
+  bounding_.x += 30;
 	if (bounding_.x > x_boder + 10) {
 		is_move_ = false;
 	}

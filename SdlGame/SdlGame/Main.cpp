@@ -22,16 +22,19 @@ const int kScreenWidth = 640;
 const int kScreenHeight = 480;
 const int kBPP = 32;
 const int kPlayTime = 60;
+const int kFramePerSecond = 20;
 
 // define global variable
 SDL_Surface* gScreen = NULL;
 SDL_Surface* gBackGround = NULL;
 SDL_Surface* gObject = NULL;
+SDL_Surface* gObjectDestroy = NULL;
 SDL_Surface* gThreats = NULL;
 SDL_Surface* gAmo = NULL;
 SDL_Event gEvent;
 Mix_Music* gMusic = NULL;
 Mix_Chunk* gMusicAmo = NULL;
+Mix_Chunk* gMusicBom = NULL;
 TTF_Font* gfont = NULL;
 TTF_Font* gFontTime = NULL;
 SDL_Surface* gTimeSecond = NULL;
@@ -39,6 +42,7 @@ SDL_Surface* gMark = NULL;
 SDL_Color gTextColor = {0x00, 0x00, 0x00};
 SDL_Color gTextColormark = {0xFF, 0x00, 0x00};
 LogInfo::Log gLog;
+bool gColobj = false;
 
 SDL_Surface* LoadImages(const char* image_path);
 
@@ -211,12 +215,7 @@ int main(int arc, char* argv[]) {
 	Threats* Threats1 = new Threats(650, 280);
 	Threats* Threats2 = new Threats(950, 100);
 	Amo *amo = new Amo(object.GetBounding().x + 45, object.GetBounding().y);
-
-	SDL_Rect fraction;
-	fraction.x = 200;
-	fraction.y = 200;
-	fraction.w = 20;
-	fraction.h = 50;
+	Timer times;
 
 	if (!InitSdl())
 	{
@@ -240,7 +239,8 @@ int main(int arc, char* argv[]) {
 
 
 	gMusicAmo = Mix_LoadWAV("Laser.wav");
-	if (gMusicAmo == NULL)
+	gMusicBom = Mix_LoadWAV("bomb-03.wav");
+	if (gMusicAmo == NULL || gMusicBom == NULL)
 	{
 		gLog.WriteLog("Load Amo Music failed");
 		return FAILED;
@@ -249,11 +249,13 @@ int main(int arc, char* argv[]) {
 
 
 	gObject = LoadImages("object.bmp");
-	if (gObject == NULL) {
+	gObjectDestroy = LoadImages("destroy.bmp");
+	if (gObject == NULL || gObjectDestroy == NULL) {
 		gLog.WriteLog("Load Object image failed");
 		return FAILED;
 	}
 	gLog.WriteLog("Load Object image success");
+
 
 	gThreats = LoadImages("threats.bmp");
 	if (gThreats == NULL) {
@@ -285,6 +287,7 @@ int main(int arc, char* argv[]) {
 	if (ret == 1) 
 		is_quit = true;
 	while(!is_quit) {
+		times.Start();
 		while(SDL_PollEvent(&gEvent)) {
 			switch (gEvent.type) {
 			case SDL_QUIT:
@@ -332,7 +335,7 @@ int main(int arc, char* argv[]) {
 			}
 		}
 
-		bkgn_x -= 1;
+		bkgn_x -= 2;
 		if (bkgn_x <= - gBackGround->w)
 		{
 			bkgn_x = 0;
@@ -341,18 +344,34 @@ int main(int arc, char* argv[]) {
 	  ApplySurface(bkgn_x, bkgn_y, gBackGround, gScreen);
 		ApplySurface(bkgn_x + gBackGround->w, bkgn_y, gBackGround, gScreen);
 
-		object.ShowObject(gObject, gScreen);
+		if (gColobj == false) {
+			object.ShowObject(gObject, gScreen);
+		} else {
+			if( Mix_PlayChannel( -1, gMusicBom, 0 ) == -1 )
+				return FAILED;
+			object.ShowObject(gObjectDestroy, gScreen);
+			if ( SDL_Flip(gScreen) == FAILED)
+				return FAILED;
+			SDL_Delay(4000);
+			if (MessageBox(NULL, "Game Over", "Info", MB_OK|MB_ICONSTOP) == IDOK) {
+				delete Threats1;
+				delete Threats2;
+				delete amo;
+				CleanUp();
+				return 0;
+			}
+		}
 
 		if (amo->IsMove()) {
 		  amo->Show(gAmo, gScreen);
-		  amo->Move(kScreenWidth, kScreenHeight, fraction);
+		  amo->Move(kScreenWidth, kScreenHeight);
 		}
 
-		object.HandleMove(kScreenWidth, kScreenHeight, fraction);
+		object.HandleMove(kScreenWidth, kScreenHeight);
 
 		if (Threats1->IsCollison() == false) {
 			Threats1->ShowThreats(gThreats, gScreen);
-			Threats1->HandleMove(kScreenWidth, kScreenHeight, amo->GetBounding());
+			Threats1->HandleMove(kScreenWidth, kScreenHeight, amo->GetBounding(), object.GetBounding(), gColobj);
 		} else {
 				mark++;
 				Threats1->SetIsCollision(false);
@@ -361,7 +380,7 @@ int main(int arc, char* argv[]) {
 
 		if (Threats2->IsCollison() == false) {
 			Threats2->ShowThreats(gThreats, gScreen);
-			Threats2->HandleMove(kScreenWidth, kScreenHeight, amo->GetBounding());
+			Threats2->HandleMove(kScreenWidth, kScreenHeight, amo->GetBounding(), object.GetBounding(), gColobj);
 		} else {
 			mark++;
 			Threats2->SetIsCollision(false);
@@ -400,6 +419,10 @@ int main(int arc, char* argv[]) {
 
 		if ( SDL_Flip(gScreen) == FAILED)
 			return FAILED;
+
+		if (times.GetTick() < 300/kFramePerSecond) {
+			SDL_Delay((300/kFramePerSecond) - times.GetTick());
+		}
 	}
 
 	delete Threats1;

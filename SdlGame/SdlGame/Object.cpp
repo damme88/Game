@@ -18,10 +18,10 @@ void ObjectGame::HandleAction(SDL_Event event) {
 	if (event.type == SDL_KEYDOWN) {
 		// Change position for object
 		switch(event.key.keysym.sym) {
-		case SDLK_UP: y_vel_ -= kObjectHeight/10; break;
-		case SDLK_DOWN: y_vel_ += kObjectHeight/10; break;
-		case SDLK_LEFT: x_vel_ -= kObjectWidth/10; break;
-		case SDLK_RIGHT: x_vel_ += kObjectWidth/10; break;
+		case SDLK_UP: y_vel_ -= kObjectHeight/2; break;
+		case SDLK_DOWN: y_vel_ += kObjectHeight/2; break;
+		case SDLK_LEFT: x_vel_ -= kObjectWidth/2; break;
+		case SDLK_RIGHT: x_vel_ += kObjectWidth/2; break;
 		}
 	}
 
@@ -30,23 +30,23 @@ void ObjectGame::HandleAction(SDL_Event event) {
 		//Adjust the velocity
 		switch(event.key.keysym.sym )
 		{
-		case SDLK_UP: y_vel_ += kObjectHeight / 10; break;
-		case SDLK_DOWN: y_vel_ -= kObjectHeight / 10; break;
-		case SDLK_LEFT: x_vel_ += kObjectWidth / 10; break;
-		case SDLK_RIGHT: x_vel_ -= kObjectWidth / 10; break;
+		case SDLK_UP: y_vel_ += kObjectHeight/2; break;
+		case SDLK_DOWN: y_vel_ -= kObjectHeight/2; break;
+		case SDLK_LEFT: x_vel_ += kObjectWidth/2; break;
+		case SDLK_RIGHT: x_vel_ -= kObjectWidth/2; break;
 		}
 	}
 }
 
 
-void ObjectGame::HandleMove(const int x_border, const int y_border, SDL_Rect other_object)
+void ObjectGame::HandleMove(const int x_border, const int y_border)
 {
 	bounding_.x += x_vel_;
 	bounding_.y += y_vel_;
-	if (this->bounding_.x < 0 || this->bounding_.x + kObjectWidth > x_border || CheckCollision(other_object))
+	if (this->bounding_.x < 0 || this->bounding_.x + kObjectWidth > x_border)
 		this->bounding_.x -= x_vel_; // keep position x
 
-	if (this->bounding_.y < 0 || this->bounding_.y + kObjectHeight > 430 || CheckCollision(other_object)) {
+	if (this->bounding_.y < 0 || this->bounding_.y + kObjectHeight > 430) {
 		this->bounding_.y -= y_vel_; // keep position y
 	}
 }
@@ -83,9 +83,62 @@ bool ObjectGame::CheckCollision(SDL_Rect other_object) {
 	if (left_a >= right_b) {
 		return false;
 	}
+
+	return true;
 }
 
 
 void ObjectGame::ShowObject(SDL_Surface* src, SDL_Surface* des) {
   SDL_BlitSurface(src, NULL, des, &bounding_);
+}
+
+
+//Define timer class
+Timer::Timer() {
+	start_tick_ = 0;
+	pause_tick_ = 0;
+	is_started_ = true;
+	is_paused_ = false;
+}
+
+Timer::~Timer() {
+	
+}
+
+void Timer::Start() {
+	is_started_ = true;
+	is_paused_ = false;
+	start_tick_ = SDL_GetTicks()/1000;
+}
+
+void Timer::Stop() {
+	is_paused_ = false;
+	is_started_ = false;
+}
+
+void Timer::Pause() {
+	if (is_started_ && !is_paused_) {
+		is_paused_ = true;
+		pause_tick_ = (SDL_GetTicks()/1000) - start_tick_;
+	}
+}
+
+void Timer::UnPause() {
+	if (is_paused_) {
+		is_paused_ = false;
+		start_tick_ = (SDL_GetTicks()/1000) - pause_tick_;
+		//pause_tick_ = 0;
+	}
+}
+
+int Timer::GetTick() {
+	if (start_tick_) {
+		if (is_paused_)
+		{
+			return pause_tick_;
+		} else {
+			return (SDL_GetTicks()/1000) - start_tick_;
+		}
+	} 
+	return 0;
 }

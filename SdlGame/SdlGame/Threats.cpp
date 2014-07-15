@@ -22,15 +22,20 @@ Threats::~Threats() {
   
 }
 
-void Threats::HandleMove(const int x_boder, const int y_border, SDL_Rect other_object) {
-  bounding_.x -= 2;
+void Threats::HandleMove(const int x_boder, const int y_border, SDL_Rect amo, SDL_Rect object, bool& colobj) {
+  bounding_.x -= 5;
 	if (bounding_.x < 0)
 	{
 		bounding_.x = x_boder + 10;
 		bounding_.y = rand()%400;
 	}
-	if (other_object.w < 640 && other_object.h < 480) {
-	  CheckCollision(other_object);
+	if (amo.w < 640 && amo.h < 480) {
+	  CheckCollision(amo);
+	}
+	if (bounding_.x >= 0 && bounding_.x <= x_boder) {
+		if (CheckCollision(object) == true) {
+			colobj = true;
+		}
 	}
 }
 
@@ -59,16 +64,16 @@ bool Threats::CheckCollision(SDL_Rect other_object) {
 	top_b = other_object.y;
 	bottom_b = other_object.y + other_object.h; // bottom is above border to under edge
 
-	if (bottom_a <= top_b) {
+	if (bottom_a <= top_b-5) {
 		return false;
 	}
-	if (top_a >= bottom_b) {
+	if (top_a >= bottom_b-5) {
 		return false;
 	}
-	if (right_a <= left_b) {
+	if (right_a <= left_b-5) {
 		return false;
 	}
-	if (left_a >= right_b) {
+	if (left_a >= right_b-5) {
 		return false;
 	}
 
