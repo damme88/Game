@@ -30,10 +30,10 @@ SDL_Surface* gBackGround = NULL;
 SDL_Surface* gObject = NULL;
 SDL_Surface* gObjectDestroy = NULL;
 SDL_Surface* gThreats = NULL;
-SDL_Surface* gAmo = NULL;
+SDL_Surface* gAmo[3];
 SDL_Event gEvent;
 Mix_Music* gMusic = NULL;
-Mix_Chunk* gMusicAmo = NULL;
+Mix_Chunk* gMusicAmo[3];
 Mix_Chunk* gMusicBom = NULL;
 TTF_Font* gfont = NULL;
 TTF_Font* gFontTime = NULL;
@@ -191,7 +191,8 @@ void CleanUp() {
 	SDL_FreeSurface(gBackGround);
 	SDL_FreeSurface(gTimeSecond);
 	Mix_FreeMusic(gMusic);
-	Mix_FreeChunk(gMusicAmo);
+	Mix_FreeChunk(gMusicAmo[0]);
+	Mix_FreeChunk(gMusicAmo[1]);
 	Mix_CloseAudio();
 	SDL_Quit();
 }
@@ -238,9 +239,10 @@ int main(int arc, char* argv[]) {
 	gLog.WriteLog("Load Music menu success");
 
 
-	gMusicAmo = Mix_LoadWAV("Laser.wav");
+	gMusicAmo[0] = Mix_LoadWAV("Laser.wav");
+	gMusicAmo[1] = Mix_LoadWAV("Fire1.wav");
 	gMusicBom = Mix_LoadWAV("bomb-03.wav");
-	if (gMusicAmo == NULL || gMusicBom == NULL)
+	if (gMusicAmo[0] == NULL || gMusicAmo[1] == NULL || gMusicBom == NULL)
 	{
 		gLog.WriteLog("Load Amo Music failed");
 		return FAILED;
@@ -264,8 +266,10 @@ int main(int arc, char* argv[]) {
 	}
 	gLog.WriteLog("Load threats image success");
 
-	gAmo = LoadImages("amo.bmp");
-	if (gAmo == NULL) {
+	gAmo[0] = LoadImages("amo_laser.bmp");
+	gAmo[1] = LoadImages("amo_sphere.bmp");
+	//gAmo[2] = LoadImages("amo_lightning.bmp");
+	if (gAmo[0] == NULL || gAmo[1] == NULL) {
 		gLog.WriteLog("Load amo image failed");
 		return FAILED;
 	}
@@ -363,7 +367,17 @@ int main(int arc, char* argv[]) {
 		}
 
 		if (amo->IsMove()) {
-		  amo->Show(gAmo, gScreen);
+			switch (amo->GetAmoType()) {
+			case Amo::AmoType::LASER:
+				amo->Show(gAmo[0], gScreen);
+				break;
+			case Amo::AmoType::SPHERE:
+				amo->Show(gAmo[1], gScreen);
+					break;
+			default:
+				amo->Show(gAmo[0], gScreen);
+					break;
+			}
 		  amo->Move(kScreenWidth, kScreenHeight);
 		}
 
