@@ -2,6 +2,8 @@
 #ifndef AMO_H_
 #define AMO_H_
 
+
+//hello
 #include "Common.h"
   const int kAmoWidth = 40;
   const int kAmoHeight = 8;
