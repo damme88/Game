@@ -1,0 +1,1 @@
+Copy Image into debug and release folder or SRC File
