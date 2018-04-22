@@ -63,7 +63,6 @@ bool Init()
 
 int main(int arc, char* argv[])
 {
-  bool is_run_screen = true;
   int bkgn_x = 0;
   int bkgn_y = 0;
 
@@ -78,11 +77,13 @@ int main(int arc, char* argv[])
     return 0;
   }
 
-  MainObject plane_object;
-  plane_object.SetRect(POS_X_START_MAIN_OBJECT, POS_Y_TART_MAIN_OBJECT);
+  MainObject walk_object;
+  walk_object.SetRect(POS_X_START_MAIN_OBJECT, POS_Y_TART_MAIN_OBJECT);
 
-  bool ret = plane_object.LoadImg(g_name_main);
+  bool ret = walk_object.LoadImg(g_name_main);
   if (!ret) return 0;
+
+  walk_object.set_clips();
 
   ExplosionObject exp_threats;
   ExplosionObject exp_main;
@@ -95,20 +96,15 @@ int main(int arc, char* argv[])
   exp_main.set_clips();
   if (!ret) return 0;
 
-  ThreatsObject* p_threats = new ThreatsObject[NUM_THREATS];
-  for (int i = 0; i < NUM_THREATS; i++)
+  ThreatsObject* p_threat = new ThreatsObject(); //[NUM_THREATS];
+  if (p_threat)
   {
-    ThreatsObject* p_threat = (p_threats + i);
-    if (p_threat)
-    {
-      int random_y = SDLCommonFunc::MakeRandomPostY();
-      p_threat->set_x_pos(SPEED_THREAT);
-      p_threat->SetRect(SCREEN_WIDTH + (i)*VAL_OFFSET_START_POST_THREAT - SPEED_THREAT, random_y);
+      int randVal = SDLCommonFunc::MakeRandomPostY();
+      p_threat->SetRect(SCREEN_WIDTH - randVal, POS_Y_TART_THREAT_OBJECT);
       p_threat->set_is_alive(true);
       p_threat->LoadImg(g_name_threats);
       BulletObject* p_bullet = new BulletObject();
       p_threat->InitBullet(p_bullet);
-    }
   }
 
   int ret_menu = SDLCommonFunc::ShowMenu(g_screen, g_font);
@@ -126,44 +122,53 @@ int main(int arc, char* argv[])
         is_quit = true;
         break;
       }
-      plane_object.HandleInputAction(g_even, g_sound_bullet);
+      walk_object.HandleInputAction(g_even, g_sound_bullet);
     }
 
     //Run background Screen
-    if (is_run_screen == true)
+    SDLCommonFunc::ApplySurface(g_bkground, g_screen, bkgn_x, bkgn_y);
+
+    // Show and move plane object
+    walk_object.HandleMove();
+    walk_object.Show(g_screen);
+    walk_object.ImplementJump();
+    walk_object.HandleBullet(g_screen);
+
+    int x_rect = walk_object.GetRect().x;
+    if (x_rect > SCREEN_WIDTH*0.35)
     {
-      bkgn_x -= SPEED_SCREEN;
-      if (bkgn_x <= -(WIDHT_BKGROUND - SCREEN_WIDTH))
+      if (abs(bkgn_x) >= WIDHT_BKGROUND - SCREEN_WIDTH)
       {
-        is_run_screen = false;
+         walk_object.set_is_move(true);
+         p_threat->set_x_pos(0);
       }
       else
       {
-        SDLCommonFunc::ApplySurface(g_bkground, g_screen, bkgn_x, bkgn_y);
+        int vecloty = walk_object.GetVelocity();
+        if (vecloty != 0)
+        {
+          bkgn_x -= vecloty;
+          p_threat->set_x_pos(SPEED_MAIN_OBJECT);
+          walk_object.set_is_move(false);
+        }
+        else
+        {
+           p_threat->set_x_pos(0);
+        }
       }
     }
     else
     {
-      SDLCommonFunc::ApplySurface(g_bkground, g_screen, bkgn_x, bkgn_y);
+       p_threat->set_x_pos(0);
     }
-
-    // Show and move plane object
-    plane_object.HandleMove();
-    plane_object.Show(g_screen);
-    plane_object.HandleBullet(g_screen);
-
-
-    //Show and move threats
-    for (int it = 0; it < NUM_THREATS; it++)
+    
+    if (p_threat)
     {
-      ThreatsObject* p_threat = (p_threats + it);
-      if (p_threat)
+      if (p_threat->get_is_alive())
       {
-        if (p_threat->get_is_alive())
-        {
           p_threat->HandleMove(SCREEN_WIDTH, SCREEN_HEIGHT);
           p_threat->Show(g_screen);
-          p_threat->MakeBullet(g_screen, SCREEN_WIDTH, SCREEN_HEIGHT);
+          //p_threat->MakeBullet(g_screen, SCREEN_WIDTH, SCREEN_HEIGHT);
 
           //COLLISION THREAT BULLET -> MAIN OBJECT
           bool is_col1 = false;
@@ -173,7 +178,7 @@ int main(int arc, char* argv[])
             BulletObject* p_bullet = bullet_list.at(am);
             if (p_bullet)
             {
-              is_col1 = SDLCommonFunc::CheckCollision(p_bullet->GetRect(), plane_object.GetRect());
+              is_col1 = SDLCommonFunc::CheckCollision(p_bullet->GetRect(), walk_object.GetRect());
               if (is_col1 == true)
               {
                 p_threat->ResetBullet(p_bullet);
@@ -183,13 +188,15 @@ int main(int arc, char* argv[])
           }
 
           //COLLISION THREAT-> MAIN OBJECT
-          bool is_col2 = SDLCommonFunc::CheckCollision(plane_object.GetRect(), p_threat->GetRect());
+          bool is_col2 = SDLCommonFunc::CheckCollision(walk_object.GetRect(), p_threat->GetRect());
           if (is_col1 || is_col2)
           {
+            p_threat->Reset(SCREEN_WIDTH, SCREEN_HEIGHT);
+            walk_object.set_is_move(true);
             for (int ex = 0; ex < 4; ex++)
             {
-              int x_pos = (plane_object.GetRect().x + plane_object.GetRect().w*0.5) - EXPLOSION_WIDTH*0.5;
-              int y_pos = (plane_object.GetRect().y + plane_object.GetRect().h*0.5) - EXPLOSION_HEIGHT*0.5;
+              int x_pos = (walk_object.GetRect().x + walk_object.GetRect().w*0.5) - EXPLOSION_WIDTH*0.5;
+              int y_pos = (walk_object.GetRect().y + walk_object.GetRect().h*0.5) - EXPLOSION_HEIGHT*0.5;
 
               exp_main.set_frame(ex);
               exp_main.SetRect(x_pos, y_pos);
@@ -197,7 +204,7 @@ int main(int arc, char* argv[])
 
               if (SDL_Flip(g_screen) == -1)
               {
-                delete [] p_threats;
+                delete  p_threat;
                 SDLCommonFunc::CleanUp();
                 SDL_Quit();
                 return 0;
@@ -209,14 +216,14 @@ int main(int arc, char* argv[])
             if (num_live <= 3)
             {
               SDL_Delay(1000);
-              plane_object.SetRect(POS_X_START_MAIN_OBJECT, POS_Y_TART_MAIN_OBJECT);
+              walk_object.SetRect(POS_X_START_MAIN_OBJECT, POS_Y_TART_MAIN_OBJECT);
               continue;
             }
             else
             {
               if(MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
               {
-                delete [] p_threats;
+                delete  p_threat;
                 SDLCommonFunc::CleanUp();
                 SDL_Quit();
                 return 0;
@@ -225,7 +232,7 @@ int main(int arc, char* argv[])
           }
 
           //COLLISION THREAT -> Main Bullet
-          std::vector<BulletObject*> bullet_arr = plane_object.get_bullet_list();
+          std::vector<BulletObject*> bullet_arr = walk_object.get_bullet_list();
           for (int am = 0; am < bullet_arr.size(); am++)
           {
             BulletObject* p_bullet = bullet_arr.at(am);
@@ -245,18 +252,16 @@ int main(int arc, char* argv[])
                 }
 
                  p_threat->Reset(SCREEN_WIDTH, SCREEN_HEIGHT);
-                 plane_object.RemoveBullet(am);
+                 walk_object.RemoveBullet(am);
                  Mix_PlayChannel(-1, g_sound_explosion, 0);
               }
             }
           }
-        }
       }
     }
-    
+
     if (SDL_Flip(g_screen) == -1)
     {
-      delete [] p_threats;
       SDLCommonFunc::CleanUp();
       SDL_Quit();
       return 0;
@@ -269,7 +274,6 @@ int main(int arc, char* argv[])
     }
   }
 
-  delete [] p_threats;
   SDLCommonFunc::CleanUp();
   SDL_Quit();
   return 1;

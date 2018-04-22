@@ -9,6 +9,7 @@ BulletObject::BulletObject()
   y_val_ = 0;
   is_move_ = false;
   move_type_ = LINE_TYPE;
+  bullet_dir_ = DIR_RIGHT;
 }
 
 BulletObject::~BulletObject()
@@ -18,14 +19,27 @@ BulletObject::~BulletObject()
 
 void BulletObject::HandleMove(const int x_boder, const int y_border)
 {
-  rect_.x += x_val_;
-  if (rect_.x > x_boder) 
+
+  if (bullet_dir_ == DIR_RIGHT)
   {
-    is_move_ = false;
+    rect_.x += x_val_;
+    if (rect_.x > x_boder) 
+    {
+      is_move_ = false;
+    }
   }
+  else
+  {
+    rect_.x -= x_val_;
+    if (rect_.x < 0) 
+    {
+      is_move_ = false;
+    }
+  }
+ 
 }
 
-void BulletObject::HandleMoveRightToLeft(const int& y_limit)
+void BulletObject::HandleMoveRightToLeft()
 {
   if (move_type_ == LINE_TYPE)
   {

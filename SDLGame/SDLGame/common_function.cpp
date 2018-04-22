@@ -22,10 +22,13 @@ int SDLCommonFunc::ShowMenu(SDL_Surface* g_screen, TTF_Font* font)
 
   SDL_FillRect(g_screen, &g_screen->clip_rect, SDL_MapRGB(g_screen->format, 0x00, 0x00, 0x00));
   SDL_Event event;
-  while(1) {
+  while(1) 
+  {
     time = SDL_GetTicks();
-    while(SDL_PollEvent(&event)) {
-      switch(event.type) {
+    while(SDL_PollEvent(&event)) 
+    {
+      switch(event.type) 
+      {
       case SDL_QUIT:
         SDL_FreeSurface(menu[0]);
         SDL_FreeSurface(menu[1]);
@@ -64,10 +67,10 @@ int SDLCommonFunc::ShowMenu(SDL_Surface* g_screen, TTF_Font* font)
         }
         break;
       case SDL_KEYDOWN:
-        if (event.key.keysym.sym = SDLK_ESCAPE) {
+        if (event.key.keysym.sym == SDLK_ESCAPE) {
           SDL_FreeSurface(menu[0]);
           SDL_FreeSurface(menu[1]);
-          return 0;
+          return 1;
         }
       }
     }
@@ -125,7 +128,7 @@ void SDLCommonFunc::ApplySurface(SDL_Surface* src, SDL_Surface* des, int x, int 
   SDL_BlitSurface(src, NULL, des, &offset);
 }
 
-void SDLCommonFunc::ApplySurface2(int x, int y, SDL_Surface* source, SDL_Surface* destination, SDL_Rect* clip) 
+void SDLCommonFunc::ApplySurfaceClip(int x, int y, SDL_Surface* source, SDL_Surface* destination, SDL_Rect* clip) 
 {
   SDL_Rect offset;
   offset.x = x;

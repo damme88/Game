@@ -7,8 +7,8 @@
 #include "BulletObject.h"
 #include <vector>
 
-#define WIDHT_THREAT 80;
-#define HEIGHT_THREAT 40;
+#define WIDHT_THREAT 44;
+#define HEIGHT_THREAT 50;
 
 class ThreatsObject : public BaseObject
 {

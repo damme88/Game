@@ -36,6 +36,6 @@ void ExplosionObject::Show(SDL_Surface* des)
     frame_ = 0;
   }
 
-  SDLCommonFunc::ApplySurface2(rect_.x, rect_.y, this->p_object_, des, &clips_[frame_]);
+  SDLCommonFunc::ApplySurfaceClip(rect_.x, rect_.y, this->p_object_, des, &clips_[frame_]);
 }
 

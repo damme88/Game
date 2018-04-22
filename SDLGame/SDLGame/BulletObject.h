@@ -14,6 +14,13 @@
 class BulletObject : public BaseObject
 {
 public:
+  
+  enum BulletDir
+  {
+    DIR_RIGHT = 20,
+    DIR_LEFT = 21,
+  };
+
   enum BulletType
   {
       NONE,
@@ -26,12 +33,12 @@ public:
     LINE_TYPE = 10,
     SIN_TYPE = 11
   };
-
+  
   BulletObject();
   ~BulletObject();
   void HandleInputAction(SDL_Event events, SDL_Rect rect_obj);
   void HandleMove(const int x_boder, const int y_border);
-  void HandleMoveRightToLeft(const int& y_limit);
+  void HandleMoveRightToLeft();
 
   void set_x_pos(int xp) {x_val_ = xp;}
   void set_y_pos(int yp) {y_val_ = yp;}
@@ -44,12 +51,14 @@ public:
   void set_type(const unsigned int& bl_type) {bullet_type_ = bl_type;}
   unsigned int get_type() const {return bullet_type_;}
   void SetWidthHeight(const int& with, const int& height) {rect_.w = with; rect_.h = height;}
+  void set_dir_bullet(const int& dir_type) {bullet_dir_ = dir_type;}
 private:
   int x_val_;
   int y_val_;
   bool is_move_;
   unsigned int bullet_type_;
   int move_type_;
+  int bullet_dir_;
 };
 
 #endif //BULLET_OBJECT_H_

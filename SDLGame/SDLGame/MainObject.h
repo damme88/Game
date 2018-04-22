@@ -6,14 +6,19 @@
 #include "BulletObject.h"
 #include <vector>
 
-#define WIDHT_MAIN_OBJECT 77
-#define HEIGHT_MAIN_OBJECT 52
 
 class MainObject : public BaseObject
 {
 public:
   MainObject();
   ~MainObject();
+
+  enum BulletDir
+  {
+    DIR_RIGHT = 20,
+    DIR_LEFT = 21,
+  };
+
   void HandleInputAction(SDL_Event events,   Mix_Chunk* bullet_sound[3]);
   void HandleMove();
 
@@ -28,10 +33,24 @@ public:
   }
   void HandleBullet(SDL_Surface* des);
   void RemoveBullet(const int& idx);
+  void set_clips();
+  void Show(SDL_Surface* des);
+  int GetVelocity() const {return velocity_;}
+  void set_is_move(const bool& is_move) {is_move_ = is_move;}
+  void ImplementJump();
 private:
+  bool is_move_;
   int x_val_;
   int y_val_;
   std::vector<BulletObject*> p_bullet_list;
+  SDL_Rect right_clip_[4];
+  SDL_Rect left_clip[4];
+  int velocity_;
+  int velocity2_;
+  bool is_jump_;
+  int frame_;
+  int status_;
+  int bullet_dir_;
 };
 
 #endif

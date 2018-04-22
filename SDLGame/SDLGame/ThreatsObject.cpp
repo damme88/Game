@@ -49,8 +49,8 @@ void ThreatsObject::Reset(const int x_boder, const int y_border)
 {
   is_stop_bullet_ = false;
   rect_.x = x_boder;
-  int ran_y = SDLCommonFunc::MakeRandomPostY();
-  rect_.y = ran_y;
+  //int ran_y = SDLCommonFunc::MakeRandomPostY();
+  rect_.y = POS_Y_TART_THREAT_OBJECT;
   for (int i = 0; i < bullet_list_.size(); i++)
   {
     BulletObject* p_bullet = bullet_list_.at(i);
@@ -100,7 +100,7 @@ void ThreatsObject::MakeBullet(SDL_Surface* des, const int& x_limit, const int& 
           {
             if (this->rect_.x < x_limit)
             {
-              p_bullet->HandleMoveRightToLeft(y_limit);
+              p_bullet->HandleMoveRightToLeft();
               p_bullet->Show(des);
             }
           }
