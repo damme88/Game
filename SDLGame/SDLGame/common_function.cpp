@@ -233,3 +233,9 @@ void SDLCommonFunc::CleanUp()
   Mix_FreeChunk(g_sound_explosion);
   Mix_FreeChunk(g_sound_ex_main);
 }
+
+void SDLCommonFunc::TestFuncion()
+{
+  int a = 5;
+  int b = 7;
+}
