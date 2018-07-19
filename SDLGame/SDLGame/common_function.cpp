@@ -239,3 +239,9 @@ void SDLCommonFunc::TestFuncion()
   int a = 5;
   int b = 7;
 }
+
+void SDLCommonFunc::TestFunc2()
+{
+	int x = 1;
+	int y = 2;
+}
