@@ -76,6 +76,7 @@ namespace SDLCommonFunc
   int MakeRandomPostY();
   int ShowMenu(SDL_Surface* g_screen, TTF_Font* font);
   void TestFuncion();
+  int TestFunctionGame();
   void TestFunc2();
 }
 

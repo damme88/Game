@@ -240,8 +240,10 @@ void SDLCommonFunc::TestFuncion()
   int b = 7;
 }
 
-void SDLCommonFunc::TestFunc2()
+int SDLCommonFunc::TestFunctionGame()
 {
-	int x = 1;
-	int y = 2;
+  int a = 5;
+  int b = 7;
+  int c = 8;
+  return 1;
 }

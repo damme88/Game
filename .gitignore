@@ -19,3 +19,9 @@
 *.exe
 *.out
 *.app
+*.sdf
+*.suo
+*.opensdf
+*debug/
+*release/
+*ipch/
