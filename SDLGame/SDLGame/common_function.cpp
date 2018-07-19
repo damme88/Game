@@ -248,6 +248,13 @@ int SDLCommonFunc::TestFunctionGame()
   return 1;
 }
 
+void SDLCommonFunc::TestFunc2()
+{
+	int x = 5;
+	int y = 9
+	int z = 2;
+}
+
 void SDLCommonFunc::TestFunction3()
 {
   float a = 0.0;

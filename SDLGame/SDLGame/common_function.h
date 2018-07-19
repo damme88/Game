@@ -77,6 +77,7 @@ namespace SDLCommonFunc
   int ShowMenu(SDL_Surface* g_screen, TTF_Font* font);
   void TestFuncion();
   int TestFunctionGame();
+  void TestFunc2();
   void TestFunction3();
 }
 
