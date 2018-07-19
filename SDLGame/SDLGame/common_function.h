@@ -75,6 +75,7 @@ namespace SDLCommonFunc
   bool CheckCollision(const SDL_Rect& object1, const SDL_Rect& other_object); 
   int MakeRandomPostY();
   int ShowMenu(SDL_Surface* g_screen, TTF_Font* font);
+  void TestFuncion();
   int TestFunctionGame();
 }
 
