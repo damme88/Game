@@ -251,7 +251,7 @@ int SDLCommonFunc::TestFunctionGame()
 void SDLCommonFunc::TestFunc2()
 {
 	int x = 5;
-	int y = 9
+	int y = 9;
 	int z = 2;
 }
 
