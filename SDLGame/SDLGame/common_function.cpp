@@ -247,3 +247,10 @@ int SDLCommonFunc::TestFunctionGame()
   int c = 8;
   return 1;
 }
+
+void SDLCommonFunc::TestFunc2()
+{
+	int x = 5;
+	int y = 9
+	int z = 2;
+}
