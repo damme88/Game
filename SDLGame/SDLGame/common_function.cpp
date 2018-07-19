@@ -236,8 +236,8 @@ void SDLCommonFunc::CleanUp()
 
 void SDLCommonFunc::TestFuncion()
 {
-  int a = 5;
-  int b = 7;
+  int a = 9;
+  int b = 10;
 }
 
 int SDLCommonFunc::TestFunctionGame()
@@ -246,4 +246,10 @@ int SDLCommonFunc::TestFunctionGame()
   int b = 7;
   int c = 8;
   return 1;
+}
+
+void SDLCommonFunc::TestFunction3()
+{
+  float a = 0.0;
+  float b= 1.0;
 }
