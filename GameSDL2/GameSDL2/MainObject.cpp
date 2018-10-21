@@ -17,6 +17,7 @@ MainObject::MainObject()
   width_frame_ = 0;
   height_frame_ = 0;
   status_ = -1;
+  money_count_ = 0;
 }
 
 MainObject::~MainObject()
@@ -37,46 +38,37 @@ SDL_Rect MainObject::GetRectFrame()
 
 void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_Chunk* bullet_sound[3]) 
 {
-
-  //If a key was pressed
   if( events.type == SDL_KEYDOWN )
   {
-    //Set the velocity
     switch( events.key.keysym.sym )
     {
     case SDLK_RIGHT: 
       {
         status_  = WALK_RIGHT;
         input_type_.right_ = 1;
-        if (on_ground_ == true)
-        {
-          LoadImg(g_name_main_right, screen);
-        }
-        else
-        {
-          LoadImg("img//jum_right.png", screen);
-        }
+        UpdateWalkJumpPlayer(screen);
         break;
       }
     case SDLK_LEFT: 
       {
         status_ = WALK_LEFT;
         input_type_.left_ = 1;
-        if (on_ground_ == true)
-        {
-          LoadImg(g_name_main_left, screen);
-        }
-        else
-        {
-          LoadImg("img//jum_left.png", screen);
-        }
+        UpdateWalkJumpPlayer(screen);
         break;
       }
+    case SDLK_DOWN:
+        {
+            input_type_.up_ = 0;
+            input_type_.down_ = 1;
+            input_type_.right_ = 0;
+            input_type_.left_ = 0;
+        }
     case SDLK_UP:
       {
-        //input_type_.up_ == 1;
-        //input_type_.right_ = 0;
-        //input_type_.left_ = 0;
+        input_type_.up_ = 1;
+        input_type_.down_ = 0;
+        input_type_.right_ = 0;
+        input_type_.left_ = 0;
       }
       break;
     }
@@ -97,8 +89,7 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
     if (events.button.button == SDL_BUTTON_LEFT) 
     {
       BulletObject* p_bullet = new BulletObject();
-      p_bullet->LoadImg("img//player_bullet.png", screen);
-      //p_bullet->set_type(BulletObject::SPHERE);
+      p_bullet->LoadImg(kImgBullet, screen);
 
 #ifdef USE_AUDIO 
       int ret = Mix_PlayChannel(-1, bullet_sound[0], 0 );
@@ -115,35 +106,21 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
       }
 
       p_bullet->set_x_val(20);
-
       p_bullet->set_is_move(true);
       p_bullet_list_.push_back(p_bullet);
     }
     else if (events.button.button == SDL_BUTTON_RIGHT)
     {
-      if (on_ground_ == true)
-      {
-        input_type_.jump_ = 1;
-        if (status_ == WALK_LEFT)
-        {
-          LoadImg("img//jum_left.png", screen);
-        }
-        else
-        {
-          LoadImg("img//jum_player.png", screen);
-        }
-      }
+      input_type_.jump_ = 1;
     }
   }
   else if (events.type == SDL_MOUSEBUTTONUP)
   {
     if (events.button.button == SDL_BUTTON_LEFT) 
     {
-      ;//
     }
-    else
+    else if (events.button.button == SDL_BUTTON_RIGHT)
     {
-      ;//
     }
   }
 }
@@ -254,19 +231,7 @@ void MainObject::set_clips()
 
 void MainObject::Show(SDL_Renderer* des)
 {
-
-  if (on_ground_ == true)
-  {
-    if (status_ == WALK_LEFT)
-    {
-        LoadImg(g_name_main_left, des);
-    }
-    else
-    {
-      LoadImg(g_name_main_right, des);
-    }
-  }
-
+  UpdateLeftRightPlayer(des);
   if((input_type_.left_ == 1 ||
     input_type_.right_ == 1  ))
   {
@@ -304,7 +269,6 @@ void MainObject::DoPlayer(Map& g_map)
   if (think_time_ == 0)
   {
     x_val_ = 0;
-
     y_val_ += GRAVITY_SPEED;
 
     if (y_val_ >= MAX_FALL_SPEED)
@@ -316,7 +280,6 @@ void MainObject::DoPlayer(Map& g_map)
     {
       x_val_ -= PLAYER_SPEED;
     }
-
     else if (input_type_.right_ == 1)
     {
       x_val_+= PLAYER_SPEED;
@@ -394,14 +357,15 @@ void MainObject::CheckToMap(Map& g_map)
   on_ground_ = 0;
 
   //Check Horizontal
+
   int height_min =   SDLCommonFunc::GetMin(height_frame_, TILE_SIZE);
 
   /*
-           x1,y1***x2
+        x1,y1******(y1,x2)
            *       *
            *       *
            *       *
-           *y2******
+        x1,y2******(x2,y2)
 
   */
   x1 = (x_pos_ + x_val_) / TILE_SIZE;
@@ -411,27 +375,51 @@ void MainObject::CheckToMap(Map& g_map)
   y2 = (y_pos_ + height_min - 1) / TILE_SIZE;
 
   // Check x1, x2 with full width of map
-  // Check y1, y2 with full heigth of map
+  // Check y1, y2 with full height of map
   if (x1 >= 0 && x2 < MAX_MAP_X && y1 >= 0 && y2 < MAX_MAP_Y)
   {
     if (x_val_ > 0) // when object is moving by right  ===>
     {
-      // Check current position of map. It is not blank_tile.
-      if ((g_map.tile[y1][x2] != BLANK_TILE) || (g_map.tile[y2][x2] != BLANK_TILE))
+      int val1 = g_map.tile[y1][x2];
+      int val2 = g_map.tile[y2][x2];
+
+      if (val1 == STATE_MONEY || val2 == STATE_MONEY)
       {
-        // Fixed post of object at current post of map.
-        // => Cannot moving when press button
-        x_pos_ = x2 * TILE_SIZE;
-        x_pos_ -= width_frame_ + 1;
-        x_val_ = 0; // cannot moving
+          g_map.tile[y1][x2] = 0;
+          g_map.tile[y2][x2] = 0;
+          IncreaseMoney();
       }
+      else
+      {
+          // Check current position of map. It is not blank_tile.
+          if ((val1 != BLANK_TILE) || (val2 != BLANK_TILE))
+          {
+              // Fixed post of object at current post of map.
+              // => Cannot moving when press button
+              x_pos_ = x2 * TILE_SIZE;
+              x_pos_ -= width_frame_ + 1;
+              x_val_ = 0; // cannot moving
+          }
+      }
+      
     }
     else if (x_val_ < 0) // When moving by left    <====
     {
-      if ((g_map.tile[y1][x1] != BLANK_TILE) || (g_map.tile[y2][x1] != BLANK_TILE))
+      int val1 = g_map.tile[y1][x1];
+      int val2 = g_map.tile[y2][x1];
+      if (val1 == 4 || val2 == 4)
       {
-        x_pos_ = (x1 + 1) * TILE_SIZE;
-        x_val_ = 0;
+          g_map.tile[y1][x1] = 0;
+          g_map.tile[y2][x1] = 0;
+          IncreaseMoney();
+      }
+      else
+      {
+          if ((g_map.tile[y1][x1] != BLANK_TILE) || (g_map.tile[y2][x1] != BLANK_TILE))
+          {
+              x_pos_ = (x1 + 1) * TILE_SIZE;
+              x_val_ = 0;
+          }
       }
     }
   }
@@ -450,23 +438,47 @@ void MainObject::CheckToMap(Map& g_map)
     if (y_val_ > 0)
     {
       //Similar for vertical
-      if ((g_map.tile[y2][x1] != BLANK_TILE) || (g_map.tile[y2][x2] != BLANK_TILE))
+      int val1 = g_map.tile[y2][x1];
+      int val2 = g_map.tile[y2][x2];
+
+      if (val1 == 4 || val2 == 4)
       {
-        y_pos_ = y2 * TILE_SIZE;
-        y_pos_ -= height_frame_;
+          g_map.tile[y2][x1] = 0;
+          g_map.tile[y2][x2] = 0;
+          IncreaseMoney();
+      }
+      else
+      {
+          if ((val1 != BLANK_TILE) || (val2 != BLANK_TILE))
+          {
+              y_pos_ = y2 * TILE_SIZE;
+              y_pos_ -= height_frame_;
 
-        y_val_ = 0;
+              y_val_ = 0;
 
-        on_ground_ = 1;
+              on_ground_ = 1;
+          }
       }
     }
     else if (y_val_ < 0)
     {
-      if ((g_map.tile[y1][x1] != BLANK_TILE) || (g_map.tile[y1][x2] != BLANK_TILE))
-      {
-        y_pos_ = (y1 + 1) * TILE_SIZE;
+      int val1 = g_map.tile[y1][x1];
+      int val2 = g_map.tile[y1][x2];
 
-        y_val_ = 0;
+      if (val1 == 4 || val2 == 4)
+      {
+          g_map.tile[y1][x2] = 0;
+          g_map.tile[y1][x2] = 0;
+          IncreaseMoney();
+      }
+      else
+      {
+          if ((val1 != BLANK_TILE) || (val2 != BLANK_TILE))
+          {
+              y_pos_ = (y1 + 1) * TILE_SIZE;
+
+              y_val_ = 0;
+          }
       }
     }
   }
@@ -489,4 +501,46 @@ void MainObject::CheckToMap(Map& g_map)
     think_time_ = 60;
     number_of_think_time_++;
   }
+}
+
+void MainObject::IncreaseMoney()
+{
+    money_count_++;
+    Mix_Chunk* beep_sound = Mix_LoadWAV(kSoundBeep);
+    if (beep_sound != NULL)
+        Mix_PlayChannel(-1, beep_sound, 0 );
+}
+
+
+void MainObject::UpdateLeftRightPlayer(SDL_Renderer* des)
+{
+    if (on_ground_ == true)
+    {
+        if (status_ == WALK_LEFT)
+        {
+            LoadImg(g_name_main_left, des);
+        }
+        else
+        {
+            LoadImg(g_name_main_right, des);
+        }
+    }
+}
+
+void MainObject::UpdateWalkJumpPlayer(SDL_Renderer* des)
+{
+    if (on_ground_ == true)
+    {
+        if (status_ == WALK_LEFT)
+            LoadImg(g_name_main_left, des);
+        else
+             LoadImg(g_name_main_right, des);
+    }
+    else
+    {
+        if (status_ == WALK_LEFT)
+            LoadImg(g_main_jump_left, des);
+        else
+            LoadImg(g_main_jump_right, des);
+    }
 }

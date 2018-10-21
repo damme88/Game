@@ -183,10 +183,11 @@ void GameMap::DrawMap(SDL_Renderer* des)
     map_x = game_map_.start_x_/TILE_SIZE;
     for (int j= x1; j < x2; j +=TILE_SIZE)
     {
-      if (game_map_.tile[map_y][map_x] != 0)
+      int type_img = game_map_.tile[map_y][map_x];
+      if (type_img != 0)
       {
-        tile_mat_[game_map_.tile[map_y][map_x]].SetRect(j, i);
-        tile_mat_[game_map_.tile[map_y][map_x]].Render(des);
+        tile_mat_[type_img].SetRect(j, i);
+        tile_mat_[type_img].Render(des);
       }
       map_x++;
     }

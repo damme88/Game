@@ -13,6 +13,15 @@
 #define PLAYER_SPEED 8
 #define PLAYER_HIGHT_VAL 18;
 
+#define STATE_MONEY 4
+
+static char g_name_main_right[] = {"img//player_right.png"};
+static char g_name_main_left[]  = {"img//player_left.png"};
+static char g_main_jump_left[]   = {"img//jum_left.png"};
+static char g_main_jump_right[] = {"img//jum_right.png"};
+
+static char kImgBullet[] = {"img//sphere2.png"};
+static char kSoundBeep[] = {"sound//beep.wav"};
 
 class MainObject : public BaseObject
 {
@@ -50,6 +59,13 @@ public:
   int get_frame_height() const {return height_frame_;}
   void set_think_time(const int& think_time) {think_time_ = think_time;}
   SDL_Rect GetRectFrame();
+  int GetMoneyCount() const {return money_count_;};
+  void SetMoneyCount(const int& money_count) {money_count_ = money_count;}
+  void IncreaseMoney();
+
+protected:
+  void UpdateLeftRightPlayer(SDL_Renderer* des);
+  void UpdateWalkJumpPlayer(SDL_Renderer* des);
 private:
 
   //Bullet list
@@ -75,6 +91,8 @@ private:
 
   int width_frame_;
   int height_frame_;
+
+  int money_count_;
 };
 
 

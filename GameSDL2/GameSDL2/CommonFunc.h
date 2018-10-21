@@ -24,7 +24,6 @@ static Mix_Chunk* g_sound_bullet[3];
 static Mix_Chunk* g_sound_explosion = NULL;
 static Mix_Chunk* g_sound_ex_main = NULL;
 
-
 static char g_name_audio_bullet_main1[] = {"sound//Fire.wav"};
 static char g_name_audio_bullet_main2[] = {"sound//Laser.wav"};
 static char g_name_audio_ex_main[]      = {"sound//Explosion+1.wav"};
@@ -70,9 +69,6 @@ typedef struct Map
   int tile[MAX_MAP_Y][MAX_MAP_X];
   char* file_name_;
 } Map;
-
-static char g_name_main_right[]               = {"img//player_right.png"};
-static char g_name_main_left[]              = {"img//player_left.png"};
 
 namespace SDLCommonFunc
 {

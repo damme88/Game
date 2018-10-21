@@ -72,13 +72,13 @@ bool InitData()
         return false;
       }
 
-      g_font = TTF_OpenFont("font//Xerox.ttf", 50);
+      g_font = TTF_OpenFont("font//dlxfont.ttf", 50);
       if (g_font == NULL)
       {
         return false;
       }
 
-      g_font_text = TTF_OpenFont("font//Xerox.ttf", 20);
+      g_font_text = TTF_OpenFont("font//dlxfont.ttf", 15);
       if (g_font_text == NULL)
       {
         return false;
@@ -202,12 +202,18 @@ int main( int argc, char* args[] )
    player_power.Init(g_screen);
 
 
+   PlayerMoney player_money;
+   player_money.Init(g_screen);
+   player_money.SetPos(SCREEN_WIDTH*0.5 - 300, 15);
+
    TextObject time_game;
-   time_game.setColor(TextObject::BLACK_TEXT);
+   time_game.setColor(TextObject::WHITE_TEXT);
 
    TextObject mark_game;
-   mark_game.setColor(TextObject::RED_TEXT);
+   mark_game.setColor(TextObject::WHITE_TEXT);
 
+   TextObject money_count;
+   money_count.setColor(TextObject::WHITE_TEXT);
 
    std::vector<ThreatsObject*> threats_list = MakeThreadList();
 
@@ -232,7 +238,7 @@ int main( int argc, char* args[] )
 
 
    unsigned int mark_value = 0;
-   int num_live = 0;
+   int num_die = 0;
    while(!quit)
    {
      fps.start();
@@ -276,6 +282,7 @@ int main( int argc, char* args[] )
 
 
        player_power.Show(g_screen);
+       player_money.Show(g_screen);
 
        for (int i = 0; i < threats_list.size(); i++)
        {
@@ -329,8 +336,8 @@ int main( int argc, char* args[] )
 #ifdef USE_AUDIO 
            Mix_PlayChannel(-1, g_sound_ex_main, 0);
 #endif
-           num_live++;
-           if (num_live <= 3)
+           num_die++;
+           if (num_die <= 3)
            {
              p_player.SetRect(0, 0);
              p_player.set_think_time(60);
@@ -402,14 +409,27 @@ int main( int argc, char* args[] )
        }
 
        //Show time for game
-       std::string str_time = "Time : ";
+       std::string str_time = "Time: ";
        Uint32 time_val = SDL_GetTicks()/1000;
-       std::string str_val = std::to_string(time_val);
-       str_time += str_val;
+       Uint32 val_time = 300 - time_val;
 
-       time_game.SetText(str_time);
-       time_game.loadFromRenderedText(g_font_text, g_screen);
-       time_game.RenderText(g_screen, SCREEN_WIDTH - 150, 10);
+       if (val_time <= 0)
+       {
+           if(MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
+           {
+               quit = true;
+               break;
+           }
+       }
+       else
+       {
+           std::string str_val = std::to_string(val_time);
+           str_time += str_val;
+
+           time_game.SetText(str_time);
+           time_game.loadFromRenderedText(g_font_text, g_screen);
+           time_game.RenderText(g_screen, SCREEN_WIDTH - 200, 20);
+       }
 
        //Show mark value to screen
        std::string val_str_mark = std::to_string(mark_value);
@@ -418,7 +438,24 @@ int main( int argc, char* args[] )
 
        mark_game.SetText(strMark);
        mark_game.loadFromRenderedText(g_font_text, g_screen);
-       mark_game.RenderText(g_screen, SCREEN_WIDTH*0.5 - 50, 10);
+       mark_game.RenderText(g_screen, SCREEN_WIDTH*0.5 - 50, 20);
+
+
+       int money_val = p_player.GetMoneyCount();
+       std::string money_count_str = std::to_string(money_val);
+       money_count.SetText(money_count_str);
+       money_count.loadFromRenderedText(g_font_text, g_screen);
+       money_count.RenderText(g_screen, SCREEN_WIDTH*0.5 - 250, 20);
+
+
+       if (p_player.GetMoneyCount() >= 100)
+       {
+           int reVal = p_player.GetMoneyCount() - 10;
+           p_player.SetMoneyCount(reVal);
+
+           player_power.InCrease();
+           player_power.Render(g_screen);
+       }
 
        //Update screen
        SDL_RenderPresent(g_screen);
