@@ -19,6 +19,7 @@ BaseObject::~BaseObject()
 bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen)
 {
   //The final texture
+  Free();
   SDL_Texture* newTexture = NULL;
 
   //Load image at specified path
@@ -41,7 +42,6 @@ bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen)
     SDL_FreeSurface( loadedSurface );
   }
 
-  //Return success
   p_object_ = newTexture;
   return p_object_ != NULL;
 }

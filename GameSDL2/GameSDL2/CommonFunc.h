@@ -13,7 +13,8 @@
 #include "TextObject.h"
 #include "BaseObject.h"
 
-#define USE_AUDIO
+//#define USE_AUDIO
+
 
 static  SDL_Window* g_window = NULL;
 static SDL_Renderer* g_screen = NULL;
@@ -44,12 +45,34 @@ const int RENDER_DRAW_COLOR = 0XFF;
 #define MAX_MAP_X 400
 #define MAX_MAP_Y 10
 
+#define STATE_MONEY 19
+#define  STATE_MONEY2 24
+
 //Screen
 const int FRAMES_PER_SECOND = 25;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
 const int SPEED_SCREEN = 2;
+
+typedef struct GeometricFormat
+{
+public:
+    GeometricFormat(int left, int top, int width, int height) {left_ = left; top_ = top; width_ = width; height_ = height;}
+    int left_;
+    int top_;
+    int width_;
+    int height_;
+};
+
+typedef struct ColorData
+{
+public:
+    ColorData(Uint8 r, Uint8 g, Uint8 b) {red_ = r, green_ = g, blue_ = b;}
+    Uint8 red_;
+    Uint8 green_;
+    Uint8 blue_;
+};
 
 typedef struct Input
 {

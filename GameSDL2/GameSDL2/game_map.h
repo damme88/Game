@@ -23,9 +23,6 @@ public:
   void LoadMap(char* name);
   void DrawMap(SDL_Renderer* des);
   void LoadMapTiles(SDL_Renderer* screen);
-  void DoMap();
-  void SetInput(const Input& input_type) {input_type_ = input_type;};
-  void HandleInputAction(SDL_Event& events);
   Map GetMap() const {return game_map_;}
   void SetMap(const Map& gMap) {game_map_ = gMap;}
 private:

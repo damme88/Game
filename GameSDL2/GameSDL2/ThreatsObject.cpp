@@ -21,6 +21,7 @@ ThreatsObject::ThreatsObject()
 
   frame_ = 0;
   type_move_ = STATIC_TH;
+  input_type_.left_ = 1;
 }
 
 ThreatsObject::~ThreatsObject()
@@ -158,8 +159,19 @@ void ThreatsObject::InitPlayer()
   //y_pos_ = SCREEN_HEIGHT*0.5;
   x_val_ = 0;
   y_val_ = 0;
+
+  if (x_pos_ > 256)
+  {
+      x_pos_ -= 256;
+      animation_a_ -= 256;
+      animation_b_ -= 256;
+  }
+  else
+      x_pos_ = 0;
+  y_pos_ = 0;
   think_time_ = 0;
   input_type_.left_ = 1;
+
 }
 
 bool ThreatsObject::LoadImg(std::string path, SDL_Renderer* screen)
@@ -252,7 +264,12 @@ void ThreatsObject::ImpMoveType(SDL_Renderer* screen)
         input_type_.right_ = 1;
         input_type_.left_ = 0;
         LoadImg("img//thread1_right.png", screen);
-      }
+      } 
+    }
+    else
+    {
+        if (input_type_.left_ == 1)
+            LoadImg("img//thread1_left.png", screen);
     }
   }
 }
@@ -365,7 +382,7 @@ void ThreatsObject::CheckToMap(Map& g_map)
     if (x_val_ > 0) // when object is moving by right  ===>
     {
       // Check current position of map. It is not blank_tile.
-      if ((g_map.tile[y1][x2] != BLANK_TILE) || (g_map.tile[y2][x2] != BLANK_TILE))
+      if ((g_map.tile[y1][x2] != BLANK_TILE && g_map.tile[y1][x2] != STATE_MONEY) || (g_map.tile[y2][x2] != BLANK_TILE && g_map.tile[y2][x2] != STATE_MONEY))
       {
         // Fixed post of object at current post of map.
         // => Cannot moving when press button
@@ -376,7 +393,7 @@ void ThreatsObject::CheckToMap(Map& g_map)
     }
     else if (x_val_ < 0) // When moving by left    <====
     {
-      if ((g_map.tile[y1][x1] != BLANK_TILE) || (g_map.tile[y2][x1] != BLANK_TILE))
+      if ((g_map.tile[y1][x1] != BLANK_TILE && g_map.tile[y1][x1] != STATE_MONEY) || (g_map.tile[y2][x1] != BLANK_TILE && g_map.tile[y2][x1] != STATE_MONEY))
       {
         x_pos_ = (x1 + 1) * TILE_SIZE;
         x_val_ = 0;
@@ -391,7 +408,7 @@ void ThreatsObject::CheckToMap(Map& g_map)
   x1 = (x_pos_) / TILE_SIZE;
   x2 = (x_pos_ + width_min) / TILE_SIZE;
 
-  y1 = (y_pos_ + x_val_) / TILE_SIZE;
+  y1 = (y_pos_ + y_val_) / TILE_SIZE;
   y2 = (y_pos_ + y_val_ + height_frame_) / TILE_SIZE;
 
   if (x1 >= 0 && x2 < MAX_MAP_X && y1 >= 0 && y2 < MAX_MAP_Y)
@@ -399,7 +416,7 @@ void ThreatsObject::CheckToMap(Map& g_map)
     if (y_val_ > 0)
     {
       //Similar for vertical
-      if ((g_map.tile[y2][x1] != BLANK_TILE) || (g_map.tile[y2][x2] != BLANK_TILE))
+      if ((g_map.tile[y2][x1] != BLANK_TILE && g_map.tile[y2][x1] != STATE_MONEY) || (g_map.tile[y2][x2] != BLANK_TILE && g_map.tile[y2][x2] != STATE_MONEY))
       {
         y_pos_ = y2 * TILE_SIZE;
         y_pos_ -= height_frame_;
@@ -411,7 +428,7 @@ void ThreatsObject::CheckToMap(Map& g_map)
     }
     else if (y_val_ < 0)
     {
-      if ((g_map.tile[y1][x1] != BLANK_TILE) || (g_map.tile[y1][x2] != BLANK_TILE))
+      if ((g_map.tile[y1][x1] != BLANK_TILE && g_map.tile[y1][x1] != STATE_MONEY ) || (g_map.tile[y1][x2] != BLANK_TILE && g_map.tile[y1][x2] != STATE_MONEY))
       {
         y_pos_ = (y1 + 1) * TILE_SIZE;
 
@@ -445,30 +462,20 @@ void ThreatsObject::Show(SDL_Renderer* des)
   {
       rect_.x = x_pos_ - map_x_;
       rect_.y = y_pos_- map_y_;
+      frame_++;
+      if( frame_ >= 8 )
+      {
+        frame_ = 0;
+      }
 
-      //for (int i = 0; i < NUM_FRAME; i++)
-      //{
-        frame_++;
-      //}
-  //else
-  //{
-  //  frame_ = 0;
-  //}
+      SDL_Rect* currentClip = &frame_clip_[frame_];
+      SDL_Rect renderQuad = {rect_.x, rect_.y, width_frame_, height_frame_};
+      if (currentClip != NULL)
+      {
+         renderQuad.w = currentClip->w;
+         renderQuad.h = currentClip->h;
+      }
 
-  if( frame_ >= 8 )
-  {
-    frame_ = 0;
-  }
-        //frame_ = i;
-        SDL_Rect* currentClip = &frame_clip_[frame_];
-        SDL_Rect renderQuad = {rect_.x, rect_.y, width_frame_, height_frame_};
-        if (currentClip != NULL)
-        {
-          renderQuad.w = currentClip->w;
-          renderQuad.h = currentClip->h;
-        }
-
-        SDL_RenderCopy(des, p_object_, currentClip, &renderQuad );
-      //}
+      SDL_RenderCopy(des, p_object_, currentClip, &renderQuad );
   }
 }

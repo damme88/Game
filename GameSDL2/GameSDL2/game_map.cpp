@@ -11,48 +11,6 @@ GameMap::~GameMap()
 
 }
 
-void GameMap::HandleInputAction(SDL_Event& events) 
-{
-  if (events.type == SDL_KEYDOWN)
-  {
-    if (events.key.keysym.sym  == SDLK_UP)
-    {
-      input_type_.up_ = 1;
-    }
-    else if (events.key.keysym.sym == SDLK_DOWN)
-    {
-      input_type_.down_ = 1;
-    }
-    else if (events.key.keysym.sym == SDLK_LEFT)
-    {
-      ;//input_type_.left_ = 1;
-    }
-    else if (events.key.keysym.sym == SDLK_RIGHT)
-    {
-      input_type_.right_ = 1;
-    }
-  }
-  else if (events.type == SDL_KEYUP)
-  {
-    if (events.key.keysym.sym  == SDLK_UP)
-    {
-      ;//input_type_.up_ = 0;
-    }
-    else if (events.key.keysym.sym == SDLK_DOWN)
-    {
-      input_type_.down_ = 0;
-    }
-    else if (events.key.keysym.sym == SDLK_LEFT)
-    {
-      input_type_.left_ = 0;
-    }
-    else if (events.key.keysym.sym == SDLK_RIGHT)
-    {
-      input_type_.right_ = 0;
-    }
-  }
-}
-
 void GameMap::LoadMap(char* name)
 {
   FILE* fp = NULL;
@@ -62,7 +20,7 @@ void GameMap::LoadMap(char* name)
     return;
   }
 
-  game_map_.max_x_ = game_map_.max_y_ = 0;
+  game_map_.max_x_ = game_map_.max_y_ = 0; // count cell of map
   for (int i = 0; i < MAX_MAP_Y; i++)
   {
     for (int j = 0; j < MAX_MAP_X; j++)
@@ -83,7 +41,7 @@ void GameMap::LoadMap(char* name)
     }
   }
 
-  game_map_.max_x_ = (game_map_.max_x_ + 1)*TILE_SIZE;
+  game_map_.max_x_ = (game_map_.max_x_ + 1)*TILE_SIZE; // 400 x 64 =>
   game_map_.max_y_ = (game_map_.max_y_ + 1)*TILE_SIZE;
 
   game_map_.start_x_ = game_map_.start_y_ = 0;
@@ -116,48 +74,6 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
 }
 
 
-void GameMap::DoMap()
-{
-  if (input_type_.left_ == 1)
-  {
-    game_map_.start_x_ -= SCROLL_SPEED;
-
-    if (game_map_.start_x_< 0)
-    {
-      game_map_.start_x_ = 0;
-    }
-  }
-
-  else if (input_type_.right_ == 1)
-  {
-    game_map_.start_x_ += SCROLL_SPEED;
-
-    if (game_map_.start_x_ + SCREEN_WIDTH >= game_map_.max_x_)
-    {
-      game_map_.start_x_= game_map_.max_x_ - SCREEN_WIDTH;
-    }
-  }
-
-  if (input_type_.up_ == 1)
-  {
-    game_map_.start_y_ -= SCROLL_SPEED;
-
-    if (game_map_.start_y_ < 0)
-    {
-      game_map_.start_y_ = 0;
-    }
-  }
-
-  else if (input_type_.down_ == 1)
-  {
-    game_map_.start_y_ += SCROLL_SPEED;
-
-    if (game_map_.start_y_ + SCREEN_HEIGHT >= game_map_.max_y_)
-    {
-      game_map_.start_y_ = game_map_.max_y_ - SCREEN_HEIGHT;
-    }
-  }
-}
 
 void GameMap::DrawMap(SDL_Renderer* des)
 {
@@ -176,7 +92,6 @@ void GameMap::DrawMap(SDL_Renderer* des)
   map_y = game_map_.start_y_/TILE_SIZE;
   y1 = (game_map_.start_y_%TILE_SIZE)*-1;
   y2 = y1 + SCREEN_HEIGHT + (y1 == 0 ? 0 :TILE_SIZE);
-
 
   for (int i = y1; i < y2; i += TILE_SIZE)
   {

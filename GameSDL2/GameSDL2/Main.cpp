@@ -7,7 +7,8 @@
 #include "ThreatsObject.h"
 #include "ExplosionObject.h"
 #include "PlayerPower.h"
-
+#include "Geometric.h"
+#include "BossObject.h"
 
 TTF_Font* g_font = NULL;
 TTF_Font* g_font_text = NULL;
@@ -34,7 +35,7 @@ bool InitData()
   //Create window
   g_window = SDL_CreateWindow("SDL 2.0 Game Demo - Phat Trien Phan Mem 123AZ",
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                             SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+                             SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
   if(g_window == NULL )
   {
       success = false;
@@ -189,7 +190,7 @@ int main( int argc, char* args[] )
    }
 
   GameMap game_map;
-  game_map.LoadMap("map//map01.dat");
+  game_map.LoadMap("map//map.dat");
   game_map.LoadMapTiles(g_screen);
 
 
@@ -204,7 +205,7 @@ int main( int argc, char* args[] )
 
    PlayerMoney player_money;
    player_money.Init(g_screen);
-   player_money.SetPos(SCREEN_WIDTH*0.5 - 300, 15);
+   player_money.SetPos(SCREEN_WIDTH*0.5 - 300, 8);
 
    TextObject time_game;
    time_game.setColor(TextObject::WHITE_TEXT);
@@ -215,8 +216,16 @@ int main( int argc, char* args[] )
    TextObject money_count;
    money_count.setColor(TextObject::WHITE_TEXT);
 
-   std::vector<ThreatsObject*> threats_list = MakeThreadList();
+   std::vector<ThreatsObject*> threats_list;// = MakeThreadList();
 
+   //Init Boss Object
+   BossObject bossObject;
+   bossObject.LoadImg("img//boss_object.png", g_screen);
+
+   int xPosBoss = MAX_MAP_X*TILE_SIZE - SCREEN_WIDTH*0.6;
+   bossObject.set_xpos(xPosBoss);
+   bossObject.set_ypos(10);
+   bossObject.set_clips();
 
    ExplosionObject exp_threats;
    ExplosionObject exp_main;
@@ -250,11 +259,11 @@ int main( int argc, char* args[] )
            quit = true;
          }
 
-         game_map.HandleInputAction(g_event);
          p_player.HandleInputAction(g_event, g_screen, g_sound_bullet);
+         //dot.handleEvent(g_event );
       }
 
-#if 1
+#ifdef USE_AUDIO
       if( Mix_PlayingMusic() == 0 )
       {
         //Play the music
@@ -279,6 +288,22 @@ int main( int argc, char* args[] )
 
        game_map.SetMap(ga_map);
        game_map.DrawMap(g_screen);
+
+
+
+       //Move the dot
+       //dot.move();
+       //Render objects
+       //dot.render(g_screen);
+
+       //Draw Geometric
+       GeometricFormat rectange_size(0, 0, SCREEN_WIDTH, 40);
+       ColorData color_data(36, 36, 36);
+       Gemometric::RenderRectange(rectange_size, color_data, g_screen);
+
+       GeometricFormat outlie_size(1, 1, SCREEN_WIDTH-1, 38);
+       ColorData color_data1(255, 255, 255);
+       Gemometric::RenderOutline(outlie_size, color_data1, g_screen);
 
 
        player_power.Show(g_screen);
@@ -330,7 +355,6 @@ int main( int argc, char* args[] )
              exp_main.set_frame(ex);
              exp_main.SetRect(x_pos, y_pos);
              exp_main.Show(g_screen);
-
              SDL_RenderPresent(g_screen);
            }
 #ifdef USE_AUDIO 
@@ -408,6 +432,7 @@ int main( int argc, char* args[] )
          }
        }
 
+
        //Show time for game
        std::string str_time = "Time: ";
        Uint32 time_val = SDL_GetTicks()/1000;
@@ -428,7 +453,7 @@ int main( int argc, char* args[] )
 
            time_game.SetText(str_time);
            time_game.loadFromRenderedText(g_font_text, g_screen);
-           time_game.RenderText(g_screen, SCREEN_WIDTH - 200, 20);
+           time_game.RenderText(g_screen, SCREEN_WIDTH - 200, 15);
        }
 
        //Show mark value to screen
@@ -438,14 +463,13 @@ int main( int argc, char* args[] )
 
        mark_game.SetText(strMark);
        mark_game.loadFromRenderedText(g_font_text, g_screen);
-       mark_game.RenderText(g_screen, SCREEN_WIDTH*0.5 - 50, 20);
-
+       mark_game.RenderText(g_screen, SCREEN_WIDTH*0.5 - 50, 15);
 
        int money_val = p_player.GetMoneyCount();
        std::string money_count_str = std::to_string(money_val);
        money_count.SetText(money_count_str);
        money_count.loadFromRenderedText(g_font_text, g_screen);
-       money_count.RenderText(g_screen, SCREEN_WIDTH*0.5 - 250, 20);
+       money_count.RenderText(g_screen, SCREEN_WIDTH*0.5 - 250, 15);
 
 
        if (p_player.GetMoneyCount() >= 100)
@@ -456,6 +480,17 @@ int main( int argc, char* args[] )
            player_power.InCrease();
            player_power.Render(g_screen);
        }
+
+
+       //Process Boss
+       int val = MAX_MAP_X*TILE_SIZE - (ga_map.start_x_ + p_player.GetRect().x);
+       if (val <= SCREEN_WIDTH)
+       {
+           bossObject.SetMapXY(ga_map.start_x_, ga_map.start_y_);
+           bossObject.DoPlayer(ga_map);
+           bossObject.Show(g_screen);
+       }
+       
 
        //Update screen
        SDL_RenderPresent(g_screen);

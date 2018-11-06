@@ -13,7 +13,7 @@
 #define PLAYER_SPEED 8
 #define PLAYER_HIGHT_VAL 18;
 
-#define STATE_MONEY 4
+
 
 static char g_name_main_right[] = {"img//player_right.png"};
 static char g_name_main_left[]  = {"img//player_left.png"};
@@ -31,8 +31,9 @@ public:
 
   enum WalkType
   {
-    WALK_RIGHT = 0,
-    WALK_LEFT = 1,
+     WALK_NONE = 0,
+     WALK_RIGHT = 1,
+     WALK_LEFT = 2,
   };
 
   void set_clips();
@@ -62,10 +63,11 @@ public:
   int GetMoneyCount() const {return money_count_;};
   void SetMoneyCount(const int& money_count) {money_count_ = money_count;}
   void IncreaseMoney();
+  int get_x_post() const {return x_pos_;}
+  int get_y_pos() const {return y_pos_;}
 
 protected:
-  void UpdateLeftRightPlayer(SDL_Renderer* des);
-  void UpdateWalkJumpPlayer(SDL_Renderer* des);
+  void UpdateImagePlayer(SDL_Renderer* des);
 private:
 
   //Bullet list
@@ -78,9 +80,9 @@ private:
   SDL_Rect frame_clip_[8];
   Input input_type_;
 
-  int on_ground_;
+  bool on_ground_;
   int think_time_;
-  int number_of_think_time_;
+  bool is_falling_;
   int map_x_;
   int map_y_;
 

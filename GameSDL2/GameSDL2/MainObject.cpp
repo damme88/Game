@@ -1,8 +1,6 @@
 
 #include "MainObject.h"
 
-//const int PLAYER_WIDTH = 60;
-//const int PLAYER_HEIGHT = 64;
 
 #define  NUM_FRAME 8
 
@@ -16,8 +14,15 @@ MainObject::MainObject()
   think_time_ = 0;
   width_frame_ = 0;
   height_frame_ = 0;
-  status_ = -1;
+  status_ = WALK_NONE;
   money_count_ = 0;
+  on_ground_ = false;
+  is_falling_ = false;
+  input_type_.left_ = 0;
+  input_type_.right_ = 0;
+  input_type_.up_ = 0;
+  input_type_.down_ = 0;
+  input_type_.jump_ = 0;
 }
 
 MainObject::~MainObject()
@@ -46,29 +51,29 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
       {
         status_  = WALK_RIGHT;
         input_type_.right_ = 1;
-        UpdateWalkJumpPlayer(screen);
+        input_type_.left_ = 0;
+        UpdateImagePlayer(screen);
         break;
       }
     case SDLK_LEFT: 
       {
         status_ = WALK_LEFT;
         input_type_.left_ = 1;
-        UpdateWalkJumpPlayer(screen);
+        input_type_.right_ = 0;
+         UpdateImagePlayer(screen);
         break;
       }
     case SDLK_DOWN:
         {
             input_type_.up_ = 0;
             input_type_.down_ = 1;
-            input_type_.right_ = 0;
-            input_type_.left_ = 0;
         }
+        break;
     case SDLK_UP:
       {
         input_type_.up_ = 1;
         input_type_.down_ = 0;
-        input_type_.right_ = 0;
-        input_type_.left_ = 0;
+        UpdateImagePlayer(screen);
       }
       break;
     }
@@ -79,9 +84,24 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
     //Set the velocity
     switch( events.key.keysym.sym )
     {
-    case SDLK_RIGHT: input_type_.right_ = 0; break;
-    case SDLK_LEFT: input_type_.left_ = 0; break;
-      break;
+    case SDLK_RIGHT: 
+        input_type_.right_ = 0;
+        break;
+    case SDLK_LEFT: 
+        input_type_.left_ = 0; 
+        break;
+    case SDLK_UP:
+        {
+            input_type_.up_ = 0;
+             UpdateImagePlayer(screen);
+             y_pos_ += height_frame_;
+        }
+        break;
+     case SDLK_DOWN:
+         {
+              input_type_.down_ = 0;
+         }
+        break;
     }
   }
   else if (events.type == SDL_MOUSEBUTTONDOWN) 
@@ -96,16 +116,51 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
 #endif
       if (status_ == WALK_LEFT)
       {
-        p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
-        p_bullet->SetRect(this->rect_.x, this->rect_.y + height_frame_*0.22);
+        if (input_type_.up_ == 1)
+        {
+            if (input_type_.left_ == 0)
+            {
+                p_bullet->set_dir_bullet(BulletObject::DIR_UP);
+                p_bullet->SetRect(this->rect_.x + width_frame_*0.35, this->rect_.y + 15);
+            }
+            else
+            {
+                p_bullet->set_dir_bullet(BulletObject::DIR_UP_LEFT);
+                p_bullet->SetRect(this->rect_.x, this->rect_.y + 5);
+            }
+            
+        }
+        else
+        {
+            p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
+            p_bullet->SetRect(this->rect_.x, this->rect_.y + height_frame_*0.22);
+        }
       }
       else
       {
-        p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
-        p_bullet->SetRect(this->rect_.x + width_frame_ - 20, this->rect_.y + height_frame_*0.22);
+          if (input_type_.up_ == 1)
+          {
+              if (input_type_.right_ == 1)
+              {
+                  p_bullet->set_dir_bullet(BulletObject::DIR_UP_RIGHT);
+                  p_bullet->SetRect(this->rect_.x + width_frame_, this->rect_.y + 5);
+              }
+              else
+              {
+                  p_bullet->set_dir_bullet(BulletObject::DIR_UP);
+                  p_bullet->SetRect(this->rect_.x + width_frame_*0.45, this->rect_.y + 15);
+              }
+              
+          }
+          else
+          {
+              p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
+              p_bullet->SetRect(this->rect_.x + width_frame_ - 20, this->rect_.y + height_frame_*0.22);
+          }
       }
 
       p_bullet->set_x_val(20);
+      p_bullet->set_y_val(20);
       p_bullet->set_is_move(true);
       p_bullet_list_.push_back(p_bullet);
     }
@@ -118,9 +173,11 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
   {
     if (events.button.button == SDL_BUTTON_LEFT) 
     {
+
     }
     else if (events.button.button == SDL_BUTTON_RIGHT)
     {
+        input_type_.jump_ = 0;
     }
   }
 }
@@ -230,8 +287,10 @@ void MainObject::set_clips()
 }
 
 void MainObject::Show(SDL_Renderer* des)
-{
-  UpdateLeftRightPlayer(des);
+{ 
+
+  UpdateImagePlayer(des);
+
   if((input_type_.left_ == 1 ||
     input_type_.right_ == 1  ))
   {
@@ -269,6 +328,7 @@ void MainObject::DoPlayer(Map& g_map)
   if (think_time_ == 0)
   {
     x_val_ = 0;
+
     y_val_ += GRAVITY_SPEED;
 
     if (y_val_ >= MAX_FALL_SPEED)
@@ -278,21 +338,22 @@ void MainObject::DoPlayer(Map& g_map)
 
     if (input_type_.left_ == 1)
     {
-      x_val_ -= PLAYER_SPEED;
+      x_val_ = -PLAYER_SPEED;
     }
     else if (input_type_.right_ == 1)
     {
-      x_val_+= PLAYER_SPEED;
+      x_val_= PLAYER_SPEED;
     }
 
     if (input_type_.jump_ == 1)
     {
-      if (on_ground_ == 1)
+      if (on_ground_ == true)
       {
         y_val_ = -PLAYER_HIGHT_VAL;
       }
 
       input_type_.jump_ = 0;
+      on_ground_ = false;
     }
 
     CheckToMap(g_map);
@@ -306,16 +367,16 @@ void MainObject::DoPlayer(Map& g_map)
 
     if (think_time_ == 0)
     {
-      if (x_pos_ > 256)
-      {
-        x_pos_ -= 256;
-        map_x_ -=256;
-      }
-      else
-        x_pos_ = 0;
+        if (x_pos_ > 256)
+        {
+            x_pos_ -= 256;
+        }
+        else
+            x_pos_ = 0;
       y_pos_ = 0;
       x_val_ = 0;
       y_val_ = 0;
+      on_ground_ = false;
     }
   }
 }
@@ -354,11 +415,17 @@ void MainObject::CheckToMap(Map& g_map)
   int y1 = 0;
   int y2 = 0;
 
-  on_ground_ = 0;
+  //on_ground_ = false;
 
   //Check Horizontal
 
-  int height_min =   SDLCommonFunc::GetMin(height_frame_, TILE_SIZE);
+  int height_min = 0;
+  if (input_type_.up_ == 1)
+      height_min = height_frame_;
+  else
+  {
+      height_min = SDLCommonFunc::GetMin(height_frame_, TILE_SIZE);
+  }
 
   /*
         x1,y1******(y1,x2)
@@ -383,7 +450,7 @@ void MainObject::CheckToMap(Map& g_map)
       int val1 = g_map.tile[y1][x2];
       int val2 = g_map.tile[y2][x2];
 
-      if (val1 == STATE_MONEY || val2 == STATE_MONEY)
+      if (val1 == STATE_MONEY || val2 == STATE_MONEY || val1 == STATE_MONEY2 || val2 == STATE_MONEY2)
       {
           g_map.tile[y1][x2] = 0;
           g_map.tile[y2][x2] = 0;
@@ -407,7 +474,7 @@ void MainObject::CheckToMap(Map& g_map)
     {
       int val1 = g_map.tile[y1][x1];
       int val2 = g_map.tile[y2][x1];
-      if (val1 == 4 || val2 == 4)
+      if (val1 == STATE_MONEY || val2 == STATE_MONEY || val1 == STATE_MONEY2 || val2 == STATE_MONEY2)
       {
           g_map.tile[y1][x1] = 0;
           g_map.tile[y2][x1] = 0;
@@ -430,7 +497,7 @@ void MainObject::CheckToMap(Map& g_map)
   x1 = (x_pos_) / TILE_SIZE;
   x2 = (x_pos_ + width_min) / TILE_SIZE;
 
-  y1 = (y_pos_ + x_val_) / TILE_SIZE;
+  y1 = (y_pos_ + y_val_) / TILE_SIZE;
   y2 = (y_pos_ + y_val_ + height_frame_) / TILE_SIZE;
 
   if (x1 >= 0 && x2 < MAX_MAP_X && y1 >= 0 && y2 < MAX_MAP_Y)
@@ -441,7 +508,7 @@ void MainObject::CheckToMap(Map& g_map)
       int val1 = g_map.tile[y2][x1];
       int val2 = g_map.tile[y2][x2];
 
-      if (val1 == 4 || val2 == 4)
+      if (val1 == STATE_MONEY || val2 == STATE_MONEY || val1 == STATE_MONEY2 || val2 == STATE_MONEY2)
       {
           g_map.tile[y2][x1] = 0;
           g_map.tile[y2][x2] = 0;
@@ -456,7 +523,12 @@ void MainObject::CheckToMap(Map& g_map)
 
               y_val_ = 0;
 
-              on_ground_ = 1;
+              on_ground_ = true;
+              if (status_ == WALK_NONE)
+              {
+                  //input_type_.right_ = 1;
+                  status_ = WALK_RIGHT;
+              }
           }
       }
     }
@@ -465,7 +537,7 @@ void MainObject::CheckToMap(Map& g_map)
       int val1 = g_map.tile[y1][x1];
       int val2 = g_map.tile[y1][x2];
 
-      if (val1 == 4 || val2 == 4)
+      if (val1 == STATE_MONEY || val2 == STATE_MONEY || val1 == STATE_MONEY2 || val2 == STATE_MONEY2)
       {
           g_map.tile[y1][x2] = 0;
           g_map.tile[y1][x2] = 0;
@@ -484,6 +556,7 @@ void MainObject::CheckToMap(Map& g_map)
   }
 
   //If there is not collision with map tile. 
+
   x_pos_ += x_val_;
   y_pos_ += y_val_;
 
@@ -499,7 +572,7 @@ void MainObject::CheckToMap(Map& g_map)
   if (y_pos_ > g_map.max_y_)
   {
     think_time_ = 60;
-    number_of_think_time_++;
+    is_falling_ = true;
   }
 }
 
@@ -512,35 +585,96 @@ void MainObject::IncreaseMoney()
 }
 
 
-void MainObject::UpdateLeftRightPlayer(SDL_Renderer* des)
+void MainObject::UpdateImagePlayer(SDL_Renderer* des)
 {
-    if (on_ground_ == true)
+    if (on_ground_ == true)  // jump = 0;
     {
-        if (status_ == WALK_LEFT)
+        if (status_ == WALK_LEFT )
         {
-            LoadImg(g_name_main_left, des);
-        }
-        else
-        {
-            LoadImg(g_name_main_right, des);
-        }
-    }
-}
+            if (input_type_.up_ == 0)
+            {
+                LoadImg(g_name_main_left, des);
+            }
+            else if (input_type_.up_ == 1)
+            {
+                LoadImg("img//player_up_left.png", des);
+            }
 
-void MainObject::UpdateWalkJumpPlayer(SDL_Renderer* des)
-{
-    if (on_ground_ == true)
+            if (input_type_.left_ == 1 && input_type_.up_ == 1)
+            {
+                LoadImg("img//player_cheo_left.png", des);
+            }
+        }
+        else
+        {
+            if (input_type_.up_ == 0)
+            {
+                LoadImg(g_name_main_right, des);
+            }
+            else if (input_type_.up_ == 1)
+            {
+                LoadImg("img//player_up_right.png", des);
+            }
+
+            if (input_type_.right_ == 1 && input_type_.up_ == 1)
+            {
+                LoadImg("img//player_cheo_right.png", des);
+            }
+        }
+    }
+    else // Jump always is  1
     {
         if (status_ == WALK_LEFT)
-            LoadImg(g_name_main_left, des);
+        {
+            if (input_type_.left_ == 1)
+            {
+                if (input_type_.up_ == 1)
+                {
+                    LoadImg("img//player_cheo_left.png", des);
+                }
+                else
+                {
+                    LoadImg(g_main_jump_left, des);
+                }
+            }
+            else
+            {
+                if (input_type_.up_ == 0)
+                {
+                    LoadImg(g_main_jump_left, des);
+                }
+                if (input_type_.up_ == 1)
+                {
+                    LoadImg("img//player_up_left.png", des);
+                }
+            }
+        }
         else
-             LoadImg(g_name_main_right, des);
+        {
+            if (input_type_.right_ == 1)
+            {
+                if (input_type_.up_ == 1)
+                {
+                    LoadImg("img//player_cheo_right.png", des);
+                }
+                else
+                {
+                    LoadImg(g_main_jump_right, des);
+                }
+            }
+            else
+            {
+                if (input_type_.up_ == 0)
+                {
+                    LoadImg(g_main_jump_right, des);
+                }
+                if (input_type_.up_ == 1)
+                {
+                    LoadImg("img//player_up_right.png", des);
+                }
+            }
+        }
     }
-    else
-    {
-        if (status_ == WALK_LEFT)
-            LoadImg(g_main_jump_left, des);
-        else
-            LoadImg(g_main_jump_right, des);
-    }
+
+    set_clips();
 }

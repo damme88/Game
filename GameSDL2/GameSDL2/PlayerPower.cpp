@@ -21,7 +21,7 @@ void PlayerPower::Show(SDL_Renderer* screen)
   for (int i = 0; i < position_list_.size(); i++)
   {
     rect_.x = position_list_.at(i);
-    rect_.y = 10;
+    rect_.y = 0;
     Render(screen);
   }
 }
