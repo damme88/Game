@@ -70,3 +70,8 @@ void function4()
 {
 	int a1, a2, b1, b2;
 }
+
+void function5()
+{
+   int a, b, c, d
+}
