@@ -275,16 +275,6 @@ int main(int arc, char* argv[]) {
 	}
   gLog.WriteLog("Load amo image success");
 
-
-	gfont = TTF_OpenFont("Xerox Sans Serif Wide Bold.ttf", 40);
-	gFontTime = TTF_OpenFont("Xerox Sans Serif Wide Bold.ttf", 20);
-	if (gfont == NULL || gFontTime == NULL)
-	{
-	  gLog.WriteLog("Load font failed");
-		return FAILED;
-	}
-
-
 	gLog.WriteLog("Load font image success");
 
 	int ret = ShowMenu(gScreen, gfont);
