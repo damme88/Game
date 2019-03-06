@@ -96,6 +96,13 @@ void ObjectGame::ShowObject(SDL_Surface* src, SDL_Surface* des) {
   SDL_BlitSurface(src, NULL, des, &bounding_);
 }
 
+void ObjectGame::HasGameObject()
+{
+	int a = 5;
+	int a1 = 7;
+	int b = 9;
+	int d = 10;
+}
 void ObjectGame::FindMax()
 {
 	int a = 5;
