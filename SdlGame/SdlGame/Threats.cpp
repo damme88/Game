@@ -78,6 +78,11 @@ bool Threats::CheckCollision(SDL_Rect other_object) {
   return true;
 }
 
+void function1()
+{
+   int a = 5;
+   int b = 8;
+}
 void Threats::ShowThreats(SDL_Surface* src, SDL_Surface* des) {
 	SDL_BlitSurface(src, NULL, des, &bounding_);
 }
