@@ -205,18 +205,7 @@ void ApplySurface(int x, int y, SDL_Surface* src, SDL_Surface* dest) {
 }
 
 int main(int arc, char* argv[]) {
-	Uint32 start = 0;
-	Uint32 sub_time = 0;
-	bool is_running = true;
-	int mark = 0;
-	int bkgn_x = 0;
-	int bkgn_y = 0;
-	bool is_quit = false;
-	ObjectGame object;
-	Threats* Threats1 = new Threats(650, 280);
-	Threats* Threats2 = new Threats(950, 100);
-	Amo *amo = new Amo(object.GetBounding().x + 45, object.GetBounding().y);
-	Timer times;
+	
 
 	if (!InitSdl())
 	{
