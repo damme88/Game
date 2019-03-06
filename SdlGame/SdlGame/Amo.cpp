@@ -51,3 +51,13 @@ void Amo::HandleAction(SDL_Event events, SDL_Rect rect_obj, Mix_Chunk* gMusicAmo
 		bounding_.y = rect_obj.y + 10;
 	}
 }
+
+void function3()
+{
+   int a, b, c, d, e;
+}
+
+void function4()
+{
+	int a1, a2, b1, b2;
+}
