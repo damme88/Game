@@ -23,9 +23,6 @@ const int kScreenHeight = 480;
 const int kBPP = 32;
 const int kPlayTime = 60;
 const int kFramePerSecond = 20;
-const int a = 5;
-const int b = 8;
-const int c = 9;
 
 // define global variable
 SDL_Surface* gScreen = NULL;
@@ -40,7 +37,12 @@ Mix_Chunk* gMusicAmo[3];
 Mix_Chunk* gMusicBom = NULL;
 TTF_Font* gfont = NULL;
 TTF_Font* gFontTime = NULL;
-
+SDL_Surface* gTimeSecond = NULL;
+SDL_Surface* gMark = NULL;
+SDL_Color gTextColor = {0x00, 0x00, 0x00};
+SDL_Color gTextColormark = {0xFF, 0x00, 0x00};
+LogInfo::Log gLog;
+bool gColobj = false;
 
 SDL_Surface* LoadImages(const char* image_path);
 
