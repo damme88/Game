@@ -122,8 +122,6 @@ Timer::~Timer() {
 
 void Timer::Start() {
 	is_started_ = true;
-	is_paused_ = false;
-	start_tick_ = SDL_GetTicks()/1000;
 }
 
 void Timer::Stop() {

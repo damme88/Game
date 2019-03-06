@@ -23,6 +23,9 @@ const int kScreenHeight = 480;
 const int kBPP = 32;
 const int kPlayTime = 60;
 const int kFramePerSecond = 20;
+const int a = 5;
+const int b = 8;
+const int c = 9;
 
 // define global variable
 SDL_Surface* gScreen = NULL;
