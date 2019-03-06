@@ -204,12 +204,7 @@ int main(int arc, char* argv[]) {
 	}
 	gLog.WriteLog("Load Background Success");
 
-	gMusic = Mix_LoadMUS("Action.mid");
-	if (gMusic == NULL)
-	{
-		gLog.WriteLog("Load Music menu failed");
-		return FAILED;
-	}
+
 	gLog.WriteLog("Load Music menu success");
 
 
