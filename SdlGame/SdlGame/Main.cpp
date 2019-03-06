@@ -225,14 +225,6 @@ int main(int arc, char* argv[]) {
 	gLog.WriteLog("Load Music menu success");
 
 
-	gMusicAmo[0] = Mix_LoadWAV("Laser.wav");
-	gMusicAmo[1] = Mix_LoadWAV("Fire1.wav");
-	gMusicBom = Mix_LoadWAV("bomb-03.wav");
-	if (gMusicAmo[0] == NULL || gMusicAmo[1] == NULL || gMusicBom == NULL)
-	{
-		gLog.WriteLog("Load Amo Music failed");
-		return FAILED;
-	}
 	gLog.WriteLog("Load Amo Music success");
 
 
