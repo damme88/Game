@@ -13,9 +13,6 @@ Threats::Threats() {
 Threats::Threats(int x, int y) {
   bounding_.x = x;
 	bounding_.y = y;
-	bounding_.w = kThreatsWidth;
-	bounding_.h = kThreatsHeight;
-	is_collision_ = false;
 }
 
 Threats::~Threats() {
