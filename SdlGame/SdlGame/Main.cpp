@@ -411,15 +411,7 @@ int main(int arc, char* argv[]) {
 			}
 		}
 
-		gTimeSecond = TTF_RenderText_Solid(gFontTime, timestr.str().c_str(), gTextColor);
-		ApplySurface(500, 10, gTimeSecond, gScreen);
-
-		char str[10];
-		itoa(mark, str, 10);
-		std::string strMark("Mark : ");
-		strMark += (std::string)str;
-		gMark = TTF_RenderText_Solid(gFontTime, strMark.c_str(), gTextColormark);
-		ApplySurface(20, 10, gMark, gScreen);
+		
 
 		if ( SDL_Flip(gScreen) == FAILED)
 			return FAILED;
