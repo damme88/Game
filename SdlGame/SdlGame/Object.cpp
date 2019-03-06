@@ -114,6 +114,9 @@ Timer::Timer() {
 	pause_tick_ = 0;
 	is_started_ = true;
 	is_paused_ = false;
+
+	int k = 5;
+	int c = 7;
 }
 
 Timer::~Timer() {
