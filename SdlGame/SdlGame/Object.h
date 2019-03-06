@@ -15,6 +15,7 @@ public:
 	void ShowObject(SDL_Surface* src, SDL_Surface* des);
 	bool CheckCollision(SDL_Rect other_object);
   SDL_Rect GetBounding() {return bounding_;}
+  void FindMax();
 private:
 	SDL_Rect bounding_;
 	int x_vel_;

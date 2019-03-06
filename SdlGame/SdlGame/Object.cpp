@@ -1,16 +1,20 @@
 
 #include "Object.h"
 
-ObjectGame::ObjectGame(){
-  bounding_.x = 10;
+ObjectGame::ObjectGame()
+{
+    bounding_.x = 10;
 	bounding_.y = 200;
-	bounding_.w = kObjectWidth;
-	bounding_.h = kObjectHeight;
+	int a = kObjectWidth;
+	int b = kObjectHeight;
+	bounding_.w = a;
+	bounding_.h = b;
 	x_vel_ = 0;
 	y_vel_ = 0;
 }
 
-ObjectGame::~ObjectGame(){
+ObjectGame::~ObjectGame()
+{
 
 };
 
@@ -92,6 +96,10 @@ void ObjectGame::ShowObject(SDL_Surface* src, SDL_Surface* des) {
   SDL_BlitSurface(src, NULL, des, &bounding_);
 }
 
+void ObjectGame::FindMax()
+{
+	int a = 5;
+}
 
 //Define timer class
 Timer::Timer() {
@@ -142,3 +150,4 @@ int Timer::GetTick() {
 	} 
 	return 0;
 }
+ 
