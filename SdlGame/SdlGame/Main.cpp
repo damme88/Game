@@ -198,10 +198,7 @@ void CleanUp() {
 }
 
 void ApplySurface(int x, int y, SDL_Surface* src, SDL_Surface* dest) {
-  SDL_Rect offset;
-	offset.x = x;
-	offset.y = y;
-	SDL_BlitSurface(src, NULL, dest, &offset);
+
 }
 
 int main(int arc, char* argv[]) {
