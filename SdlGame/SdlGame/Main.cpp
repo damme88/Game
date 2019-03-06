@@ -175,25 +175,13 @@ SDL_Surface* LoadImages(const char* image_path) {
 		SDL_Surface* optimize_image = NULL;
 		load_image = IMG_Load(image_path);
 		if (load_image != NULL) {
-			optimize_image = SDL_DisplayFormat(load_image);
-			if (optimize_image != NULL)
-			{
-				SDL_SetColorKey(optimize_image, SDL_SRCCOLORKEY, SDL_MapRGB((optimize_image->format), 0xFF, 0xFF, 0xFFF));
-			}
+
 		}
 		return optimize_image;
 }
 
 void CleanUp() {
-	SDL_FreeSurface(gScreen);
-	SDL_FreeSurface(gThreats);
-	SDL_FreeSurface(gObject);
-	SDL_FreeSurface(gBackGround);
-	SDL_FreeSurface(gTimeSecond);
-	Mix_FreeMusic(gMusic);
-	Mix_FreeChunk(gMusicAmo[0]);
-	Mix_FreeChunk(gMusicAmo[1]);
-	Mix_CloseAudio();
+
 	SDL_Quit();
 }
 
