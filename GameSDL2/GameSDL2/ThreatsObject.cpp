@@ -52,26 +52,22 @@ SDL_Rect ThreatsObject::GetRectFrame()
   return rect;
 }
 
-void ThreatsObject::HandleMove(const int x_boder, const int y_border)
-{
-  rect_.x -= x_val_;
 
-  if (rect_.x < 200)
-  {
-    is_stop_bullet_ = true;
-  }
 
-  if (rect_.x < 0) 
-  {
-    Reset(x_boder, y_border);
-  }
-}
-
-void ThreatsObject::Reset(const int x_boder, const int y_border)
+void ThreatsObject::Reset()
 {
   is_stop_bullet_ = false;
-  x_pos_ = SCREEN_WIDTH - 100;
-  y_pos_ = SCREEN_HEIGHT*0.5;
+  if (type_move_ == MOVING_CONTINOUS)
+  {
+       x_pos_ = map_x_ + SCREEN_WIDTH + 500;
+       y_pos_ = 50;
+  }
+  else
+  {
+      x_pos_ = SCREEN_WIDTH - 100;
+      y_pos_ = SCREEN_HEIGHT*0.5;
+  }
+
   for (int i = 0; i < bullet_list_.size(); i++)
   {
     BulletObject* p_bullet = bullet_list_.at(i);
@@ -84,23 +80,42 @@ void ThreatsObject::Reset(const int x_boder, const int y_border)
 
 void ThreatsObject::ResetBullet(BulletObject* p_bullet)
 {
-  p_bullet->SetRect(x_pos_ + 20 , y_pos_ + 10);
-  p_bullet->set_x_val(15);
+    if (p_bullet)
+    {
+        if (type_move_ == MOVING_CONTINOUS)
+        {
+            p_bullet->SetRect(x_pos_+ 5, y_pos_ + height_frame_ - 10);
+        }
+        else
+        {
+            p_bullet->SetRect(x_pos_ + 20, y_pos_+ 10);
+        }
+    }
 }
 
 void ThreatsObject::InitBullet(BulletObject* p_bullet,  SDL_Renderer* screen)
 {
   if (p_bullet)
   {
-    bool ret = p_bullet->LoadImg("img//bullet_threat.png", screen);
-    if (ret)
-    {
       p_bullet->set_is_move(true);
-      //p_bullet->set_type(BulletObject::SPHERE);
-      p_bullet->SetRect(x_pos_ + 20, y_pos_ + 10);
-      p_bullet->set_x_val(15);
+      
+      if (type_move_ == MOVING_CONTINOUS)
+      {
+          p_bullet->LoadImg("img//plane_bullet.png", screen);
+          p_bullet->set_x_val(5);
+          p_bullet->set_y_val(5);
+          p_bullet->set_dir_bullet(BulletObject::DIR_DOWN_LEFT);
+          p_bullet->SetRect(x_pos_+ 5, y_pos_ + height_frame_ - 10);
+      }
+      else
+      {
+          p_bullet->LoadImg("img//bullet_threat.png", screen);
+          p_bullet->set_x_val(15);
+          p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
+          p_bullet->SetRect(x_pos_ + 20, y_pos_+ 10);
+      }
+
       bullet_list_.push_back(p_bullet);
-    }
   }
 }
 
@@ -118,14 +133,38 @@ void ThreatsObject::MakeBullet(SDL_Renderer* des, const int& x_limit, const int&
         {
           if (p_bullet->get_is_move())
           {
-           
-             p_bullet->HandleMoveRightToLeft(this->rect_.x);
-             p_bullet->Render(des);
+              if (type_move_ == STATIC_TH)
+              {
+                  int distance_bullet = rect_.x + width_frame_ - p_bullet->GetRect().x;
+                  if (distance_bullet > 0 && distance_bullet < 400)
+                  {
+                      p_bullet->HandelMove(x_limit, y_limit);
+                      p_bullet->Render(des);
+                  }
+                  else
+                  {
+                      p_bullet->set_is_move(false);
+                  }
+              }
+              else if (type_move_ == MOVING_CONTINOUS)
+              {
+                  p_bullet->HandelMove(x_limit, y_limit);
+                  p_bullet->Render(des);
+              }
           }
           else
           {
             p_bullet->set_is_move(true);
-            p_bullet->SetRect(this->rect_.x + 10, this->rect_.y + 10);
+
+            if (type_move_ == MOVING_CONTINOUS)
+            {
+               p_bullet->SetRect(rect_.x + 5, rect_.y + height_frame_ - 10);
+                
+            }
+            else
+            {
+               p_bullet->SetRect(this->rect_.x + 10, this->rect_.y + 10);
+            }
           }
         }
       }
@@ -249,6 +288,14 @@ void ThreatsObject::ImpMoveType(SDL_Renderer* screen)
   {
     ;//
   }
+  else if (type_move_ == MOVING_CONTINOUS)
+  {
+      x_pos_ -= x_val_;
+      if (x_pos_ < map_x_)
+      {
+          x_pos_ = map_x_ + SCREEN_WIDTH + 500;
+      }
+  }
   else
   {
     if (on_ground_ == true)
@@ -276,7 +323,7 @@ void ThreatsObject::ImpMoveType(SDL_Renderer* screen)
 
 void ThreatsObject::DoPlayer(Map& g_map)
 {
-  if (think_time_ == 0)
+  if (think_time_ == 0 && type_move_ != MOVING_CONTINOUS)
   {
     x_val_ = 0;
     y_val_ += GRAVITY_SPEED;

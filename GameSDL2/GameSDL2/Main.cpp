@@ -13,6 +13,10 @@
 TTF_Font* g_font = NULL;
 TTF_Font* g_font_text = NULL;
 
+//#define USE_THREAT_PLANE
+#define USE_THREAT_SPACING
+#define USE_THREAT_STATIC
+
 bool LoadBackground();
 void close();
 
@@ -120,7 +124,25 @@ std::vector<ThreatsObject*> MakeThreadList()
 
   std::vector<ThreatsObject*> list_threats;
 
+#ifdef USE_THREAT_PLANE
+  ThreatsObject* plane_threat = new ThreatsObject();
+  plane_threat->LoadImg("img//plane_threat.png", g_screen);
+  plane_threat->set_clips();
+  plane_threat->set_is_alive(true);
+  plane_threat->set_xpos(SCREEN_WIDTH);
+  plane_threat->set_ypos(50);
+  plane_threat->set_x_val(3);
+  plane_threat->set_type_move(ThreatsObject::MOVING_CONTINOUS);
+
+  list_threats.push_back(plane_threat);
+  BulletObject* p_bullet = new BulletObject();
+  plane_threat->InitBullet(p_bullet, g_screen);
+  list_threats.push_back(plane_threat);
+#endif
+
+#ifdef USE_THREAT_SPACING
   ThreatsObject* thread_objs = new ThreatsObject[20];
+
 
   for (int i = 0; i < 20; i++)
   {
@@ -140,14 +162,16 @@ std::vector<ThreatsObject*> MakeThreadList()
       list_threats.push_back(thread_obj);
     }
   }
-  
+ 
+#endif
+
+#ifdef USE_THREAT_STATIC
    ThreatsObject* thread_objs2 = new ThreatsObject[15];
    for (int i = 0; i < 15; i++)
    {
      ThreatsObject* thread_obj3 = (thread_objs2+i);
      if (thread_obj3 != NULL)
      {
-       ThreatsObject* thread_obj3 = new ThreatsObject();
        thread_obj3->LoadImg("img//threat_level.png", g_screen);
        thread_obj3->set_clips();
        thread_obj3->InitPlayer();
@@ -163,7 +187,7 @@ std::vector<ThreatsObject*> MakeThreadList()
        list_threats.push_back(thread_obj3);
      }
    }
-  
+#endif
 
   return list_threats;
 }
@@ -216,16 +240,15 @@ int main( int argc, char* args[] )
    TextObject money_count;
    money_count.setColor(TextObject::WHITE_TEXT);
 
-   std::vector<ThreatsObject*> threats_list;// = MakeThreadList();
+   std::vector<ThreatsObject*> threats_list = MakeThreadList();
 
    //Init Boss Object
    BossObject bossObject;
    bossObject.LoadImg("img//boss_object.png", g_screen);
-
+   bossObject.set_clips();
    int xPosBoss = MAX_MAP_X*TILE_SIZE - SCREEN_WIDTH*0.6;
    bossObject.set_xpos(xPosBoss);
    bossObject.set_ypos(10);
-   bossObject.set_clips();
 
    ExplosionObject exp_threats;
    ExplosionObject exp_main;
@@ -290,12 +313,6 @@ int main( int argc, char* args[] )
        game_map.DrawMap(g_screen);
 
 
-
-       //Move the dot
-       //dot.move();
-       //Render objects
-       //dot.render(g_screen);
-
        //Draw Geometric
        GeometricFormat rectange_size(0, 0, SCREEN_WIDTH, 40);
        ColorData color_data(36, 36, 36);
@@ -332,7 +349,7 @@ int main( int argc, char* args[] )
              is_col1 = SDLCommonFunc::CheckCollision(p_bullet->GetRect(), rect_player);
              if (is_col1 == true)
              {
-               obj_threat->ResetBullet(p_bullet);
+               obj_threat->Reset();
                break;
              }
            }
@@ -422,8 +439,17 @@ int main( int argc, char* args[] )
 
                 // p_threat->Reset(SCREEN_WIDTH, SCREEN_HEIGHT);
                 p_player.RemoveBullet(am);
-                obj_threat->Free();
-                threats_list.erase(threats_list.begin() + i);
+
+                if (obj_threat->get_type_move() == ThreatsObject::MOVING_CONTINOUS)
+                {
+                    obj_threat->Reset();
+                }
+                else
+                {
+                    obj_threat->Free();
+                    threats_list.erase(threats_list.begin() + i);
+                }
+                
 #ifdef USE_AUDIO 
                 Mix_PlayChannel(-1, g_sound_explosion, 0);
 #endif
@@ -488,6 +514,7 @@ int main( int argc, char* args[] )
        {
            bossObject.SetMapXY(ga_map.start_x_, ga_map.start_y_);
            bossObject.DoPlayer(ga_map);
+           bossObject.MakeBullet(g_screen, SCREEN_WIDTH, SCREEN_HEIGHT);
            bossObject.Show(g_screen);
        }
        

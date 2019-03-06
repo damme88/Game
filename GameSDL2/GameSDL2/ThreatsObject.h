@@ -23,8 +23,6 @@ class ThreatsObject : public BaseObject
 public:
   ThreatsObject();
   ~ThreatsObject();
-  //void HandleInputAction(SDL_Event events, SDL_Rect rect_obj);
-  void HandleMove(const int x_boder, const int y_border);
 
   void set_x_val(int xp) {x_val_ = xp;}
   void set_y_val(int yp) {y_val_ = yp;}
@@ -38,7 +36,7 @@ public:
 
   void InitBullet(BulletObject* p_bullet, SDL_Renderer* screen);
   void MakeBullet(SDL_Renderer* des, const int& x_limit, const int& y_limit);
-  void Reset(const int x_boder, const int y_border);
+  void Reset();
 
   std::vector<BulletObject*> get_bullet_list() const {return bullet_list_;}
   void set_bullet_list(const std::vector<BulletObject*>& am_list) {bullet_list_ = am_list;}
@@ -56,6 +54,7 @@ public:
   bool LoadImg(std::string path, SDL_Renderer* screen);
   void set_clips();
   void set_type_move(const int& tm) {type_move_ = tm;}
+  int get_type_move()const {return type_move_;}
   void set_input_left(const int& ipleft) {input_type_.left_ = ipleft;}
   int get_width_frame() const {return width_frame_;}
   int get_height_frame() const {return height_frame_;}
@@ -66,6 +65,7 @@ public:
   {
     STATIC_TH = 0,
     MOVE_IN_SPACE_TH = 1,
+    MOVING_CONTINOUS = 2
   };
 
 private:

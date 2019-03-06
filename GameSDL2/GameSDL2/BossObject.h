@@ -6,6 +6,7 @@
 
 #include "BaseObject.h"
 #include "CommonFunc.h"
+#include "BulletObject.h"
 
 #define GRAVITY_SPEED 0.8
 #define MAX_FALL_SPEED 10
@@ -41,6 +42,12 @@ public:
     void CenterEntityOnMap(Map& g_map);
     void DoPlayer(Map& g_map);
     void InitPlayer();
+    std::vector<BulletObject*> get_bullet_list() const {return bullet_list_;}
+    void set_bullet_list(const std::vector<BulletObject*>& am_list) {bullet_list_ = am_list;}
+
+    void InitBullet(SDL_Renderer* screen);
+    void MakeBullet(SDL_Renderer* des, const int& x_limit, const int& y_limit);
+
 private:
     int map_x_;
     int map_y_;
@@ -55,6 +62,7 @@ private:
     float y_val_;
     int width_frame_;
     int height_frame_;
+    std::vector<BulletObject*> bullet_list_;
 };
 
 

@@ -25,6 +25,7 @@ BulletObject* BulletObject::Clone()
     return p_object_clone;
 }
 
+
 void BulletObject::HandelMove(const int& x_border, const int& y_border)
 {
   if (bullet_dir_ == DIR_RIGHT)
@@ -34,6 +35,14 @@ void BulletObject::HandelMove(const int& x_border, const int& y_border)
     {
       is_move_ = false;
     }
+  }
+  else if (bullet_dir_ == DIR_LEFT)
+  {
+      rect_.x -= x_val_;
+      if (rect_.x < 0) 
+      {
+          is_move_ = false;
+      }
   }
   else if (bullet_dir_ == DIR_UP)
   {
@@ -71,40 +80,34 @@ void BulletObject::HandelMove(const int& x_border, const int& y_border)
           is_move_ = false;
       }
   }
-  else 
+  else if (bullet_dir_ == DIR_DOWN_LEFT)
   {
-    rect_.x -= x_val_;
-    if (rect_.x < 0) 
-    {
-      is_move_ = false;
-    }
+      rect_.x -= x_val_;
+
+      if (rect_.x < 0)
+      {
+          is_move_ = false;
+      }
+
+      rect_.y += y_val_;
+      if (rect_.y > y_border)
+      {
+          is_move_ = false;
+      }
   }
-}
-
-
-void BulletObject::HandleMoveRightToLeft(const int& origin_x)
-{
-  if (move_type_ == LINE_TYPE)
+  else if (bullet_dir_ == DIR_DOWN_RIGHT)
   {
-    rect_.x -= x_val_;
-  }
-  else if (move_type_ == SIN_TYPE)
-  {
-    rect_.x -= x_val_;
-    if (rect_.x < SCREEN_WIDTH*0.5)
-    {
-      rect_.y -= 100*cos(rect_.x);
-    }
-  }
+      rect_.x += x_val_;
+      if (rect_.x > x_border)
+      {
+          is_move_ = false;
 
-  int distance_bullet = origin_x - rect_.x;
-  if (distance_bullet > 400) 
-  {
-    is_move_ = false;
+      }
+
+      rect_.y += y_val_;
+      if (rect_.y > y_border)
+      {
+          is_move_ = false;
+      }
   }
-}
-
-void BulletObject::HandleInputAction(SDL_Event events)
-{
-
 }
