@@ -12,7 +12,8 @@ public:
 	enum AmoType {
 		NONE,
 	  LASER,
-		SPHERE
+		SPHERE,
+		LIGHTNING
 	};
 	
 	Amo();
@@ -31,4 +32,4 @@ private:
 	unsigned int amo_type_;
 };
 
-#endif
+#endif 

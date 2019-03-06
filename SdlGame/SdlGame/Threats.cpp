@@ -13,6 +13,9 @@ Threats::Threats() {
 Threats::Threats(int x, int y) {
   bounding_.x = x;
 	bounding_.y = y;
+	bounding_.w = kThreatsWidth;
+	bounding_.h = kThreatsHeight;
+	is_collision_ = false;
 }
 
 Threats::~Threats() {
@@ -20,7 +23,20 @@ Threats::~Threats() {
 }
 
 void Threats::HandleMove(const int x_boder, const int y_border, SDL_Rect amo, SDL_Rect object, bool& colobj) {
-
+  bounding_.x -= 5;
+	if (bounding_.x < 0)
+	{
+		bounding_.x = x_boder + 10;
+		bounding_.y = rand()%400;
+	}
+	if (amo.w < 640 && amo.h < 480) {
+	  CheckCollision(amo);
+	}
+	if (bounding_.x >= 0 && bounding_.x <= x_boder) {
+		if (CheckCollision(object) == true) {
+			colobj = true;
+		}
+	}
 }
 
 void Threats::SetPosAgain(const int x_boder, const int y_boder) {
@@ -38,7 +54,15 @@ bool Threats::CheckCollision(SDL_Rect other_object) {
 	int bottom_a = 0;
 	int bottom_b = 0;
 
-	
+	left_a = this->bounding_.x;
+	right_a = this->bounding_.x + this->bounding_.w;
+	top_a = this->bounding_.y;
+	bottom_a = this->bounding_.y + this->bounding_.h;
+
+	left_b = other_object.x;
+	right_b = other_object.x + other_object.w; //right is left border to right edge
+	top_b = other_object.y;
+	bottom_b = other_object.y + other_object.h; // bottom is above border to under edge
 
 	if (bottom_a <= top_b-5) {
 		return false;
@@ -57,11 +81,6 @@ bool Threats::CheckCollision(SDL_Rect other_object) {
   return true;
 }
 
-void function1()
-{
-   int a = 5;
-   int b = 8;
-}
 void Threats::ShowThreats(SDL_Surface* src, SDL_Surface* des) {
 	SDL_BlitSurface(src, NULL, des, &bounding_);
 }
