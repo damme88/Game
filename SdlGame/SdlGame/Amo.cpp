@@ -48,3 +48,18 @@ void function2()
 {
    int a =5;
 }
+
+void function3()
+{
+   int a, b, c, d, e;
+}
+
+void function4()
+{
+	int a1, a2, b1, b2;
+}
+
+void function5()
+{
+   int a, b, c, d
+}
