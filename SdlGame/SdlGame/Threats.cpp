@@ -20,20 +20,7 @@ Threats::~Threats() {
 }
 
 void Threats::HandleMove(const int x_boder, const int y_border, SDL_Rect amo, SDL_Rect object, bool& colobj) {
-  bounding_.x -= 5;
-	if (bounding_.x < 0)
-	{
-		bounding_.x = x_boder + 10;
-		bounding_.y = rand()%400;
-	}
-	if (amo.w < 640 && amo.h < 480) {
-	  CheckCollision(amo);
-	}
-	if (bounding_.x >= 0 && bounding_.x <= x_boder) {
-		if (CheckCollision(object) == true) {
-			colobj = true;
-		}
-	}
+
 }
 
 void Threats::SetPosAgain(const int x_boder, const int y_boder) {
