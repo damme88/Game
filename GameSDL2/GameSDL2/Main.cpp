@@ -246,7 +246,7 @@ int main( int argc, char* args[] )
    BossObject bossObject;
    bossObject.LoadImg("img//boss_object.png", g_screen);
    bossObject.set_clips();
-   int xPosBoss = MAX_MAP_X*TILE_SIZE - SCREEN_WIDTH*0.6;
+   int xPosBoss = 400; // MAX_MAP_X*TILE_SIZE - SCREEN_WIDTH*0.6;
    bossObject.set_xpos(xPosBoss);
    bossObject.set_ypos(10);
 
@@ -509,14 +509,14 @@ int main( int argc, char* args[] )
 
 
        //Process Boss
-       int val = MAX_MAP_X*TILE_SIZE - (ga_map.start_x_ + p_player.GetRect().x);
-       if (val <= SCREEN_WIDTH)
-       {
+       //int val = MAX_MAP_X*TILE_SIZE - (ga_map.start_x_ + p_player.GetRect().x);
+       //if (val <= SCREEN_WIDTH)
+       //{
            bossObject.SetMapXY(ga_map.start_x_, ga_map.start_y_);
            bossObject.DoPlayer(ga_map);
            bossObject.MakeBullet(g_screen, SCREEN_WIDTH, SCREEN_HEIGHT);
            bossObject.Show(g_screen);
-       }
+       //}
        
 
        //Update screen

@@ -7,7 +7,7 @@ class Gemometric
 {
 public:
    static void RenderRectange(const GeometricFormat& geo_size, const ColorData& color, SDL_Renderer* screen);
-   static void Gemometric::RenderOutline(const GeometricFormat& geo_size, const ColorData& color, SDL_Renderer* screen);
+   static void RenderOutline(const GeometricFormat& geo_size, const ColorData& color, SDL_Renderer* screen);
 };
 
 

@@ -40,6 +40,15 @@ void BossObject::set_clips()
     //Clip the sprites
     if (width_frame_ > 0 && height_frame_ > 0)
     {
+#ifndef USING__LOOP
+        for (int i = 0; i < FRAME_NUM_32; i++)
+        {
+            frame_clip_[i].x = width_frame_*i;
+            frame_clip_[i].y = 0;
+            frame_clip_[i].w = width_frame_;
+            frame_clip_[i].h = height_frame_;
+        }
+#else
         frame_clip_[ 0 ].x = 0;
         frame_clip_[ 0 ].y = 0;
         frame_clip_[ 0 ].w = width_frame_;
@@ -201,6 +210,7 @@ void BossObject::set_clips()
         frame_clip_[ 31 ].y = 0;
         frame_clip_[ 31 ].w = width_frame_;
         frame_clip_[ 31 ].h = height_frame_;
+#endif
     }
 }
 
@@ -433,6 +443,7 @@ void BossObject::InitBullet(SDL_Renderer* screen)
     bool ret = p_bullet->LoadImg("img//boss bullet.png", screen);
     if (ret)
     {
+        p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
         p_bullet->set_is_move(true);
         p_bullet->SetRect(rect_.x - 50, rect_.y + height_frame_ - 30);
         p_bullet->set_x_val(15);
