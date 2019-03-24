@@ -73,7 +73,7 @@ PlayerMoney::~PlayerMoney()
 
 void PlayerMoney::Init(SDL_Renderer* screen)
 {
-    LoadImg("img//money.png", screen);
+    LoadImg("img//money_img.png", screen);
 }
 
 
