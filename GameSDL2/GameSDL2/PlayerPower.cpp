@@ -28,7 +28,7 @@ void PlayerPower::Show(SDL_Renderer* screen)
 
 void PlayerPower::Init(SDL_Renderer* screen)
 {
-  LoadImg("img//player_pw.png", screen);
+  LoadImg(g_name_main_alive, screen);
   number_ = 3;
   if (position_list_.size() > 0)
   {
@@ -53,7 +53,7 @@ void PlayerPower::InCrease()
     last_post += 40;
     position_list_.push_back(last_post);
 
-    Mix_Chunk* two_beep_chunk = Mix_LoadWAV("sound//two_beep.wav");
+    Mix_Chunk* two_beep_chunk = Mix_LoadWAV(g_name_sound_increase);
     if (two_beep_chunk != NULL)
         Mix_PlayChannel(-1, two_beep_chunk, 0 );
 }
@@ -73,7 +73,7 @@ PlayerMoney::~PlayerMoney()
 
 void PlayerMoney::Init(SDL_Renderer* screen)
 {
-    LoadImg("img//money_img.png", screen);
+    LoadImg(g_name_money, screen);
 }
 
 

@@ -101,7 +101,7 @@ void ThreatsObject::InitBullet(BulletObject* p_bullet,  SDL_Renderer* screen)
       
       if (type_move_ == MOVING_CONTINOUS)
       {
-          p_bullet->LoadImg("img//plane_bullet.png", screen);
+          p_bullet->LoadImg(g_plane_bullet, screen);
           p_bullet->set_x_val(5);
           p_bullet->set_y_val(5);
           p_bullet->set_dir_bullet(BulletObject::DIR_DOWN_LEFT);
@@ -109,7 +109,7 @@ void ThreatsObject::InitBullet(BulletObject* p_bullet,  SDL_Renderer* screen)
       }
       else
       {
-          p_bullet->LoadImg("img//bullet_threat.png", screen);
+          p_bullet->LoadImg(g_threat_bullet, screen);
           p_bullet->set_x_val(15);
           p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
           p_bullet->SetRect(x_pos_ + 20, y_pos_+ 10);
@@ -172,10 +172,6 @@ void ThreatsObject::MakeBullet(SDL_Renderer* des, const int& x_limit, const int&
   }
 }
 
-//void ThreatsObject::HandleInputAction(SDL_Event events, SDL_Rect rect_obj) 
-//{
-//
-//}
 
 void ThreatsObject::RemoveBullet(const int& idx) 
 {
@@ -272,19 +268,19 @@ void ThreatsObject::ImpMoveType(SDL_Renderer* screen)
       {
         input_type_.left_ = 1;
         input_type_.right_ = 0;
-        LoadImg("img//thread1_left.png", screen);
+        LoadImg(g_name_threat_left, screen);
       }
       else if (x_pos_ < animation_a_)
       {
         input_type_.right_ = 1;
         input_type_.left_ = 0;
-        LoadImg("img//thread1_right.png", screen);
+        LoadImg(g_name_threat_right, screen);
       } 
     }
     else
     {
         if (input_type_.left_ == 1)
-            LoadImg("img//thread1_left.png", screen);
+            LoadImg(g_name_threat_left, screen);
     }
   }
 }

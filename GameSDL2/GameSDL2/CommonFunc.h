@@ -30,6 +30,19 @@ static char g_name_audio_bullet_main2[] = {"sound//Laser.wav"};
 static char g_name_audio_ex_main[]      = {"sound//Explosion+1.wav"};
 static char g_name_audio_ex_threats[]   = {"sound//Bomb1.wav"};
 
+static char g_name_threat_left[] = { "img//thread1_left.png" };
+static char g_name_threat_right[] = { "img//thread1_right.png" };
+
+static char g_threat_bullet[] = { "img//bullet_threat.png" };
+static char g_plane_bullet[] = { "img//plane_bullet.png" };
+
+static char g_name_sound_increase[] = { "sound//two_beep_.wav" };
+static char g_name_money[] = { "img//money_img.png" };
+
+static char g_name_main_alive[] = {"img//player_pw.png"};
+
+static char  g_name_threat_level[] = {"img//threat_level.png"};
+
 const int COLOR_KEY_R = 167;
 const int COLOR_KEY_G = 175;
 const int COLOR_KEY_B = 180;

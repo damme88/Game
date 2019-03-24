@@ -22,7 +22,7 @@ static char g_main_jump_left[]   = {"img//jum_left.png"};
 static char g_main_jump_right[] = {"img//jum_right.png"};
 
 static char kImgBullet[] = {"img//sphere2.png"};
-static char kSoundBeep[] = {"sound//beep.wav"};
+static char kSoundBeep[] = {"sound//beep_.wav"};
 
 class MainObject : public BaseObject
 {

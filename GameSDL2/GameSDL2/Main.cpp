@@ -77,13 +77,13 @@ bool InitData()
         return false;
       }
 
-      g_font = TTF_OpenFont("font//dlxfont.ttf", 50);
+      g_font = TTF_OpenFont("font//dlxfont_.ttf", 50);
       if (g_font == NULL)
       {
         return false;
       }
 
-      g_font_text = TTF_OpenFont("font//dlxfont.ttf", 15);
+      g_font_text = TTF_OpenFont("font//dlxfont_.ttf", 15);
       if (g_font_text == NULL)
       {
         return false;
@@ -172,7 +172,7 @@ std::vector<ThreatsObject*> MakeThreadList()
      ThreatsObject* thread_obj3 = (thread_objs2+i);
      if (thread_obj3 != NULL)
      {
-       thread_obj3->LoadImg("img//threat_level.png", g_screen);
+       thread_obj3->LoadImg(g_name_threat_level, g_screen);
        thread_obj3->set_clips();
        thread_obj3->InitPlayer();
        thread_obj3->set_input_left(0);
