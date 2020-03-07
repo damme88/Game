@@ -53,7 +53,7 @@ public:
   {
     p_bullet_list_ = bullet_list;
   }
-
+  void DrawBound(SDL_Renderer* des);
   void HandleBullet(SDL_Renderer* des);
   void RemoveBullet(const int& idx);
 

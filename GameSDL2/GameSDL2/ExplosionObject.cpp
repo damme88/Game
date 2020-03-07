@@ -21,6 +21,7 @@ bool ExplosionObject::LoadImg(std::string path, SDL_Renderer* screen)
     frame_height_ = rect_.h;
   }
 
+  set_clips();
   return ret;
 }
 
@@ -43,12 +44,25 @@ void ExplosionObject::set_clips()
 void ExplosionObject::Show(SDL_Renderer* screen)
 {
     SDL_Rect* currentClip = &frame_clip_[frame_];
-    SDL_Rect renderQuad = {rect_.x, rect_.y, frame_width_, frame_height_};
-    if (currentClip != NULL)
-    {
-      renderQuad.w = currentClip->w;
-      renderQuad.h = currentClip->h;
-    }
+    BaseObject::Render(screen, currentClip);
+}
 
-    SDL_RenderCopy(screen, p_object_, currentClip, &renderQuad );
+
+void ExplosionObject::ImpRender(SDL_Renderer* screen, SDL_Rect& rect_pos)
+{
+    int expWidth = get_frame_height();
+    int expHeight = get_frame_width();
+    for (int ex = 0; ex < NUM_FRAME_EXP; ex++)
+    {
+        int x_pos = (rect_pos.x + rect_pos.w*0.5) - expWidth*0.5;
+        int y_pos = (rect_pos.y + rect_pos.h*0.5) - expHeight*0.5;
+
+        set_frame(ex);
+        SetRect(x_pos, y_pos);
+        Show(screen);
+        SDL_RenderPresent(screen);
+    }
+#ifdef USE_AUDIO 
+    Mix_PlayChannel(-1, g_sound_ex_main, 0);
+#endif
 }

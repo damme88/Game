@@ -41,7 +41,6 @@ static char g_name_money[] = { "img//money_img.png" };
 
 static char g_name_main_alive[] = {"img//player_pw.png"};
 
-static char  g_name_threat_level[] = {"img//threat_level.png"};
 
 const int COLOR_KEY_R = 167;
 const int COLOR_KEY_G = 175;
@@ -62,7 +61,7 @@ const int RENDER_DRAW_COLOR = 0XFF;
 #define  STATE_MONEY2 24
 
 //Screen
-const int FRAMES_PER_SECOND = 25;
+const int FRAMES_PER_SECOND = 20;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;

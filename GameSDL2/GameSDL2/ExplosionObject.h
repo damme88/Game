@@ -19,6 +19,7 @@ public:
   void Show(SDL_Renderer* screen);
   int get_frame_width() const {return frame_width_;}
   int get_frame_height() const {return frame_height_;}
+  void ImpRender(SDL_Renderer* screen, SDL_Rect& rect_pos);
 private:
   int frame_width_;
   int frame_height_;

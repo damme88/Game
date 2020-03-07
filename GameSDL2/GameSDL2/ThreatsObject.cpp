@@ -1,6 +1,6 @@
 
 #include "ThreatsObject.h"
-
+#include "Geometric.h"
 
 
 ThreatsObject::ThreatsObject() 
@@ -219,13 +219,13 @@ bool ThreatsObject::LoadImg(std::string path, SDL_Renderer* screen)
     height_frame_ = rect_.h;
   }
 
+  set_clips();
   return ret;
 }
 
 
 void ThreatsObject::set_clips()
 {
-  //Clip the sprites
   if (width_frame_ > 0 && height_frame_ > 0)
   {
       for (int i = 0; i < NUM_FRAME; i++)
@@ -331,6 +331,13 @@ void ThreatsObject::DoPlayer(Map& g_map)
       InitPlayer();
     }
   }
+}
+
+void ThreatsObject::DrawBound(SDL_Renderer* des)
+{
+    GeometricFormat outlie_size(rect_.x, rect_.y, width_frame_, height_frame_);
+    ColorData color_data1(255, 0, 255);
+    Gemometric::RenderOutline(outlie_size, color_data1, des);
 }
 
 void ThreatsObject::CenterEntityOnMap(Map& g_map)
@@ -469,6 +476,8 @@ void ThreatsObject::CheckToMap(Map& g_map)
 
 void ThreatsObject::Show(SDL_Renderer* des)
 {
+
+  DrawBound(des);
   if (think_time_ == 0)
   {
       rect_.x = x_pos_ - map_x_;
@@ -480,13 +489,6 @@ void ThreatsObject::Show(SDL_Renderer* des)
       }
 
       SDL_Rect* currentClip = &frame_clip_[frame_];
-      SDL_Rect renderQuad = {rect_.x, rect_.y, width_frame_, height_frame_};
-      if (currentClip != NULL)
-      {
-         renderQuad.w = currentClip->w;
-         renderQuad.h = currentClip->h;
-      }
-
-      SDL_RenderCopy(des, p_object_, currentClip, &renderQuad );
+      BaseObject::Render(des, currentClip);
   }
 }

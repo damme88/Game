@@ -32,6 +32,7 @@ bool BossObject::LoadImg(std::string path, SDL_Renderer* screen)
         height_frame_ = rect_.h;
     }
 
+    set_clips();
     return ret;
 }
 

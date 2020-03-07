@@ -59,6 +59,8 @@ public:
   int get_width_frame() const {return width_frame_;}
   int get_height_frame() const {return height_frame_;}
   SDL_Rect GetRectFrame();
+
+  void DrawBound(SDL_Renderer* des);
 public:
 
   enum TypeMove
