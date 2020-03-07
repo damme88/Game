@@ -264,23 +264,18 @@ void MainObject::DrawBound(SDL_Renderer* des)
 
 void MainObject::Show(SDL_Renderer* des)
 { 
-
-  DrawBound(des);
+  //DrawBound(des);
   UpdateImagePlayer(des);
 
-  if((input_type_.left_ == 1 ||
-    input_type_.right_ == 1  ))
+  if ((input_type_.left_ != 1 &&
+      input_type_.right_ != 1) || 
+      frame_ > FRAME_NUM_MAIN)
   {
-    frame_++;
+      frame_ = 0;
   }
   else
   {
-    frame_ = 0;
-  }
-
-  if( frame_ >= 8 )
-  {
-    frame_ = 0;
+    frame_++;
   }
 
   if (think_time_ == 0)
@@ -526,7 +521,6 @@ void MainObject::CheckToMap(Map& g_map)
   }
 
   //If there is not collision with map tile. 
-
   x_pos_ += x_val_;
   y_pos_ += y_val_;
 
@@ -645,6 +639,4 @@ void MainObject::UpdateImagePlayer(SDL_Renderer* des)
             }
         }
     }
-
-    set_clips();
 }

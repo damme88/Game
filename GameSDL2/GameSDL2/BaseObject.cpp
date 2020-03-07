@@ -48,7 +48,6 @@ bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen)
 
 void BaseObject::Free()
 {
-
   if(p_object_ != NULL)
   {
     SDL_DestroyTexture(p_object_);
