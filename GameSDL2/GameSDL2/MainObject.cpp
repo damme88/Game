@@ -263,29 +263,33 @@ void MainObject::DrawBound(SDL_Renderer* des)
 }
 
 void MainObject::Show(SDL_Renderer* des)
-{ 
-  //DrawBound(des);
-  UpdateImagePlayer(des);
+{
+    //DrawBound(des);
+    UpdateImagePlayer(des);
 
-  if ((input_type_.left_ != 1 &&
-      input_type_.right_ != 1) || 
-      frame_ > FRAME_NUM_MAIN)
-  {
-      frame_ = 0;
-  }
-  else
-  {
-    frame_++;
-  }
+    if ((input_type_.left_ == 1 ||
+        input_type_.right_ == 1))
+    {
+        frame_++;
+    }
+    else
+    {
+        frame_ == 0;
+    }
 
-  if (think_time_ == 0)
-  {
-    rect_.x = x_pos_ - map_x_;
-    rect_.y = y_pos_- map_y_;
+    if (frame_ >= FRAME_NUM_MAIN)
+    {
+        frame_ = 0;
+    }
 
-    SDL_Rect* currentClip = &frame_clip_[frame_];
-    BaseObject::Render(des, currentClip);
-  }
+    if (think_time_ == 0)
+    {
+        rect_.x = x_pos_ - map_x_;
+        rect_.y = y_pos_ - map_y_;
+
+        SDL_Rect* currentClip = &frame_clip_[frame_];
+        BaseObject::Render(des, currentClip);
+    }
 }
 
 void MainObject::DoPlayer(Map& g_map)
