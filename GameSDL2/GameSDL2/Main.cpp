@@ -78,13 +78,13 @@ bool InitData()
         return false;
       }
 
-      g_font = TTF_OpenFont("font//dlxfont_.ttf", 50);
+      g_font = TTF_OpenFont("font//ARCADE.ttf", 100);
       if (g_font == NULL)
       {
         return false;
       }
 
-      g_font_text = TTF_OpenFont("font//dlxfont_.ttf", 15);
+      g_font_text = TTF_OpenFont("font//ARCADE.ttf", 30);
       if (g_font_text == NULL)
       {
         return false;
@@ -140,13 +140,15 @@ int main( int argc, char* args[] )
      return PT_FAILED;
    }
 
-  GameMap game_map;
-  game_map.LoadMap("map//map.dat");
-  game_map.LoadMapTiles(g_screen);
+  GameMap* game_map = GameMap::GetInstance();
+
+  game_map->LoadMap("map//map.dat");
+  game_map->LoadMapTiles(g_screen);
 
 
    MainObject p_player;
    p_player.LoadImg(g_name_main_right, g_screen);
+   p_player.InitExp(g_screen);
 
    PlayerPower player_power;
    player_power.Init(g_screen);
@@ -171,7 +173,7 @@ int main( int argc, char* args[] )
    //Init Boss Object
    BossObject bossObject;
    bossObject.LoadImg("img//boss_object.png", g_screen);
-   int xPosBoss =  MAX_MAP_X*TILE_SIZE - SCREEN_WIDTH*0.6;
+   int xPosBoss = MAX_MAP_X*TILE_SIZE - SCREEN_WIDTH*0.6;
    bossObject.set_xpos(xPosBoss);
    bossObject.set_ypos(10);
 
@@ -223,15 +225,12 @@ int main( int argc, char* args[] )
 
        g_background.Render(g_screen, NULL);
 
-       Map ga_map = game_map.GetMap();
+       //Map ga_map = game_map->GetMap();
 
        p_player.HandleBullet(g_screen);
-       p_player.SetMapXY(ga_map.start_x_, ga_map.start_y_);
-       p_player.DoPlayer(ga_map);
+       p_player.DoPlayer();
        p_player.Show(g_screen);
-
-       game_map.SetMap(ga_map);
-       game_map.DrawMap(g_screen);
+       game_map->DrawMap(g_screen);
 
 
        //Draw Geometric
@@ -247,7 +246,6 @@ int main( int argc, char* args[] )
        player_power.Show(g_screen);
        player_money.Show(g_screen);
 
-       pThreatAds.SetMapInfo(ga_map);
        pThreatAds.Render(g_screen);
        bool bRet = pThreatAds.CheckCollision(g_screen, p_player.GetRectFrame(), true);
        if (bRet == true)
@@ -354,15 +352,15 @@ int main( int argc, char* args[] )
        }
 
 
-       //Process Boss
-       int val = MAX_MAP_X*TILE_SIZE - (ga_map.start_x_ + p_player.GetRect().x);
-       if (val <= SCREEN_WIDTH)
-       {
-           bossObject.SetMapXY(ga_map.start_x_, ga_map.start_y_);
-           bossObject.DoPlayer(ga_map);
-           bossObject.MakeBullet(g_screen, SCREEN_WIDTH, SCREEN_HEIGHT);
-           bossObject.Show(g_screen);
-       }
+       ////Process Boss
+       //int val = MAX_MAP_X*TILE_SIZE - (ga_map.start_x_ + p_player.GetRect().x);
+       //if (val <= SCREEN_WIDTH)
+       //{
+       //    bossObject.SetMapXY(ga_map.start_x_, ga_map.start_y_);
+       //    bossObject.DoPlayer(ga_map);
+       //    bossObject.MakeBullet(g_screen, SCREEN_WIDTH, SCREEN_HEIGHT);
+       //    bossObject.Show(g_screen);
+       //}
        
 
        //Update screen

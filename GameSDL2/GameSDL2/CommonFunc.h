@@ -61,7 +61,7 @@ const int RENDER_DRAW_COLOR = 0XFF;
 #define  STATE_MONEY2 24
 
 //Screen
-const int FRAMES_PER_SECOND = 20;
+const int FRAMES_PER_SECOND = 15;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
@@ -111,6 +111,8 @@ namespace SDLCommonFunc
   int GetMin(const int& a, const int& b);
   bool CheckCollision(const SDL_Rect& object1, const SDL_Rect& object2);
   int ShowMenu(SDL_Renderer* g_screen, TTF_Font* font);
+  bool CheckInsideMapX(UINT x1, UINT x2);
+  bool CheckInsideMapY(UINT y1, UINT y2);
 }
 
 #endif

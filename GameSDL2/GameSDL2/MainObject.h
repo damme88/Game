@@ -5,6 +5,7 @@
 #include "CommonFunc.h"
 #include "BaseObject.h"
 #include "BulletObject.h"
+#include "ExplosionObject.h"
 #include <vector>
 
 #define FRAME_NUM_MAIN 8
@@ -43,10 +44,10 @@ public:
   void HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_Chunk* bullet_sound[3]); 
   void SetMapXY(const int map_x, const int map_y) {map_x_ = map_x, map_y_ = map_y;};
 
-  void DoPlayer(Map& g_map);
+  void DoPlayer();
 
-  void CenterEntityOnMap(Map& g_map);
-  void CheckToMap(Map& g_map);
+  void CenterEntityOnMap();
+  void CheckToMap();
 
   std::vector<BulletObject*> get_bullet_list() const {return p_bullet_list_;}
   void set_bullet_list(std::vector<BulletObject*> bullet_list)
@@ -66,7 +67,7 @@ public:
   void IncreaseMoney();
   int get_x_post() const {return x_pos_;}
   int get_y_pos() const {return y_pos_;}
-
+  void InitExp(SDL_Renderer* des);
 protected:
   void UpdateImagePlayer(SDL_Renderer* des);
 private:
@@ -92,10 +93,13 @@ private:
   float x_pos_;
   float y_pos_;
 
+
+
   int width_frame_;
   int height_frame_;
 
   int money_count_;
+  ExplosionObject exp_;
 };
 
 

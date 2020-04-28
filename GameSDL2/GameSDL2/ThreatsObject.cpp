@@ -105,14 +105,14 @@ void ThreatsObject::InitBullet(BulletObject* p_bullet,  SDL_Renderer* screen)
           p_bullet->set_x_val(5);
           p_bullet->set_y_val(5);
           p_bullet->set_dir_bullet(BulletObject::DIR_DOWN_LEFT);
-          p_bullet->SetRect(x_pos_+ 5, y_pos_ + height_frame_ - 10);
+          p_bullet->set_xy_pos(x_pos_+ 5, y_pos_ + height_frame_ - 10);
       }
       else
       {
           p_bullet->LoadImg(g_threat_bullet, screen);
           p_bullet->set_x_val(15);
           p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
-          p_bullet->SetRect(x_pos_ + 20, y_pos_+ 10);
+          p_bullet->set_xy_pos(x_pos_ + 20, y_pos_+ 10);
       }
 
       bullet_list_.push_back(p_bullet);
@@ -139,7 +139,7 @@ void ThreatsObject::MakeBullet(SDL_Renderer* des, const int& x_limit, const int&
                   if (distance_bullet > 0 && distance_bullet < 400)
                   {
                       p_bullet->HandelMove(x_limit, y_limit);
-                      p_bullet->Render(des);
+                      p_bullet->Show(des);
                   }
                   else
                   {
@@ -149,7 +149,7 @@ void ThreatsObject::MakeBullet(SDL_Renderer* des, const int& x_limit, const int&
               else if (type_move_ == MOVING_CONTINOUS)
               {
                   p_bullet->HandelMove(x_limit, y_limit);
-                  p_bullet->Render(des);
+                  p_bullet->Show(des);
               }
           }
           else
@@ -158,12 +158,12 @@ void ThreatsObject::MakeBullet(SDL_Renderer* des, const int& x_limit, const int&
 
             if (type_move_ == MOVING_CONTINOUS)
             {
-               p_bullet->SetRect(rect_.x + 5, rect_.y + height_frame_ - 10);
+               p_bullet->set_xy_pos(x_pos_ + 5, y_pos_ + height_frame_ - 10);
                 
             }
             else
             {
-               p_bullet->SetRect(this->rect_.x + 10, this->rect_.y + 10);
+               p_bullet->set_xy_pos(x_pos_ + 10, y_pos_ + 10);
             }
           }
         }
@@ -476,8 +476,7 @@ void ThreatsObject::CheckToMap(Map& g_map)
 
 void ThreatsObject::Show(SDL_Renderer* des)
 {
-
-  DrawBound(des);
+  //DrawBound(des);
   if (think_time_ == 0)
   {
       rect_.x = x_pos_ - map_x_;

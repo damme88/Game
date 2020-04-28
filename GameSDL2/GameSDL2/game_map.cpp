@@ -1,6 +1,8 @@
 
 #include "game_map.h"
 
+GameMap* GameMap::instance_ = NULL;
+
 GameMap::GameMap()
 {
 
@@ -108,4 +110,23 @@ void GameMap::DrawMap(SDL_Renderer* des)
     }
     map_y++;
   }
+}
+
+bool GameMap::ChecTileMoney(const int& tile)
+{
+    if (tile == STATE_MONEY ||
+        tile == STATE_MONEY ||
+        tile == STATE_MONEY2 ||
+        tile == STATE_MONEY2)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool GameMap::CheckBlank(const int& tile)
+{
+    if (tile == BLANK_TILE)
+        return true;
+    return false;
 }

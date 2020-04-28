@@ -6,11 +6,12 @@ BulletObject::BulletObject()
   x_val_ = 0;
   y_val_ = 0;
   move_type_ = LINE_TYPE;
+  map_x_ = 0;
+  map_y_ = 0;
 }
 
 BulletObject::~BulletObject()
 {
-
 }
 
 BulletObject* BulletObject::Clone()
@@ -30,84 +31,107 @@ void BulletObject::HandelMove(const int& x_border, const int& y_border)
 {
   if (bullet_dir_ == DIR_RIGHT)
   {
-    rect_.x += x_val_;
-    if (rect_.x > x_border) 
+    x_pos_ += x_val_;
+    if (x_pos_ - map_x_ > x_border) 
     {
-      is_move_ = false;
+       is_move_ = false;
     }
   }
   else if (bullet_dir_ == DIR_LEFT)
   {
-      rect_.x -= x_val_;
-      if (rect_.x < 0) 
+      x_pos_ -= x_val_;
+      if (x_pos_ - map_x_ < 0)
       {
           is_move_ = false;
       }
   }
   else if (bullet_dir_ == DIR_UP)
   {
-      rect_.y -= y_val_;
-      if (rect_.y < 0) 
+      y_pos_ -= y_val_;
+      if (y_pos_ - map_y_ < 0)
       {
           is_move_ = false;
       }
   }
   else if (bullet_dir_ == DIR_UP_RIGHT)
   {
-      rect_.x += x_val_;
-      if (rect_.x > x_border) 
+      x_pos_ += x_val_;
+      if (x_pos_ - map_x_ > x_border)
       {
           is_move_ = false;
       }
 
-      rect_.y -= y_val_;
-      if (rect_.y < 0) 
+      y_pos_ -= y_val_;
+      if (y_pos_ - map_y_ < 0)
       {
           is_move_ = false;
       }
   }
   else if (bullet_dir_ == DIR_UP_LEFT)
   {
-      rect_.x -= x_val_;
-      if (rect_.x < 0) 
+      x_pos_ -= x_val_;
+      if (x_pos_ - map_x_ < 0) 
       {
           is_move_ = false;
       }
 
-      rect_.y -= y_val_;
-      if (rect_.y < 0) 
+      y_pos_ -= y_val_;
+      if (y_pos_ - map_y_ < 0) 
       {
           is_move_ = false;
       }
   }
   else if (bullet_dir_ == DIR_DOWN_LEFT)
   {
-      rect_.x -= x_val_;
+      x_pos_ -= x_val_;
 
-      if (rect_.x < 0)
+      if (x_pos_ - map_x_ < 0)
       {
           is_move_ = false;
       }
 
-      rect_.y += y_val_;
-      if (rect_.y > y_border)
+      y_pos_ += y_val_;
+      if (y_pos_ - map_y_ > y_border)
       {
           is_move_ = false;
       }
   }
   else if (bullet_dir_ == DIR_DOWN_RIGHT)
   {
-      rect_.x += x_val_;
-      if (rect_.x > x_border)
+      x_pos_ += x_val_;
+      if (x_pos_ - map_x_ > x_border)
       {
           is_move_ = false;
 
       }
 
-      rect_.y += y_val_;
-      if (rect_.y > y_border)
+      y_pos_ += y_val_;
+      if (y_pos_ - map_y_ > y_border)
       {
           is_move_ = false;
       }
   }
+}
+
+bool BulletObject::CheckToMap()
+{
+    Map map_data = GameMap::GetInstance()->GetMap();
+    int x = x_pos_ / TILE_SIZE;
+    int y = y_pos_/ TILE_SIZE;
+    if (x >= 0 && x < MAX_MAP_X && y >= 0 && y < MAX_MAP_Y)
+    {
+        int val1 = map_data.tile[y][x];
+        if ((val1 != BLANK_TILE))
+        {
+            is_move_ = false;
+            return true;
+        }
+    }
+    return false;
+}
+void BulletObject::Show(SDL_Renderer* des)
+{
+    rect_.x = x_pos_ - map_x_;
+    rect_.y = y_pos_ - map_y_;
+    BaseObject::Render(des);
 }

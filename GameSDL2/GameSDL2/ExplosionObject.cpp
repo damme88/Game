@@ -52,16 +52,14 @@ void ExplosionObject::ImpRender(SDL_Renderer* screen, SDL_Rect& rect_pos)
 {
     int expWidth = get_frame_height();
     int expHeight = get_frame_width();
+    int x_pos = (rect_pos.x) - expWidth*0.5;
+    int y_pos = (rect_pos.y) - expHeight*0.2;
+    SetRect(x_pos, y_pos);
     for (int ex = 0; ex < NUM_FRAME_EXP; ex++)
     {
-        int x_pos = (rect_pos.x + rect_pos.w*0.5) - expWidth*0.5;
-        int y_pos = (rect_pos.y + rect_pos.h*0.5) - expHeight*0.5;
-
-        set_frame(ex);
-        SetRect(x_pos, y_pos);
-        Show(screen);
-        SDL_RenderPresent(screen);
+        frame_ = ex;
     }
+    Show(screen);
 #ifdef USE_AUDIO 
     Mix_PlayChannel(-1, g_sound_ex_main, 0);
 #endif

@@ -30,6 +30,11 @@ MainObject::~MainObject()
   Free();
 }
 
+void MainObject::InitExp(SDL_Renderer* des)
+{
+    exp_.Free();
+    exp_.LoadImg("img//bl_map.png", des);
+}
 
 SDL_Rect MainObject::GetRectFrame()
 {
@@ -110,7 +115,7 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
     {
       BulletObject* p_bullet = new BulletObject();
       p_bullet->LoadImg(kImgBullet, screen);
-
+      p_bullet->SetMapXY(map_x_, map_y_);
 #ifdef USE_AUDIO 
       int ret = Mix_PlayChannel(-1, bullet_sound[0], 0 );
 #endif
@@ -121,19 +126,19 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
             if (input_type_.left_ == 0)
             {
                 p_bullet->set_dir_bullet(BulletObject::DIR_UP);
-                p_bullet->SetRect(this->rect_.x + width_frame_*0.35, this->rect_.y + 15);
+                p_bullet->set_xy_pos(x_pos_ + width_frame_*0.35, y_pos_ + 15);
             }
             else
             {
                 p_bullet->set_dir_bullet(BulletObject::DIR_UP_LEFT);
-                p_bullet->SetRect(this->rect_.x, this->rect_.y + 5);
+                p_bullet->set_xy_pos(x_pos_, y_pos_ + 5);
             }
             
         }
         else
         {
             p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
-            p_bullet->SetRect(this->rect_.x, this->rect_.y + height_frame_*0.22);
+            p_bullet->set_xy_pos(x_pos_, y_pos_ + height_frame_*0.22);
         }
       }
       else
@@ -143,19 +148,19 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
               if (input_type_.right_ == 1)
               {
                   p_bullet->set_dir_bullet(BulletObject::DIR_UP_RIGHT);
-                  p_bullet->SetRect(this->rect_.x + width_frame_, this->rect_.y + 5);
+                  p_bullet->set_xy_pos(x_pos_ + width_frame_, y_pos_ + 5);
               }
               else
               {
                   p_bullet->set_dir_bullet(BulletObject::DIR_UP);
-                  p_bullet->SetRect(this->rect_.x + width_frame_*0.45, this->rect_.y + 15);
+                  p_bullet->set_xy_pos(x_pos_ + width_frame_*0.45, y_pos_ + 15);
               }
               
           }
           else
           {
               p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
-              p_bullet->SetRect(this->rect_.x + width_frame_ - 20, this->rect_.y + height_frame_*0.22);
+              p_bullet->set_xy_pos(x_pos_ + width_frame_ - 20, y_pos_ + height_frame_*0.22);
           }
       }
 
@@ -192,11 +197,18 @@ void MainObject::HandleBullet(SDL_Renderer* des)
     {
       if (p_bullet->get_is_move()) 
       {
-        //if (bullet_dir_ == DIR_RIGHT)
         p_bullet->HandelMove(SCREEN_WIDTH, SCREEN_HEIGHT);
-        //else
-        //  p_bullet->HandleMoveRightToLeft();
-        p_bullet->Render(des);
+        bool ret = p_bullet->CheckToMap();
+        if (ret == true)
+        {
+            SDL_Rect rect_pos = p_bullet->GetRect();
+            exp_.ImpRender(des, rect_pos);
+            continue;
+        }
+        else
+        {
+            p_bullet->Show(des);
+        }
       }
       else
       {
@@ -274,7 +286,7 @@ void MainObject::Show(SDL_Renderer* des)
     }
     else
     {
-        frame_ == 0;
+        frame_ = 0;
     }
 
     if (frame_ >= FRAME_NUM_MAIN)
@@ -292,8 +304,11 @@ void MainObject::Show(SDL_Renderer* des)
     }
 }
 
-void MainObject::DoPlayer(Map& g_map)
+void MainObject::DoPlayer()
 {
+  map_x_ = GameMap::GetInstance()->GetMap().start_x_;
+  map_y_ = GameMap::GetInstance()->GetMap().start_y_;
+
   if (think_time_ == 0)
   {
     x_val_ = 0;
@@ -325,9 +340,9 @@ void MainObject::DoPlayer(Map& g_map)
       on_ground_ = false;
     }
 
-    CheckToMap(g_map);
+    CheckToMap();
 
-    CenterEntityOnMap(g_map);
+    CenterEntityOnMap();
   }
 
   if (think_time_ > 0)
@@ -350,41 +365,44 @@ void MainObject::DoPlayer(Map& g_map)
   }
 }
 
-void MainObject::CenterEntityOnMap(Map& g_map)
+void MainObject::CenterEntityOnMap()
 {
-  g_map.start_x_ = x_pos_ - (SCREEN_WIDTH / 2);
+  Map data_map = GameMap::GetInstance()->GetMap();
+  data_map.start_x_ = x_pos_ - (SCREEN_WIDTH / 2);
 
-  if (g_map.start_x_ < 0)
+  if (data_map.start_x_ < 0)
   {
-    g_map.start_x_ = 0;
+      data_map.start_x_ = 0;
   }
 
-  else if (g_map.start_x_ + SCREEN_WIDTH >= g_map.max_x_)
+  else if (data_map.start_x_ + SCREEN_WIDTH >= data_map.max_x_)
   {
-    g_map.start_x_= g_map.max_x_ - SCREEN_WIDTH;
+      data_map.start_x_= data_map.max_x_ - SCREEN_WIDTH;
   }
 
-  g_map.start_y_ = y_pos_ - (SCREEN_HEIGHT / 2);
+  data_map.start_y_ = y_pos_ - (SCREEN_HEIGHT / 2);
 
-  if (g_map.start_y_ < 0)
+  if (data_map.start_y_ < 0)
   {
-    g_map.start_y_ = 0;
+      data_map.start_y_ = 0;
   }
 
-  else if (g_map.start_y_+ SCREEN_HEIGHT >= g_map.max_y_)
+  else if (data_map.start_y_+ SCREEN_HEIGHT >= data_map.max_y_)
   {
-    g_map.start_y_ = g_map.max_y_ - SCREEN_HEIGHT;
+      data_map.start_y_ = data_map.max_y_ - SCREEN_HEIGHT;
   }
+
+  GameMap::GetInstance()->SetMap(data_map);
 }
 
-void MainObject::CheckToMap(Map& g_map)
+void MainObject::CheckToMap()
 {
   int x1 = 0;
   int x2 = 0;
   int y1 = 0;
   int y2 = 0;
 
-  //on_ground_ = false;
+  Map data_map = GameMap::GetInstance()->GetMap();
 
   //Check Horizontal
 
@@ -412,23 +430,28 @@ void MainObject::CheckToMap(Map& g_map)
 
   // Check x1, x2 with full width of map
   // Check y1, y2 with full height of map
-  if (x1 >= 0 && x2 < MAX_MAP_X && y1 >= 0 && y2 < MAX_MAP_Y)
+  bool IsInside  = SDLCommonFunc::CheckInsideMapX(x1, x2);
+       IsInside  &= SDLCommonFunc::CheckInsideMapY(y1, y2);
+  if (IsInside)
   {
     if (x_val_ > 0) // when object is moving by right  ===>
     {
-      int val1 = g_map.tile[y1][x2];
-      int val2 = g_map.tile[y2][x2];
+      int val1 = data_map.tile[y1][x2];
+      int val2 = data_map.tile[y2][x2];
 
-      if (val1 == STATE_MONEY || val2 == STATE_MONEY || val1 == STATE_MONEY2 || val2 == STATE_MONEY2)
+      bool IsMoney  = GameMap::GetInstance()->ChecTileMoney(val1);
+           IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
+      if (IsMoney)
       {
-          g_map.tile[y1][x2] = 0;
-          g_map.tile[y2][x2] = 0;
+          data_map.tile[y1][x2] = 0;
+          data_map.tile[y2][x2] = 0;
           IncreaseMoney();
       }
       else
       {
-          // Check current position of map. It is not blank_tile.
-          if ((val1 != BLANK_TILE) || (val2 != BLANK_TILE))
+          bool IsBlank1 = GameMap::GetInstance()->CheckBlank(val1);
+          bool IsBlank2 = GameMap::GetInstance()->CheckBlank(val2);
+          if (!IsBlank1 || !IsBlank2)
           {
               // Fixed post of object at current post of map.
               // => Cannot moving when press button
@@ -441,17 +464,22 @@ void MainObject::CheckToMap(Map& g_map)
     }
     else if (x_val_ < 0) // When moving by left    <====
     {
-      int val1 = g_map.tile[y1][x1];
-      int val2 = g_map.tile[y2][x1];
-      if (val1 == STATE_MONEY || val2 == STATE_MONEY || val1 == STATE_MONEY2 || val2 == STATE_MONEY2)
+      int val1 = data_map.tile[y1][x1];
+      int val2 = data_map.tile[y2][x1];
+
+      bool IsMoney = GameMap::GetInstance()->ChecTileMoney(val1);
+           IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
+      if (IsMoney)
       {
-          g_map.tile[y1][x1] = 0;
-          g_map.tile[y2][x1] = 0;
+          data_map.tile[y1][x1] = 0;
+          data_map.tile[y2][x1] = 0;
           IncreaseMoney();
       }
       else
       {
-          if ((g_map.tile[y1][x1] != BLANK_TILE) || (g_map.tile[y2][x1] != BLANK_TILE))
+          bool IsBlank1 = GameMap::GetInstance()->CheckBlank(val1);
+          bool IsBlank2 = GameMap::GetInstance()->CheckBlank(val2);
+          if (!IsBlank1 || !IsBlank2)
           {
               x_pos_ = (x1 + 1) * TILE_SIZE;
               x_val_ = 0;
@@ -469,27 +497,33 @@ void MainObject::CheckToMap(Map& g_map)
   y1 = (y_pos_ + y_val_) / TILE_SIZE;
   y2 = (y_pos_ + y_val_ + height_frame_) / TILE_SIZE;
 
-  if (x1 >= 0 && x2 < MAX_MAP_X && y1 >= 0 && y2 < MAX_MAP_Y)
+  IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
+  IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
+  if (IsInside)
   {
     if (y_val_ > 0)
     {
       //Similar for vertical
-      int val1 = g_map.tile[y2][x1];
-      int val2 = g_map.tile[y2][x2];
+      int val1 = data_map.tile[y2][x1];
+      int val2 = data_map.tile[y2][x2];
 
-      if (val1 == STATE_MONEY || val2 == STATE_MONEY || val1 == STATE_MONEY2 || val2 == STATE_MONEY2)
+      bool IsMoney = GameMap::GetInstance()->ChecTileMoney(val1);
+           IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
+      if (IsMoney)
       {
-          g_map.tile[y2][x1] = 0;
-          g_map.tile[y2][x2] = 0;
+          data_map.tile[y2][x1] = 0;
+          data_map.tile[y2][x2] = 0;
           IncreaseMoney();
       }
       else
       {
-          if ((val1 != BLANK_TILE) || (val2 != BLANK_TILE))
+          bool IsBlank1 = GameMap::GetInstance()->CheckBlank(val1);
+          bool IsBlank2 = GameMap::GetInstance()->CheckBlank(val2);
+
+          if (!IsBlank1 || !IsBlank2)
           {
               y_pos_ = y2 * TILE_SIZE;
               y_pos_ -= height_frame_;
-
               y_val_ = 0;
 
               on_ground_ = true;
@@ -503,28 +537,32 @@ void MainObject::CheckToMap(Map& g_map)
     }
     else if (y_val_ < 0)
     {
-      int val1 = g_map.tile[y1][x1];
-      int val2 = g_map.tile[y1][x2];
+      int val1 = data_map.tile[y1][x1];
+      int val2 = data_map.tile[y1][x2];
 
-      if (val1 == STATE_MONEY || val2 == STATE_MONEY || val1 == STATE_MONEY2 || val2 == STATE_MONEY2)
+      bool IsMoney = GameMap::GetInstance()->ChecTileMoney(val1);
+           IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
+      if (IsMoney)
       {
-          g_map.tile[y1][x2] = 0;
-          g_map.tile[y1][x2] = 0;
+          data_map.tile[y1][x2] = 0;
+          data_map.tile[y1][x2] = 0;
           IncreaseMoney();
       }
       else
       {
-          if ((val1 != BLANK_TILE) || (val2 != BLANK_TILE))
+          bool IsBlank1 = GameMap::GetInstance()->CheckBlank(val1);
+          bool IsBlank2 = GameMap::GetInstance()->CheckBlank(val2);
+
+          if (!IsBlank1 || !IsBlank2)
           {
               y_pos_ = (y1 + 1) * TILE_SIZE;
-
               y_val_ = 0;
           }
       }
     }
   }
 
-  //If there is not collision with map tile. 
+  GameMap::GetInstance()->SetMap(data_map);
   x_pos_ += x_val_;
   y_pos_ += y_val_;
 
@@ -532,12 +570,12 @@ void MainObject::CheckToMap(Map& g_map)
   {
     x_pos_ = 0;
   }
-  else if (x_pos_ + width_frame_ >= g_map.max_x_)
+  else if (x_pos_ + width_frame_ >= data_map.max_x_)
   {
-    x_pos_ = g_map.max_x_ - width_frame_ - 1;
+    x_pos_ = data_map.max_x_ - width_frame_ - 1;
   }
 
-  if (y_pos_ > g_map.max_y_)
+  if (y_pos_ > data_map.max_y_)
   {
     think_time_ = 60;
     is_falling_ = true;

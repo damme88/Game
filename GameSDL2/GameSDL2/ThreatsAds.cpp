@@ -4,6 +4,7 @@
 
 ThreatsAds::ThreatsAds()
 {
+    map_info_ = GameMap::GetInstance()->GetMap();
 }
 
 
@@ -30,7 +31,7 @@ void ThreatsAds::BuildThreats(SDL_Renderer* screen)
     pThreatsNormal_.push_back(plane_threat);
 #endif
 
-#ifndef USE_THREAT_SPACING
+#ifdef USE_THREAT_SPACING
     ThreatsObject* thread_objs = new ThreatsObject[NUM_SPACE];
 
     for (int i = 0; i < NUM_SPACE; i++)
@@ -53,7 +54,7 @@ void ThreatsAds::BuildThreats(SDL_Renderer* screen)
 
 #endif
 
-#ifndef USE_THREAT_STATIC
+#ifdef USE_THREAT_STATIC
     ThreatsObject* thread_objs2 = new ThreatsObject[NUM_STATIC];
     for (int i = 0; i < NUM_STATIC; i++)
     {
