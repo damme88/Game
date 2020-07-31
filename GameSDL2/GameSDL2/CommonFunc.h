@@ -42,9 +42,9 @@ static char g_name_money[] = { "img//money_img.png" };
 static char g_name_main_alive[] = {"img//player_pw.png"};
 
 
-const int COLOR_KEY_R = 167;
-const int COLOR_KEY_G = 175;
-const int COLOR_KEY_B = 180;
+const int COLOR_KEY_R = 125;
+const int COLOR_KEY_G = 125;
+const int COLOR_KEY_B = 125;
 
 const int RENDER_DRAW_COLOR = 0XFF;
 
@@ -54,14 +54,14 @@ const int RENDER_DRAW_COLOR = 0XFF;
 #define TILE_SIZE 64
 #define BLANK_TILE 0
 
-#define MAX_MAP_X 400
+#define MAX_MAP_X 200
 #define MAX_MAP_Y 10
 
 #define STATE_MONEY 19
 #define  STATE_MONEY2 24
 
 //Screen
-const int FRAMES_PER_SECOND = 15;
+const int FRAMES_PER_SECOND = 25;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
@@ -94,16 +94,6 @@ typedef struct Input
   int down_;
   int jump_;
 } Input;
-
-typedef struct Map
-{
-  int start_x_;
-  int start_y_;
-  int max_x_;
-  int max_y_;
-  int tile[MAX_MAP_Y][MAX_MAP_X];
-  char* file_name_;
-} Map;
 
 namespace SDLCommonFunc
 {

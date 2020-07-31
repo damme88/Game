@@ -1,8 +1,7 @@
 
 #include "MainObject.h"
 #include "Geometric.h"
-
-#define  NUM_FRAME 8
+#define  NUM_FRAME 4
 
 MainObject::MainObject()
 {
@@ -257,7 +256,7 @@ void MainObject::set_clips()
 {
   if (width_frame_ > 0 && height_frame_ > 0)
   {
-      for (int i = 0; i < FRAME_NUM_MAIN; i++)
+      for (int i = 0; i < NUM_FRAME; i++)
       {
           frame_clip_[i].x = width_frame_*i;
           frame_clip_[i].y = 0;
@@ -289,7 +288,7 @@ void MainObject::Show(SDL_Renderer* des)
         frame_ = 0;
     }
 
-    if (frame_ >= FRAME_NUM_MAIN)
+    if (frame_ >= NUM_FRAME)
     {
         frame_ = 0;
     }
@@ -306,8 +305,8 @@ void MainObject::Show(SDL_Renderer* des)
 
 void MainObject::DoPlayer()
 {
-  map_x_ = GameMap::GetInstance()->GetMap().start_x_;
-  map_y_ = GameMap::GetInstance()->GetMap().start_y_;
+  map_x_ = GameMap::GetInstance()->GetMap()->getStartX();
+  map_y_ = GameMap::GetInstance()->GetMap()->getStartY();
 
   if (think_time_ == 0)
   {
@@ -367,32 +366,8 @@ void MainObject::DoPlayer()
 
 void MainObject::CenterEntityOnMap()
 {
-  Map data_map = GameMap::GetInstance()->GetMap();
-  data_map.start_x_ = x_pos_ - (SCREEN_WIDTH / 2);
-
-  if (data_map.start_x_ < 0)
-  {
-      data_map.start_x_ = 0;
-  }
-
-  else if (data_map.start_x_ + SCREEN_WIDTH >= data_map.max_x_)
-  {
-      data_map.start_x_= data_map.max_x_ - SCREEN_WIDTH;
-  }
-
-  data_map.start_y_ = y_pos_ - (SCREEN_HEIGHT / 2);
-
-  if (data_map.start_y_ < 0)
-  {
-      data_map.start_y_ = 0;
-  }
-
-  else if (data_map.start_y_+ SCREEN_HEIGHT >= data_map.max_y_)
-  {
-      data_map.start_y_ = data_map.max_y_ - SCREEN_HEIGHT;
-  }
-
-  GameMap::GetInstance()->SetMap(data_map);
+  Map* data_map = GameMap::GetInstance()->GetMap();
+  data_map->CenterEntityOnMap(x_pos_, y_pos_);
 }
 
 void MainObject::CheckToMap()
@@ -402,8 +377,8 @@ void MainObject::CheckToMap()
   int y1 = 0;
   int y2 = 0;
 
-  Map data_map = GameMap::GetInstance()->GetMap();
-
+  Map* data_map = GameMap::GetInstance()->GetMap();
+  std::vector<std::vector<BlockMap*>> tile_list = data_map->GetTile();
   //Check Horizontal
 
   int height_min = 0;
@@ -436,15 +411,16 @@ void MainObject::CheckToMap()
   {
     if (x_val_ > 0) // when object is moving by right  ===>
     {
-      int val1 = data_map.tile[y1][x2];
-      int val2 = data_map.tile[y2][x2];
+      
+      int val1 = tile_list[y1][x2]->getType();
+      int val2 = tile_list[y2][x2]->getType();
 
       bool IsMoney  = GameMap::GetInstance()->ChecTileMoney(val1);
            IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
       if (IsMoney)
       {
-          data_map.tile[y1][x2] = 0;
-          data_map.tile[y2][x2] = 0;
+          tile_list[y1][x2]->setType(0);
+          tile_list[y2][x2]->setType(0);
           IncreaseMoney();
       }
       else
@@ -464,15 +440,15 @@ void MainObject::CheckToMap()
     }
     else if (x_val_ < 0) // When moving by left    <====
     {
-      int val1 = data_map.tile[y1][x1];
-      int val2 = data_map.tile[y2][x1];
+      int val1 = tile_list[y1][x1]->getType();
+      int val2 = tile_list[y2][x1]->getType();
 
       bool IsMoney = GameMap::GetInstance()->ChecTileMoney(val1);
            IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
       if (IsMoney)
       {
-          data_map.tile[y1][x1] = 0;
-          data_map.tile[y2][x1] = 0;
+          tile_list[y1][x1]->setType(0);
+          tile_list[y2][x1]->setType(0);
           IncreaseMoney();
       }
       else
@@ -504,15 +480,15 @@ void MainObject::CheckToMap()
     if (y_val_ > 0)
     {
       //Similar for vertical
-      int val1 = data_map.tile[y2][x1];
-      int val2 = data_map.tile[y2][x2];
+      int val1 = tile_list[y2][x1]->getType();
+      int val2 = tile_list[y2][x2]->getType();
 
       bool IsMoney = GameMap::GetInstance()->ChecTileMoney(val1);
            IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
       if (IsMoney)
       {
-          data_map.tile[y2][x1] = 0;
-          data_map.tile[y2][x2] = 0;
+          tile_list[y2][x1]->setType(0);
+          tile_list[y2][x2]->setType(0);
           IncreaseMoney();
       }
       else
@@ -537,15 +513,15 @@ void MainObject::CheckToMap()
     }
     else if (y_val_ < 0)
     {
-      int val1 = data_map.tile[y1][x1];
-      int val2 = data_map.tile[y1][x2];
+      int val1 = tile_list[y1][x1]->getType();
+      int val2 = tile_list[y1][x2]->getType();
 
       bool IsMoney = GameMap::GetInstance()->ChecTileMoney(val1);
            IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
       if (IsMoney)
       {
-          data_map.tile[y1][x2] = 0;
-          data_map.tile[y1][x2] = 0;
+          tile_list[y1][x2]->setType(0);
+          tile_list[y1][x2]->setType(0);
           IncreaseMoney();
       }
       else
@@ -557,6 +533,16 @@ void MainObject::CheckToMap()
           {
               y_pos_ = (y1 + 1) * TILE_SIZE;
               y_val_ = 0;
+
+              if (!IsBlank1)
+              {
+                  tile_list[y1][x1]->setYVal(16);
+              }
+              
+              if (!IsBlank2)
+              {
+                  tile_list[y1][x2]->setYVal(16);
+              }
           }
       }
     }
@@ -570,12 +556,12 @@ void MainObject::CheckToMap()
   {
     x_pos_ = 0;
   }
-  else if (x_pos_ + width_frame_ >= data_map.max_x_)
+  else if (x_pos_ + width_frame_ >= data_map->getMaxX())
   {
-    x_pos_ = data_map.max_x_ - width_frame_ - 1;
+    x_pos_ = data_map->getMaxX() - width_frame_ - 1;
   }
 
-  if (y_pos_ > data_map.max_y_)
+  if (y_pos_ > data_map->getMaxY())
   {
     think_time_ = 60;
     is_falling_ = true;

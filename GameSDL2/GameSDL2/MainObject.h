@@ -8,7 +8,7 @@
 #include "ExplosionObject.h"
 #include <vector>
 
-#define FRAME_NUM_MAIN 8
+
 #define GRAVITY_SPEED 0.8
 #define MAX_FALL_SPEED 10
 
@@ -79,7 +79,7 @@ private:
   int frame_;
   int status_;
 
-  SDL_Rect frame_clip_[8];
+  SDL_Rect frame_clip_[4];
   Input input_type_;
 
   bool on_ground_;
@@ -92,8 +92,6 @@ private:
   float y_val_;
   float x_pos_;
   float y_pos_;
-
-
 
   int width_frame_;
   int height_frame_;

@@ -44,9 +44,9 @@ public:
   void SetMapXY(const int map_x, const int map_y) {map_x_ = map_x, map_y_ = map_y;}
   void RemoveBullet(const int& idx); 
   void ResetBullet(BulletObject* p_bullet);
-  void CheckToMap(Map& g_map);
-  void CenterEntityOnMap(Map& g_map);
-  void DoPlayer(Map& g_map);
+  void CheckToMap(Map* g_map);
+  void CenterEntityOnMap(Map* g_map);
+  void DoPlayer(Map* g_map);
   void ImpMoveType(SDL_Renderer* screen);
   void InitPlayer();
   void SetAnimationPos(const int& pos_x_a, const int& pos_x_b);

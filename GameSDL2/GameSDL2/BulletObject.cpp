@@ -115,12 +115,12 @@ void BulletObject::HandelMove(const int& x_border, const int& y_border)
 
 bool BulletObject::CheckToMap()
 {
-    Map map_data = GameMap::GetInstance()->GetMap();
+    Map* map_data = GameMap::GetInstance()->GetMap();
     int x = x_pos_ / TILE_SIZE;
     int y = y_pos_/ TILE_SIZE;
     if (x >= 0 && x < MAX_MAP_X && y >= 0 && y < MAX_MAP_Y)
     {
-        int val1 = map_data.tile[y][x];
+        int val1 = map_data->GetTile()[y][x]->getType();
         if ((val1 != BLANK_TILE))
         {
             is_move_ = false;

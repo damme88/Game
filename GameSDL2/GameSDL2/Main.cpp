@@ -220,9 +220,10 @@ int main( int argc, char* args[] )
       }
 #endif
 
-       SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
+       //SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
        SDL_RenderClear(g_screen);
 
+       //SDL_SetRenderDrawColor(g_screen, 0, 0, 0, 255);
        g_background.Render(g_screen, NULL);
 
        //Map ga_map = game_map->GetMap();
@@ -375,6 +376,7 @@ int main( int argc, char* args[] )
        }
   }
 
+  delete game_map;
   pThreatAds.Free();
   close();
   return 0;

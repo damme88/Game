@@ -5,12 +5,12 @@ GameMap* GameMap::instance_ = NULL;
 
 GameMap::GameMap()
 {
-
+    game_map_ = new Map();
 }
 
 GameMap::~GameMap()
 {
-
+    delete game_map_;
 }
 
 void GameMap::LoadMap(char* name)
@@ -22,57 +22,54 @@ void GameMap::LoadMap(char* name)
     return;
   }
 
-  game_map_.max_x_ = game_map_.max_y_ = 0; // count cell of map
-  for (int i = 0; i < MAX_MAP_Y; i++)
+  for (int y = 0; y < MAX_MAP_Y; y++)
   {
-    for (int j = 0; j < MAX_MAP_X; j++)
+      std::vector<BlockMap*> xTemp;
+    for (int x = 0; x < MAX_MAP_X; x++)
     {
-      fscanf_s(fp, "%d", &game_map_.tile[i][j]);
-      if (game_map_.tile[i][j] > 0)
+      BlockMap* pBlock = new BlockMap();
+      int val = 0;
+      fscanf_s(fp, "%d", &val );
+      if (val > 0)
       {
-        if (j > game_map_.max_x_)
-        {
-          game_map_.max_x_ = j;
-        }
-
-        if (i > game_map_.max_y_)
-        {
-          game_map_.max_y_ = i;
-        }
+        pBlock->setType(val);
+        pBlock->setYIdx(y);
+        pBlock->setXIdx(x);
       }
+      xTemp.push_back(pBlock);
     }
+    game_map_->AddList(xTemp);
   }
 
-  game_map_.max_x_ = (game_map_.max_x_ + 1)*TILE_SIZE; // 400 x 64 =>
-  game_map_.max_y_ = (game_map_.max_y_ + 1)*TILE_SIZE;
+  game_map_->SetMaxX(MAX_MAP_X*TILE_SIZE);
+  game_map_->SetMaxY(MAX_MAP_Y*TILE_SIZE);
 
-  game_map_.start_x_ = game_map_.start_y_ = 0;
-
-  game_map_.file_name_ = name;
+  game_map_->SetFileMap((std::string)name);
 
   fclose(fp);
 }
 
 void GameMap::LoadMapTiles(SDL_Renderer* screen)
 {
-  char filename[40];
-  FILE *fp;
-
-  for (int i = 0; i < MAX_TILES; i++)
-  {
-    sprintf_s(filename, "map/%d.png", i);
-
-    fopen_s(&fp, filename, "rb");
-
-    if (fp == NULL)
+    char filename[40];
+    for (int y = 0; y < MAX_MAP_Y; y++)
     {
-      continue;
+        for (int x = 0; x < MAX_MAP_X; x++)
+        {
+            BlockMap* pBlock = game_map_->GetTile()[y][x];
+            if (pBlock != NULL)
+            {
+                int val = game_map_->GetTile()[y][x]->getType();
+                sprintf_s(filename, "map/%d.png", val);
+                TileMat* pTile = new TileMat();
+                bool ret = pTile->LoadImg(filename, screen);
+                if (ret)
+                {
+                    game_map_->GetTile()[y][x]->setTile(pTile);
+                }
+            }
+        }
     }
-
-    fclose(fp);
-
-    tile_mat_[i].LoadImg(filename, screen);
-  }
 }
 
 
@@ -87,24 +84,47 @@ void GameMap::DrawMap(SDL_Renderer* des)
   int y1 = 0;
   int y2 = 0;
 
-  map_x = game_map_.start_x_/TILE_SIZE;
-  x1 = (game_map_.start_x_ %TILE_SIZE)*-1;
-  x2 = x1 + SCREEN_WIDTH + (x1 == 0 ? 0 : TILE_SIZE);
+  // map_x la vi tri tile hien tai
+  map_x = game_map_->getStartX()/TILE_SIZE;
 
-  map_y = game_map_.start_y_/TILE_SIZE;
-  y1 = (game_map_.start_y_%TILE_SIZE)*-1;
-  y2 = y1 + SCREEN_HEIGHT + (y1 == 0 ? 0 :TILE_SIZE);
+  // gia tri x1 la gia tri con thua sau phep chia
+  x1 = (game_map_->getStartX() %TILE_SIZE);
 
-  for (int i = y1; i < y2; i += TILE_SIZE)
+  if (x1 == 0)
   {
-    map_x = game_map_.start_x_/TILE_SIZE;
-    for (int j= x1; j < x2; j +=TILE_SIZE)
+      // neu phep chia co so du bang 0, nghia la start_x = nguyen lan TILE
+      x2 = x1 + SCREEN_WIDTH;
+  }
+  else
+  {
+      // Neu phep co du > 0 thi cong them 1 TILE SIZE
+      x2 = x1 + SCREEN_WIDTH + TILE_SIZE;
+  }
+
+  map_y = game_map_->getStartY()/TILE_SIZE;
+  y1 = (game_map_->getStartY()%TILE_SIZE);
+  if (y1 == 0)
+  {
+      y2 = y1 + SCREEN_HEIGHT;
+  }
+  else
+  {
+      y2 = y1 + SCREEN_HEIGHT + TILE_SIZE;
+  }
+  
+  //gia tri am la de cac tile size hien thi khuat 1 phan ve ben trai, vi player di chuyen ve ben phai
+  for (int y_pos = -y1; y_pos < y2; y_pos += TILE_SIZE)
+  {
+    map_x = game_map_->getStartX()/TILE_SIZE;
+    for (int x_pos = -x1; x_pos < x2; x_pos +=TILE_SIZE)
     {
-      int type_img = game_map_.tile[map_y][map_x];
-      if (type_img != 0)
+      BlockMap* pBlock = game_map_->GetTile()[map_y][map_x];
+      if (pBlock->GetTile() != NULL)
       {
-        tile_mat_[type_img].SetRect(j, i);
-        tile_mat_[type_img].Render(des);
+          pBlock->setXpMap(x_pos);
+          pBlock->setYpMap(y_pos);
+          pBlock->Update();
+          pBlock->Render(des);
       }
       map_x++;
     }

@@ -95,6 +95,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainObject.cpp" />
     <ClCompile Include="PlayerPower.cpp" />
+    <ClCompile Include="TileObject.cpp" />
     <ClCompile Include="TextObject.cpp" />
     <ClCompile Include="ThreatsAds.cpp" />
     <ClCompile Include="ThreatsObject.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="ImpTimer.h" />
     <ClInclude Include="MainObject.h" />
     <ClInclude Include="PlayerPower.h" />
+    <ClInclude Include="TileObject.h" />
     <ClInclude Include="TextObject.h" />
     <ClInclude Include="ThreatsAds.h" />
     <ClInclude Include="ThreatsObject.h" />

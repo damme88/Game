@@ -4,7 +4,6 @@
 
 ThreatsAds::ThreatsAds()
 {
-    map_info_ = GameMap::GetInstance()->GetMap();
 }
 
 
@@ -16,6 +15,7 @@ ThreatsAds::~ThreatsAds()
 
 void ThreatsAds::BuildThreats(SDL_Renderer* screen)
 {
+    map_info_ = GameMap::GetInstance()->GetMap();
 #ifdef USE_THREAT_PLANE
     ThreatsObject* plane_threat = new ThreatsObject();
     plane_threat->LoadImg(plane_img_name, screen);
@@ -85,7 +85,7 @@ void ThreatsAds::Render(SDL_Renderer* screen)
     {
         ThreatsObject* obj_threat = pThreatsNormal_.at(i);
 
-        obj_threat->SetMapXY(map_info_.start_x_, map_info_.start_y_);
+        obj_threat->SetMapXY(map_info_->getMaxX(), map_info_->getMaxY());
         obj_threat->ImpMoveType(screen);
         obj_threat->DoPlayer(map_info_);
         obj_threat->Show(screen);

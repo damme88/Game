@@ -38,9 +38,9 @@ public:
 
     void SetMapXY(const int map_x, const int map_y) {map_x_ = map_x, map_y_ = map_y;};
 
-    void CheckToMap(Map& g_map);
-    void CenterEntityOnMap(Map& g_map);
-    void DoPlayer(Map& g_map);
+    void CheckToMap(Map* g_map);
+    void CenterEntityOnMap(Map* g_map);
+    void DoPlayer(Map* g_map);
     void InitPlayer();
     std::vector<BulletObject*> get_bullet_list() const {return bullet_list_;}
     void set_bullet_list(const std::vector<BulletObject*>& am_list) {bullet_list_ = am_list;}

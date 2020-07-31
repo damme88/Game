@@ -19,11 +19,11 @@ public:
 
     void BuildThreats(SDL_Renderer* screen);
     void Render(SDL_Renderer* screen);
-    void SetMapInfo(Map mapInfo) { map_info_ = mapInfo; };
+    void SetMapInfo(Map* mapInfo) { map_info_ = mapInfo; };
     bool CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_obj, const bool& checkBullet = false);
     void Free();
 private:
     std::vector <ThreatsObject*> pThreatsNormal_;
-    Map map_info_;
+    Map* map_info_;
 };
 

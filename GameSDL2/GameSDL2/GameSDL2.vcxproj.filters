@@ -57,6 +57,9 @@
     <ClCompile Include="BulletObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TileObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonFunc.h">
@@ -96,6 +99,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ThreatsAds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TileObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

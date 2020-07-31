@@ -27,7 +27,8 @@ bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen)
   if( loadedSurface != NULL )
   {
     //Color key image
-    SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, COLOR_KEY_R, COLOR_KEY_G, COLOR_KEY_B));
+    Uint32 uKey = SDL_MapRGB(loadedSurface->format, COLOR_KEY_R, COLOR_KEY_G, COLOR_KEY_B);
+    SDL_SetColorKey(loadedSurface, SDL_TRUE, uKey);
 
     //Create texture from surface pixels
     newTexture = SDL_CreateTextureFromSurface(screen, loadedSurface );

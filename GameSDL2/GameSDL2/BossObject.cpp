@@ -76,7 +76,7 @@ void BossObject::Show(SDL_Renderer* des)
     }
 }
 
-void BossObject::DoPlayer(Map& g_map)
+void BossObject::DoPlayer(Map* g_map)
 {
     if (think_time_ == 0)
     {
@@ -140,42 +140,20 @@ void BossObject::InitPlayer()
     input_type_.left_ = 1;
 }
 
-void BossObject::CenterEntityOnMap(Map& g_map)
+void BossObject::CenterEntityOnMap(Map* g_map)
 {
-    g_map.start_x_ = x_pos_ - (SCREEN_WIDTH / 2);
-
-    if (g_map.start_x_ < 0)
-    {
-        g_map.start_x_ = 0;
-    }
-
-    else if (g_map.start_x_ + SCREEN_WIDTH >= g_map.max_x_)
-    {
-        g_map.start_x_= g_map.max_x_ - SCREEN_WIDTH;
-    }
-
-    g_map.start_y_ = y_pos_ - (SCREEN_HEIGHT / 2);
-
-    if (g_map.start_y_ < 0)
-    {
-        g_map.start_y_ = 0;
-    }
-
-    else if (g_map.start_y_+ SCREEN_HEIGHT >= g_map.max_y_)
-    {
-        g_map.start_y_ = g_map.max_y_ - SCREEN_HEIGHT;
-    }
+    g_map->CenterEntityOnMap(x_pos_, y_pos_);
 }
 
-void BossObject::CheckToMap(Map& g_map)
+void BossObject::CheckToMap(Map* g_map)
 {
     int x1 = 0;
     int x2 = 0;
     int y1 = 0;
     int y2 = 0;
-
     on_ground_ = 0;
 
+    std::vector<std::vector<BlockMap*>> tile_list = g_map->GetTile();
     //Check Horizontal
     int height_min =   height_frame_ ;//SDLCommonFunc::GetMin(height_frame_, TILE_SIZE);
 
@@ -200,7 +178,7 @@ void BossObject::CheckToMap(Map& g_map)
         if (x_val_ > 0) // when object is moving by right  ===>
         {
             // Check current position of map. It is not blank_tile.
-            if ((g_map.tile[y1][x2] != BLANK_TILE) || (g_map.tile[y2][x2] != BLANK_TILE))
+            if ((tile_list[y1][x2]->getType() != BLANK_TILE) || (tile_list[y2][x2]->getType() != BLANK_TILE))
             {
                 // Fixed post of object at current post of map.
                 // => Cannot moving when press button
@@ -211,7 +189,7 @@ void BossObject::CheckToMap(Map& g_map)
         }
         else if (x_val_ < 0) // When moving by left    <====
         {
-            if ((g_map.tile[y1][x1] != BLANK_TILE) || (g_map.tile[y2][x1] != BLANK_TILE))
+            if ((tile_list[y1][x1]->getType() != BLANK_TILE) || (tile_list[y2][x1]->getType() != BLANK_TILE))
             {
                 x_pos_ = (x1 + 1) * TILE_SIZE;
                 x_val_ = 0;
@@ -234,7 +212,7 @@ void BossObject::CheckToMap(Map& g_map)
         if (y_val_ > 0)
         {
             //Similar for vertical
-            if ((g_map.tile[y2][x1] != BLANK_TILE) || (g_map.tile[y2][x2] != BLANK_TILE))
+            if ((tile_list[y2][x1]->getType() != BLANK_TILE) || (tile_list[y2][x2]->getType() != BLANK_TILE))
             {
                 y_pos_ = y2 * TILE_SIZE;
                 y_pos_ -= height_frame_;
@@ -246,7 +224,7 @@ void BossObject::CheckToMap(Map& g_map)
         }
         else if (y_val_ < 0)
         {
-            if ((g_map.tile[y1][x1] != BLANK_TILE) || (g_map.tile[y1][x2] != BLANK_TILE))
+            if ((tile_list[y1][x1]->getType() != BLANK_TILE) || (tile_list[y1][x2]->getType() != BLANK_TILE))
             {
                 y_pos_ = (y1 + 1) * TILE_SIZE;
 
@@ -263,12 +241,12 @@ void BossObject::CheckToMap(Map& g_map)
     {
         x_pos_ = 0;
     }
-    else if (x_pos_ + width_frame_ >= g_map.max_x_)
+    else if (x_pos_ + width_frame_ >= g_map->getMaxX())
     {
-        x_pos_ = g_map.max_x_ - width_frame_ - 1;
+        x_pos_ = g_map->getMaxX() - width_frame_ - 1;
     }
 
-    if (y_pos_ > g_map.max_y_)
+    if (y_pos_ > g_map->getMaxY())
     {
         think_time_ = 60;
     }
