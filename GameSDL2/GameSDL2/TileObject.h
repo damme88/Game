@@ -12,6 +12,17 @@ class TileMat : public BaseObject
 public:
     TileMat();
     ~TileMat();
+    void SetClip();
+    bool LoadImg(std::string path, SDL_Renderer* screen);
+    void SetIsClip(const bool& is_clip) { is_clip_ = is_clip; }
+    bool GetIsClip() const { return is_clip_; }
+    void Show(SDL_Renderer* des);
+private:
+    SDL_Rect frame_clip_[4];
+    int width_frame_;
+    int height_frame_;
+    bool is_clip_;
+    int frame_;
 };
 
 class BlockMap

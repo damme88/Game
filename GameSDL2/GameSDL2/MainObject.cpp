@@ -6,8 +6,8 @@
 MainObject::MainObject()
 {
   frame_ = 0;
-  x_pos_ = 0;
-  y_pos_ = 0;
+  x_pos_ = 128;
+  y_pos_ = SCREEN_HEIGHT - 128;
   x_val_ = 0;
   y_val_ = 0;
   think_time_ = 0;
@@ -71,13 +71,14 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
         {
             input_type_.up_ = 0;
             input_type_.down_ = 1;
+            UpdateImagePlayer(screen);
         }
         break;
     case SDLK_UP:
       {
-        input_type_.up_ = 1;
-        input_type_.down_ = 0;
-        UpdateImagePlayer(screen);
+        //input_type_.up_ = 1;
+        //input_type_.down_ = 0;
+        //UpdateImagePlayer(screen);
       }
       break;
     }
@@ -96,9 +97,9 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
         break;
     case SDLK_UP:
         {
-            input_type_.up_ = 0;
-             UpdateImagePlayer(screen);
-             y_pos_ += height_frame_;
+            //input_type_.up_ = 0;
+            // UpdateImagePlayer(screen);
+            // y_pos_ += height_frame_;
         }
         break;
      case SDLK_DOWN:
@@ -171,6 +172,7 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
     else if (events.button.button == SDL_BUTTON_RIGHT)
     {
       input_type_.jump_ = 1;
+      input_type_.down_ = 0;
     }
   }
   else if (events.type == SDL_MOUSEBUTTONUP)
@@ -538,11 +540,14 @@ void MainObject::CheckToMap()
               {
                   tile_list[y1][x1]->setYVal(16);
               }
-              
-              if (!IsBlank2)
+              else
               {
-                  tile_list[y1][x2]->setYVal(16);
+                  if (!IsBlank2)
+                  {
+                      tile_list[y1][x2]->setYVal(16);
+                  }
               }
+              
           }
       }
     }
@@ -583,34 +588,24 @@ void MainObject::UpdateImagePlayer(SDL_Renderer* des)
     {
         if (status_ == WALK_LEFT )
         {
-            if (input_type_.up_ == 0)
+            if (input_type_.down_ == 0)
             {
                 LoadImg(g_name_main_left, des);
             }
-            else if (input_type_.up_ == 1)
+            else if (input_type_.down_ == 1)
             {
-                LoadImg("img//player_up_left.png", des);
-            }
-
-            if (input_type_.left_ == 1 && input_type_.up_ == 1)
-            {
-                LoadImg("img//player_cheo_left.png", des);
+                LoadImg("img//player_down_left.png", des);
             }
         }
         else
         {
-            if (input_type_.up_ == 0)
+            if (input_type_.down_ == 0)
             {
                 LoadImg(g_name_main_right, des);
             }
-            else if (input_type_.up_ == 1)
+            else if (input_type_.down_ == 1)
             {
-                LoadImg("img//player_up_right.png", des);
-            }
-
-            if (input_type_.right_ == 1 && input_type_.up_ == 1)
-            {
-                LoadImg("img//player_cheo_right.png", des);
+                LoadImg("img//player_down_right.png", des);
             }
         }
     }
@@ -618,53 +613,11 @@ void MainObject::UpdateImagePlayer(SDL_Renderer* des)
     {
         if (status_ == WALK_LEFT)
         {
-            if (input_type_.left_ == 1)
-            {
-                if (input_type_.up_ == 1)
-                {
-                    LoadImg("img//player_cheo_left.png", des);
-                }
-                else
-                {
-                    LoadImg(g_main_jump_left, des);
-                }
-            }
-            else
-            {
-                if (input_type_.up_ == 0)
-                {
-                    LoadImg(g_main_jump_left, des);
-                }
-                if (input_type_.up_ == 1)
-                {
-                    LoadImg("img//player_up_left.png", des);
-                }
-            }
+            LoadImg(g_main_jump_left, des);
         }
         else
         {
-            if (input_type_.right_ == 1)
-            {
-                if (input_type_.up_ == 1)
-                {
-                    LoadImg("img//player_cheo_right.png", des);
-                }
-                else
-                {
-                    LoadImg(g_main_jump_right, des);
-                }
-            }
-            else
-            {
-                if (input_type_.up_ == 0)
-                {
-                    LoadImg(g_main_jump_right, des);
-                }
-                if (input_type_.up_ == 1)
-                {
-                    LoadImg("img//player_up_right.png", des);
-                }
-            }
+            LoadImg(g_main_jump_right, des);
         }
     }
 }

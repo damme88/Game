@@ -31,7 +31,7 @@ void ThreatsAds::BuildThreats(SDL_Renderer* screen)
     pThreatsNormal_.push_back(plane_threat);
 #endif
 
-#ifdef USE_THREAT_SPACING
+#ifndef USE_THREAT_SPACING
     ThreatsObject* thread_objs = new ThreatsObject[NUM_SPACE];
 
     for (int i = 0; i < NUM_SPACE; i++)

@@ -62,6 +62,10 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
                 int val = game_map_->GetTile()[y][x]->getType();
                 sprintf_s(filename, "map/%d.png", val);
                 TileMat* pTile = new TileMat();
+                if (val == 3)
+                {
+                    pTile->SetIsClip(true);
+                }
                 bool ret = pTile->LoadImg(filename, screen);
                 if (ret)
                 {
