@@ -7,7 +7,7 @@
 
 #define SCROLL_SPEED 4
 #define MAX_TILES 20
-
+const INT GROUND_POS = SCREEN_HEIGHT - 64;
 class GameMap
 {
 public:

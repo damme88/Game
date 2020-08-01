@@ -64,6 +64,11 @@ TileMat::TileMat()
 {
     is_clip_ = false;
     frame_ = 0;
+    lTimePassed = 0;
+    iDelay[0] = 100;
+    iDelay[1] = 100;
+    iDelay[2] = 100;
+    iDelay[3] = 100;
 }
 
 TileMat::~TileMat()
@@ -72,7 +77,7 @@ TileMat::~TileMat()
 
 void TileMat::SetClip()
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < TILE_FRAME; i++)
     {
         frame_clip_[i].x = width_frame_*i;
         frame_clip_[i].y = 0;
@@ -111,10 +116,14 @@ void TileMat::Show(SDL_Renderer* des)
     }
     else
     {
-        frame_++;
-        if (frame_ >= 4)
+        if (SDL_GetTicks() - iDelay[frame_] > lTimePassed)
         {
-            frame_ = 0;
+            lTimePassed = SDL_GetTicks();
+            ++frame_;
+            if (frame_ > TILE_FRAME - 1)
+            {
+                frame_ = 0;
+            }
         }
 
         SDL_Rect* currentClip = &frame_clip_[frame_];

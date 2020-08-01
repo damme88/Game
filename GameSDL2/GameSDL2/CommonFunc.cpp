@@ -212,6 +212,22 @@ bool SDLCommonFunc::CheckCollision(const SDL_Rect& object1, const SDL_Rect& obje
     return true;
   }
 
+  if (left_a > left_b && left_a < bottom_b)
+  {
+      if (top_a == top_b && bottom_a == bottom_b)
+      {
+          return true;
+      }
+  }
+
+  if (left_b > left_a && left_b < right_a)
+  {
+      if (top_a == top_b && bottom_a == bottom_b)
+      {
+          return true;
+      }
+  }
+
   return false;
 }
 

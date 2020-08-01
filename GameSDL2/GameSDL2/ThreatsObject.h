@@ -16,7 +16,7 @@
 #define PLAYER_SPEED 2
 #define PLAYER_HIGHT_VAL 18;
 
-#define NUM_FRAME 8
+#define NUM_FRAME 2
 
 class ThreatsObject : public BaseObject
 {
@@ -26,70 +26,46 @@ public:
 
   void set_x_val(int xp) {x_val_ = xp;}
   void set_y_val(int yp) {y_val_ = yp;}
-
   void set_xpos(const int& xps) {x_pos_ = xps;}
   void set_ypos(const int& yps) {y_pos_ = yps;}
+  void set_clips();
+  void set_is_alive(bool is_alive) { is_alive_ = is_alive; }
+  void set_is_clip(bool isclip) { is_clip_ = isclip; }
+
   int get_x_pos() {return x_pos_;}
   int get_y_pos() {return y_pos_;}
-  bool get_is_alive() {return is_alive_;}
-  void set_is_alive(bool is_alive) {is_alive_ = is_alive;}
-
-  void InitBullet(BulletObject* p_bullet, SDL_Renderer* screen);
-  void MakeBullet(SDL_Renderer* des, const int& x_limit, const int& y_limit);
-  void Reset();
-
-  std::vector<BulletObject*> get_bullet_list() const {return bullet_list_;}
-  void set_bullet_list(const std::vector<BulletObject*>& am_list) {bullet_list_ = am_list;}
-
-  void SetMapXY(const int map_x, const int map_y) {map_x_ = map_x, map_y_ = map_y;}
-  void RemoveBullet(const int& idx); 
-  void ResetBullet(BulletObject* p_bullet);
-  void CheckToMap(Map* g_map);
-  void CenterEntityOnMap(Map* g_map);
-  void DoPlayer(Map* g_map);
-  void ImpMoveType(SDL_Renderer* screen);
-  void InitPlayer();
-  void SetAnimationPos(const int& pos_x_a, const int& pos_x_b);
-  void Show(SDL_Renderer* des);
-  bool LoadImg(std::string path, SDL_Renderer* screen);
-  void set_clips();
-  void set_type_move(const int& tm) {type_move_ = tm;}
-  int get_type_move()const {return type_move_;}
-  void set_input_left(const int& ipleft) {input_type_.left_ = ipleft;}
-  int get_width_frame() const {return width_frame_;}
-  int get_height_frame() const {return height_frame_;}
+  int get_width_frame() const { return width_frame_; }
+  int get_height_frame() const { return height_frame_; }
   SDL_Rect GetRectFrame();
+  bool get_is_alive() {return is_alive_;}
 
+  void CheckToMap();
+  void DoPlayer();
+
+  bool LoadImg(std::string path, SDL_Renderer* screen);
   void DrawBound(SDL_Renderer* des);
-public:
+  
+  //Overridde
+protected:
+  virtual void Show(SDL_Renderer* des);
 
-  enum TypeMove
-  {
-    STATIC_TH = 0,
-    MOVE_IN_SPACE_TH = 1,
-    MOVING_CONTINOUS = 2
-  };
-
-private:
-  int map_x_;
-  int map_y_;
+protected:
+  Map* pMap_;
   float x_val_;
   float y_val_;
   bool is_alive_;
-  bool is_stop_bullet_;
   float x_pos_;
   float y_pos_;
   int on_ground_;
-  int think_time_;
   Input input_type_;
   SDL_Rect frame_clip_[NUM_FRAME];
+  unsigned int iDelay[NUM_FRAME];
   int width_frame_;
   int height_frame_;
   int frame_;
-  int animation_a_;
-  int animation_b_;
-  int type_move_;
-  std::vector<BulletObject*> bullet_list_;
+  bool is_clip_;
+  unsigned long lTimePassed;
+  int v_dir_;
 };
 
 #endif //THREATS_OBJECT_H_

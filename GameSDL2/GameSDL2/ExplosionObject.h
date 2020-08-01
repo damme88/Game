@@ -4,7 +4,7 @@
 #include "CommonFunc.h"
 #include "BaseObject.h"
 
-#define  NUM_FRAME_EXP 8
+#define  NUM_FRAME_EXP 4
 
 class ExplosionObject : public BaseObject
 {
@@ -24,6 +24,6 @@ private:
   int frame_width_;
   int frame_height_;
   unsigned int frame_;
-  SDL_Rect frame_clip_[8];
+  SDL_Rect frame_clip_[4];
 };
 

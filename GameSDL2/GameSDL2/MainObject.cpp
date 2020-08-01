@@ -115,7 +115,6 @@ void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_C
     {
       BulletObject* p_bullet = new BulletObject();
       p_bullet->LoadImg(kImgBullet, screen);
-      p_bullet->SetMapXY(map_x_, map_y_);
 #ifdef USE_AUDIO 
       int ret = Mix_PlayChannel(-1, bullet_sound[0], 0 );
 #endif

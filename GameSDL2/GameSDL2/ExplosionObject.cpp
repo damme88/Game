@@ -60,7 +60,5 @@ void ExplosionObject::ImpRender(SDL_Renderer* screen, SDL_Rect& rect_pos)
         frame_ = ex;
     }
     Show(screen);
-#ifdef USE_AUDIO 
     Mix_PlayChannel(-1, g_sound_ex_main, 0);
-#endif
 }

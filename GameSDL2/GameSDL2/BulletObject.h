@@ -39,11 +39,12 @@ public:
     SIN_TYPE = 11
   };
 
-  void SetMapXY(const int map_x, const int map_y) { map_x_ = map_x, map_y_ = map_y; };
   void HandelMove(const int& x_border, const int& y_border);
   void set_x_val(const int& x_val) {x_val_ = x_val;}
   void set_y_val(const int& y_val) {y_val_ = y_val;}
   void set_xy_pos(const int& xp, const int& yp) { x_pos_ = xp, y_pos_ = yp; }
+  int get_x_pos() const { return x_pos_; }
+  int get_y_pos() const { return y_pos_; }
   int get_x_val() const {return x_val_;}
   int get_y_val() const {return y_val_;}
   void set_is_move(const bool& is_move) {is_move_ = is_move;} 
@@ -61,9 +62,6 @@ private:
   bool is_move_;
   int bullet_dir_;
   int move_type_;
-  int map_x_;
-  int map_y_;
-
 };
 
 #endif

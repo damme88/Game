@@ -248,7 +248,7 @@ int main( int argc, char* args[] )
        player_money.Show(g_screen);
 
        pThreatAds.Render(g_screen);
-       bool bRet = pThreatAds.CheckCollision(g_screen, p_player.GetRectFrame(), true);
+       bool bRet = pThreatAds.CheckCollision(g_screen, p_player.GetRectFrame());
        if (bRet == true)
        {
            SDL_Rect rect_pos;

@@ -7,6 +7,8 @@
 #include "BaseObject.h"
 #include <vector>
 
+#define TILE_FRAME 4
+
 class TileMat : public BaseObject
 {
 public:
@@ -17,12 +19,16 @@ public:
     void SetIsClip(const bool& is_clip) { is_clip_ = is_clip; }
     bool GetIsClip() const { return is_clip_; }
     void Show(SDL_Renderer* des);
+    int getWidthFrame() const { return width_frame_; }
+    int getHeightFrame() const { return height_frame_; }
 private:
     SDL_Rect frame_clip_[4];
     int width_frame_;
     int height_frame_;
     bool is_clip_;
     int frame_;
+    unsigned int iDelay[TILE_FRAME];
+    unsigned long lTimePassed;
 };
 
 class BlockMap
