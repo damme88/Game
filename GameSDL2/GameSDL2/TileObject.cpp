@@ -4,10 +4,10 @@ BlockMap::BlockMap()
 {
     x_index_ = 0;
     y_index_ = 0;
-    xVal_ = 0;
-    yVal_ = 0;
-    m_tile = NULL;
-    m_type = 0;
+    xVal_   = 0;
+    yVal_   = 0;
+    m_tile  = NULL;
+    m_type  = 0;
     xp_map_ = 0;
     yp_map_ = 0;
 }
@@ -54,9 +54,19 @@ void BlockMap::Update()
 
 void BlockMap::Render(SDL_Renderer* screen)
 {
-    if (m_tile)
+    if (m_tile && m_type != 0)
     {
         m_tile->Show(screen);
+    }
+}
+
+void BlockMap::RemoveTile()
+{
+    m_type = BLANK_TILE;
+    if (m_tile != NULL)
+    {
+        m_tile->Free();
+        m_tile = NULL;
     }
 }
 
@@ -64,7 +74,7 @@ TileMat::TileMat()
 {
     is_clip_ = false;
     frame_ = 0;
-    lTimePassed = 0;
+    passed_time_ = 0;
     iDelay[0] = 100;
     iDelay[1] = 100;
     iDelay[2] = 100;
@@ -73,6 +83,7 @@ TileMat::TileMat()
 
 TileMat::~TileMat()
 {
+
 }
 
 void TileMat::SetClip()
@@ -93,7 +104,7 @@ bool TileMat::LoadImg(std::string path, SDL_Renderer* screen)
     {
         if (ret == true)
         {
-            width_frame_ = rect_.w / 4;
+            width_frame_ = rect_.w / TILE_FRAME;
             height_frame_ = rect_.h;
 
             SetClip();
@@ -116,9 +127,10 @@ void TileMat::Show(SDL_Renderer* des)
     }
     else
     {
-        if (SDL_GetTicks() - iDelay[frame_] > lTimePassed)
+        // Create delay times when next frame
+        if (SDL_GetTicks() - iDelay[frame_] > passed_time_)
         {
-            lTimePassed = SDL_GetTicks();
+            passed_time_ = SDL_GetTicks();
             ++frame_;
             if (frame_ > TILE_FRAME - 1)
             {
@@ -141,15 +153,16 @@ Map::~Map()
 {
     for (int i = 0; i < m_tile.size(); i++)
     {
-        std::vector<BlockMap*> temp = m_tile[i];
-        for (std::vector<BlockMap*>::iterator it = temp.begin(); it != temp.end(); it++)
+        VT(BlockMap*) temp = m_tile[i];
+        VT(BlockMap*)::iterator it;
+        for (it = temp.begin(); it != temp.end(); it++)
         {
             delete (*it);
         }
     }
 }
 
-void Map::CenterEntityOnMap(int xp, int yp)
+void Map::UpdateMapInfo(int xp, int yp)
 {
     this->start_x_ = xp - (SCREEN_WIDTH / 2);
 
@@ -157,19 +170,16 @@ void Map::CenterEntityOnMap(int xp, int yp)
     {
         this->start_x_ = 0;
     }
-
     else if (this->start_x_ + SCREEN_WIDTH >= this->max_x_)
     {
         this->start_x_ = this->max_x_ - SCREEN_WIDTH;
     }
 
     this->start_y_ = yp - (SCREEN_HEIGHT / 2);
-
     if (this->start_y_ < 0)
     {
         this->start_y_ = 0;
     }
-
     else if (this->start_y_ + SCREEN_HEIGHT >= this->max_y_)
     {
         this->start_y_ = this->max_y_ - SCREEN_HEIGHT;

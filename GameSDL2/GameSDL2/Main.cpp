@@ -147,7 +147,7 @@ int main( int argc, char* args[] )
 
 
    MainObject p_player;
-   p_player.LoadImg(g_name_main_right, g_screen);
+   p_player.LoadImg(sPlayerMove, g_screen);
    p_player.InitExp(g_screen);
 
    PlayerPower player_power;
@@ -220,13 +220,9 @@ int main( int argc, char* args[] )
       }
 #endif
 
-       //SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
+       SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
        SDL_RenderClear(g_screen);
-
-       //SDL_SetRenderDrawColor(g_screen, 0, 0, 0, 255);
        g_background.Render(g_screen, NULL);
-
-       //Map ga_map = game_map->GetMap();
 
        p_player.HandleBullet(g_screen);
        p_player.DoPlayer();

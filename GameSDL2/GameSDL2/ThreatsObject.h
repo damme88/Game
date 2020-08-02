@@ -21,51 +21,54 @@
 class ThreatsObject : public BaseObject
 {
 public:
-  ThreatsObject();
-  ~ThreatsObject();
+    ThreatsObject();
+    ~ThreatsObject();
 
-  void set_x_val(int xp) {x_val_ = xp;}
-  void set_y_val(int yp) {y_val_ = yp;}
-  void set_xpos(const int& xps) {x_pos_ = xps;}
-  void set_ypos(const int& yps) {y_pos_ = yps;}
-  void set_clips();
-  void set_is_alive(bool is_alive) { is_alive_ = is_alive; }
-  void set_is_clip(bool isclip) { is_clip_ = isclip; }
+    bool LoadImg(std::string path, SDL_Renderer* screen);
+    void CheckToMap();
+    void DoPlayer();
+    void DrawBound(SDL_Renderer* des);
 
-  int get_x_pos() {return x_pos_;}
-  int get_y_pos() {return y_pos_;}
-  int get_width_frame() const { return width_frame_; }
-  int get_height_frame() const { return height_frame_; }
-  SDL_Rect GetRectFrame();
-  bool get_is_alive() {return is_alive_;}
+    void set_x_val(int xp) { x_val_ = xp; }
+    void set_y_val(int yp) { y_val_ = yp; }
+    void set_xpos(const int& xps) { x_pos_ = xps; }
+    void set_ypos(const int& yps) { y_pos_ = yps; }
+    void set_clips();
+    void set_is_alive(bool is_alive) { is_alive_ = is_alive; }
+    void set_is_clip(bool isclip) { is_clip_ = isclip; }
 
-  void CheckToMap();
-  void DoPlayer();
-
-  bool LoadImg(std::string path, SDL_Renderer* screen);
-  void DrawBound(SDL_Renderer* des);
-  
-  //Overridde
+    int get_x_pos() { return x_pos_; }
+    int get_y_pos() { return y_pos_; }
+    int get_width_frame() const { return width_frame_; }
+    int get_height_frame() const { return height_frame_; }
+    bool get_is_alive() { return is_alive_; }
+    SDL_Rect GetRectFrame();
+    //Overridde
 protected:
-  virtual void Show(SDL_Renderer* des);
+    virtual void Show(SDL_Renderer* des);
 
 protected:
-  Map* pMap_;
-  float x_val_;
-  float y_val_;
-  bool is_alive_;
-  float x_pos_;
-  float y_pos_;
-  int on_ground_;
-  Input input_type_;
-  SDL_Rect frame_clip_[NUM_FRAME];
-  unsigned int iDelay[NUM_FRAME];
-  int width_frame_;
-  int height_frame_;
-  int frame_;
-  bool is_clip_;
-  unsigned long lTimePassed;
-  int v_dir_;
+    Map* pMap_;
+    Input input_type_;
+    SDL_Rect frame_clip_[NUM_FRAME];
+
+    bool is_clip_;
+    bool is_alive_;
+
+    int on_ground_;
+    int width_frame_;
+    int height_frame_;
+    int frame_;
+    int v_dir_;
+
+    float x_val_;
+    float y_val_;
+    float x_pos_;
+    float y_pos_;
+
+    unsigned long passed_time_;
+    unsigned int m_DelayTime[NUM_FRAME];
+
 };
 
 #endif //THREATS_OBJECT_H_

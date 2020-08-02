@@ -9,6 +9,7 @@ BaseObject::BaseObject()
   rect_.y = 0;
   rect_.w = 0;
   rect_.h = 0;
+  m_Flip = false;
 }
 
 BaseObject::~BaseObject()
@@ -66,7 +67,15 @@ void BaseObject::Render(SDL_Renderer* des, const SDL_Rect* clip /*=NULL*/)
     renderQuad.w = clip->w;
     renderQuad.h = clip->h;
   }
-  SDL_RenderCopy(des, p_object_, clip, &renderQuad);
+  
+  if (m_Flip == true)
+  {
+      SDL_RenderCopyEx(des, p_object_, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
+  }
+  else
+  {
+      SDL_RenderCopy(des, p_object_, clip, &renderQuad);
+  }
 }
 
 void BaseObject::setColor(const Uint8& red, const Uint8& green, const Uint8& blue)

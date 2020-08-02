@@ -14,16 +14,19 @@ public:
   
   void Free();
   void SetRect(const int& x, const int& y) {rect_.x = x, rect_.y = y;};
-  SDL_Rect GetRect() const {return rect_;}
-  SDL_Texture* GetObject() {return p_object_;}
-
   void setColor(const Uint8& red, const Uint8& green, const Uint8& blue);
   void setAlpha(const Uint8& alpha);
   void setBlendMode(const SDL_BlendMode& blending);
+  void SetIsFlip(const bool& flip) { m_Flip = flip; }
+
+  bool GetFlip() const { return m_Flip; }
+  SDL_Rect GetRect() const { return rect_; }
+  SDL_Texture* GetObject() { return p_object_; }
 
 protected:
   SDL_Texture* p_object_;
   SDL_Rect rect_;
+  bool m_Flip;
 };
 
 

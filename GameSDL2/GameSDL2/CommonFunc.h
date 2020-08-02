@@ -13,8 +13,8 @@
 #include "TextObject.h"
 #include "BaseObject.h"
 
-//#define USE_AUDIO
-
+//#define MACRO
+#define VT(T) std::vector<T>
 
 static  SDL_Window* g_window = NULL;
 static SDL_Renderer* g_screen = NULL;
@@ -57,7 +57,7 @@ const int RENDER_DRAW_COLOR = 0XFF;
 #define MAX_MAP_X 200
 #define MAX_MAP_Y 10
 
-#define STATE_MONEY 19
+#define STATE_MONEY 9
 #define  STATE_MONEY2 24
 
 //Screen
@@ -67,10 +67,19 @@ const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
 const int SPEED_SCREEN = 2;
 
+//ground pos
+
+const int GROUND_POS = SCREEN_HEIGHT - TILE_SIZE;
+
 typedef struct GeometricFormat
 {
 public:
-    GeometricFormat(int left, int top, int width, int height) {left_ = left; top_ = top; width_ = width; height_ = height;}
+    GeometricFormat(int left, int top, int width, int height) 
+    { 
+        left_ = left; top_ = top; 
+        width_ = width; 
+        height_ = height;
+    }
     int left_;
     int top_;
     int width_;
@@ -80,7 +89,13 @@ public:
 typedef struct ColorData
 {
 public:
-    ColorData(Uint8 r, Uint8 g, Uint8 b) {red_ = r, green_ = g, blue_ = b;}
+    ColorData(Uint8 r, Uint8 g, Uint8 b) 
+    {
+        red_ = r;
+        green_ = g; 
+        blue_ = b;
+    }
+
     Uint8 red_;
     Uint8 green_;
     Uint8 blue_;

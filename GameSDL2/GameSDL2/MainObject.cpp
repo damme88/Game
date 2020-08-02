@@ -1,16 +1,15 @@
 
 #include "MainObject.h"
 #include "Geometric.h"
-#define  NUM_FRAME 4
 
 MainObject::MainObject()
 {
   frame_ = 0;
   x_pos_ = 128;
-  y_pos_ = SCREEN_HEIGHT - 128;
+  y_pos_ = GROUND_POS - TILE_SIZE;
   x_val_ = 0;
   y_val_ = 0;
-  think_time_ = 0;
+  falling_time_ = 0;
   width_frame_ = 0;
   height_frame_ = 0;
   status_ = WALK_NONE;
@@ -32,7 +31,7 @@ MainObject::~MainObject()
 void MainObject::InitExp(SDL_Renderer* des)
 {
     exp_.Free();
-    exp_.LoadImg("img//bl_map.png", des);
+    exp_.LoadImg(sPlayerExp, des);
 }
 
 SDL_Rect MainObject::GetRectFrame()
@@ -40,216 +39,169 @@ SDL_Rect MainObject::GetRectFrame()
   SDL_Rect rect;
   rect.x = rect_.x;
   rect.y = rect_.y;
-  rect.w = rect_.w/NUM_FRAME;
+  rect.w = rect_.w/ PLAYER_FRAMES;
   rect.h = rect_.h;
   return rect;
 }
 
-void MainObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen, Mix_Chunk* bullet_sound[3]) 
+void MainObject::HandleInputAction(SDL_Event events,
+    SDL_Renderer* screen,
+    Mix_Chunk* bullet_sound[3])
 {
-  if( events.type == SDL_KEYDOWN )
-  {
-    switch( events.key.keysym.sym )
+    if (events.type == SDL_KEYDOWN)
     {
-    case SDLK_RIGHT: 
-      {
-        status_  = WALK_RIGHT;
-        input_type_.right_ = 1;
-        input_type_.left_ = 0;
-        UpdateImagePlayer(screen);
-        break;
-      }
-    case SDLK_LEFT: 
-      {
-        status_ = WALK_LEFT;
-        input_type_.left_ = 1;
-        input_type_.right_ = 0;
-         UpdateImagePlayer(screen);
-        break;
-      }
-    case SDLK_DOWN:
+        switch (events.key.keysym.sym)
+        {
+        case SDLK_RIGHT:
+        {
+            status_ = WALK_RIGHT;
+            input_type_.right_ = 1;
+            input_type_.left_ = 0;
+            UpdateImagePlayer(screen);
+            break;
+        }
+        case SDLK_LEFT:
+        {
+            status_ = WALK_LEFT;
+            input_type_.left_ = 1;
+            input_type_.right_ = 0;
+            UpdateImagePlayer(screen);
+            break;
+        }
+        case SDLK_DOWN:
         {
             input_type_.up_ = 0;
             input_type_.down_ = 1;
             UpdateImagePlayer(screen);
+            break;
         }
-        break;
-    case SDLK_UP:
-      {
-        //input_type_.up_ = 1;
-        //input_type_.down_ = 0;
-        //UpdateImagePlayer(screen);
-      }
-      break;
+        }
     }
-  }
-  //If a key was released
-  else if( events.type == SDL_KEYUP )
-  {
-    //Set the velocity
-    switch( events.key.keysym.sym )
+    else if (events.type == SDL_KEYUP)
     {
-    case SDLK_RIGHT: 
-        input_type_.right_ = 0;
-        break;
-    case SDLK_LEFT: 
-        input_type_.left_ = 0; 
-        break;
-    case SDLK_UP:
+        switch (events.key.keysym.sym)
         {
-            //input_type_.up_ = 0;
-            // UpdateImagePlayer(screen);
-            // y_pos_ += height_frame_;
+        case SDLK_RIGHT:
+            input_type_.right_ = 0;
+            break;
+        case SDLK_LEFT:
+            input_type_.left_ = 0;
+            break;
+        case SDLK_DOWN:
+        {
+            input_type_.down_ = 0;
         }
         break;
-     case SDLK_DOWN:
-         {
-              input_type_.down_ = 0;
-         }
-        break;
+        }
     }
-  }
-  else if (events.type == SDL_MOUSEBUTTONDOWN) 
-  {
-    if (events.button.button == SDL_BUTTON_LEFT) 
+    else if (events.type == SDL_MOUSEBUTTONDOWN)
     {
-      BulletObject* p_bullet = new BulletObject();
-      p_bullet->LoadImg(kImgBullet, screen);
+        if (events.button.button == SDL_BUTTON_LEFT)
+        {
+            BulletObject* p_bullet = new BulletObject();
+            p_bullet->LoadImg(kImgBullet, screen);
+
 #ifdef USE_AUDIO 
-      int ret = Mix_PlayChannel(-1, bullet_sound[0], 0 );
+            int ret = Mix_PlayChannel(-1, bullet_sound[0], 0);
 #endif
-      if (status_ == WALK_LEFT)
-      {
-        if (input_type_.up_ == 1)
-        {
-            if (input_type_.left_ == 0)
+            if (status_ == WALK_LEFT)
             {
-                p_bullet->set_dir_bullet(BulletObject::DIR_UP);
-                p_bullet->set_xy_pos(x_pos_ + width_frame_*0.35, y_pos_ + 15);
+                p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
+                p_bullet->set_xy_pos(x_pos_, y_pos_ + height_frame_*0.22);
             }
             else
             {
-                p_bullet->set_dir_bullet(BulletObject::DIR_UP_LEFT);
-                p_bullet->set_xy_pos(x_pos_, y_pos_ + 5);
+                p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
+                p_bullet->set_xy_pos(x_pos_ + width_frame_ - 20, y_pos_ + height_frame_*0.22);
             }
-            
+            p_bullet->set_x_val(20);
+            p_bullet->set_is_move(true);
+            p_bullet_list_.push_back(p_bullet);
         }
-        else
+        else if (events.button.button == SDL_BUTTON_RIGHT)
         {
-            p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
-            p_bullet->set_xy_pos(x_pos_, y_pos_ + height_frame_*0.22);
+            input_type_.jump_ = 1;
+            input_type_.down_ = 0;
         }
-      }
-      else
-      {
-          if (input_type_.up_ == 1)
-          {
-              if (input_type_.right_ == 1)
-              {
-                  p_bullet->set_dir_bullet(BulletObject::DIR_UP_RIGHT);
-                  p_bullet->set_xy_pos(x_pos_ + width_frame_, y_pos_ + 5);
-              }
-              else
-              {
-                  p_bullet->set_dir_bullet(BulletObject::DIR_UP);
-                  p_bullet->set_xy_pos(x_pos_ + width_frame_*0.45, y_pos_ + 15);
-              }
-              
-          }
-          else
-          {
-              p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
-              p_bullet->set_xy_pos(x_pos_ + width_frame_ - 20, y_pos_ + height_frame_*0.22);
-          }
-      }
+    }
+    else if (events.type == SDL_MOUSEBUTTONUP)
+    {
+        if (events.button.button == SDL_BUTTON_LEFT)
+        {
 
-      p_bullet->set_x_val(20);
-      p_bullet->set_y_val(20);
-      p_bullet->set_is_move(true);
-      p_bullet_list_.push_back(p_bullet);
+        }
+        else if (events.button.button == SDL_BUTTON_RIGHT)
+        {
+            input_type_.jump_ = 0;
+        }
     }
-    else if (events.button.button == SDL_BUTTON_RIGHT)
-    {
-      input_type_.jump_ = 1;
-      input_type_.down_ = 0;
-    }
-  }
-  else if (events.type == SDL_MOUSEBUTTONUP)
-  {
-    if (events.button.button == SDL_BUTTON_LEFT) 
-    {
-
-    }
-    else if (events.button.button == SDL_BUTTON_RIGHT)
-    {
-        input_type_.jump_ = 0;
-    }
-  }
 }
 
 
 void MainObject::HandleBullet(SDL_Renderer* des)
 {
-  for (int i = 0; i < p_bullet_list_.size(); i++)
-  {
-    BulletObject* p_bullet = p_bullet_list_.at(i);
-    if (p_bullet != NULL)
+    for (int i = 0; i < p_bullet_list_.size(); i++)
     {
-      if (p_bullet->get_is_move()) 
-      {
-        p_bullet->HandelMove(SCREEN_WIDTH, SCREEN_HEIGHT);
-        bool ret = p_bullet->CheckToMap();
-        if (ret == true)
-        {
-            SDL_Rect rect_pos = p_bullet->GetRect();
-            exp_.ImpRender(des, rect_pos);
-            continue;
-        }
-        else
-        {
-            p_bullet->Show(des);
-        }
-      }
-      else
-      {
+        BulletObject* p_bullet = p_bullet_list_.at(i);
         if (p_bullet != NULL)
         {
-          p_bullet_list_.erase(p_bullet_list_.begin() + i);
-          delete p_bullet;
-          p_bullet = NULL;
+            if (p_bullet->get_is_move())
+            {
+                p_bullet->HandelMove(SCREEN_WIDTH, SCREEN_HEIGHT);
+                bool ret = p_bullet->CheckToMap();
+                if (ret == true)
+                {
+                    SDL_Rect rect_pos = p_bullet->GetRect();
+                    exp_.ImpRender(des, rect_pos);
+                    continue;
+                }
+                else
+                {
+                    p_bullet->Show(des);
+                }
+            }
+            else
+            {
+                RemoveBullet(i);
+            }
         }
-      }
     }
-  }
 }
 
-void MainObject::RemoveBullet(const int& idx) 
+void MainObject::RemoveBullet(const int& idx)
 {
-  if (p_bullet_list_.size() > 0 && idx < p_bullet_list_.size())
-  {
-    BulletObject* p_bullet = p_bullet_list_.at(idx);
-    p_bullet_list_.erase(p_bullet_list_.begin() + idx);
-
-    if (p_bullet)
+    if (p_bullet_list_.size() > 0 && idx < p_bullet_list_.size())
     {
-      delete p_bullet;
-      p_bullet = NULL;
+        BulletObject* p_bullet = p_bullet_list_.at(idx);
+        p_bullet_list_.erase(p_bullet_list_.begin() + idx);
+
+        if (p_bullet)
+        {
+            delete p_bullet;
+            p_bullet = NULL;
+        }
     }
-  }
+}
+
+std::vector<BulletObject*> MainObject::get_bullet_list() const 
+{ 
+    return p_bullet_list_; 
+}
+
+void MainObject::set_bullet_list(VT(BulletObject*) bullet_list)
+{
+    p_bullet_list_ = bullet_list;
 }
 
 bool MainObject::LoadImg(std::string path, SDL_Renderer* screen)
 {
   bool ret = BaseObject::LoadImg(path, screen);
-
   if (ret == true)
   {
-    width_frame_ = rect_.w/NUM_FRAME;
+    width_frame_ = rect_.w/PLAYER_FRAMES;
     height_frame_ = rect_.h;
-
     set_clips();
   }
-
   return ret;
 }
 
@@ -257,7 +209,7 @@ void MainObject::set_clips()
 {
   if (width_frame_ > 0 && height_frame_ > 0)
   {
-      for (int i = 0; i < NUM_FRAME; i++)
+      for (int i = 0; i < PLAYER_FRAMES; i++)
       {
           frame_clip_[i].x = width_frame_*i;
           frame_clip_[i].y = 0;
@@ -279,8 +231,7 @@ void MainObject::Show(SDL_Renderer* des)
     //DrawBound(des);
     UpdateImagePlayer(des);
 
-    if ((input_type_.left_ == 1 ||
-        input_type_.right_ == 1))
+    if (input_type_.left_ == 1 || input_type_.right_ == 1)
     {
         frame_++;
     }
@@ -289,12 +240,12 @@ void MainObject::Show(SDL_Renderer* des)
         frame_ = 0;
     }
 
-    if (frame_ >= NUM_FRAME)
+    if (frame_ >= PLAYER_FRAMES)
     {
         frame_ = 0;
     }
 
-    if (think_time_ == 0)
+    if (falling_time_ == 0)
     {
         rect_.x = x_pos_ - map_x_;
         rect_.y = y_pos_ - map_y_;
@@ -306,270 +257,261 @@ void MainObject::Show(SDL_Renderer* des)
 
 void MainObject::DoPlayer()
 {
-  map_x_ = GameMap::GetInstance()->GetMap()->getStartX();
-  map_y_ = GameMap::GetInstance()->GetMap()->getStartY();
+    Map* data_map = GameMap::GetInstance()->GetMap();
+    map_x_ = data_map->getStartX();
+    map_y_ = data_map->getStartY();
 
-  if (think_time_ == 0)
-  {
-    x_val_ = 0;
-
-    y_val_ += GRAVITY_SPEED;
-
-    if (y_val_ >= MAX_FALL_SPEED)
+    if (falling_time_ == 0)
     {
-      y_val_ = MAX_FALL_SPEED;
-    }
+        x_val_ = 0;
+        y_val_ += GRAVITY_SPEED;
 
-    if (input_type_.left_ == 1)
-    {
-      x_val_ = -PLAYER_SPEED;
-    }
-    else if (input_type_.right_ == 1)
-    {
-      x_val_= PLAYER_SPEED;
-    }
-
-    if (input_type_.jump_ == 1)
-    {
-      if (on_ground_ == true)
-      {
-        y_val_ = -PLAYER_HIGHT_VAL;
-      }
-
-      input_type_.jump_ = 0;
-      on_ground_ = false;
-    }
-
-    CheckToMap();
-
-    CenterEntityOnMap();
-  }
-
-  if (think_time_ > 0)
-  {
-    think_time_--;
-
-    if (think_time_ == 0)
-    {
-        if (x_pos_ > 256)
+        if (y_val_ >= MAX_FALL_SPEED)
         {
-            x_pos_ -= 256;
+            y_val_ = MAX_FALL_SPEED;
         }
-        else
-            x_pos_ = 0;
-      y_pos_ = 0;
-      x_val_ = 0;
-      y_val_ = 0;
-      on_ground_ = false;
-    }
-  }
-}
 
-void MainObject::CenterEntityOnMap()
-{
-  Map* data_map = GameMap::GetInstance()->GetMap();
-  data_map->CenterEntityOnMap(x_pos_, y_pos_);
+        if (input_type_.left_ == 1)
+        {
+            x_val_ = -PLAYER_SPEED;
+        }
+        else if (input_type_.right_ == 1)
+        {
+            x_val_ = PLAYER_SPEED;
+        }
+
+        if (input_type_.jump_ == 1)
+        {
+            if (on_ground_ == true)
+            {
+                y_val_ = -PLAYER_HIGHT_VAL;
+            }
+
+            input_type_.jump_ = 0;
+            on_ground_ = false;
+        }
+
+        CheckToMap();
+        data_map->UpdateMapInfo(x_pos_, y_pos_);
+    }
+
+    if (falling_time_ > 0)
+    {
+        falling_time_--;
+        if (falling_time_ == 0)
+        {
+            if (x_pos_ > 256)
+            {
+                x_pos_ -= 256;
+            }
+            else
+            {
+                x_pos_ = 0;
+            }
+
+            y_pos_ = 0;
+            x_val_ = 0;
+            y_val_ = 0;
+            on_ground_ = false;
+        }
+    }
 }
 
 void MainObject::CheckToMap()
 {
-  int x1 = 0;
-  int x2 = 0;
-  int y1 = 0;
-  int y2 = 0;
+    GameMap* pMap = GameMap::GetInstance();
+    if (pMap == NULL) return;
 
-  Map* data_map = GameMap::GetInstance()->GetMap();
-  std::vector<std::vector<BlockMap*>> tile_list = data_map->GetTile();
-  //Check Horizontal
+    int x1 = 0;
+    int x2 = 0;
+    int y1 = 0;
+    int y2 = 0;
+    bool IsMoney = false;
 
-  int height_min = 0;
-  if (input_type_.up_ == 1)
-      height_min = height_frame_;
-  else
-  {
-      height_min = SDLCommonFunc::GetMin(height_frame_, TILE_SIZE);
-  }
+    Map* data_map = pMap->GetMap();
+    VT(VT(BlockMap*)) tile_list = data_map->GetTile();
 
-  /*
-        x1,y1******(y1,x2)
-           *       *
-           *       *
-           *       *
-        x1,y2******(x2,y2)
-
-  */
-  x1 = (x_pos_ + x_val_) / TILE_SIZE;
-  x2 = (x_pos_ + x_val_ + width_frame_ - 1) / TILE_SIZE;
-
-  y1 = (y_pos_) / TILE_SIZE;
-  y2 = (y_pos_ + height_min - 1) / TILE_SIZE;
-
-  // Check x1, x2 with full width of map
-  // Check y1, y2 with full height of map
-  bool IsInside  = SDLCommonFunc::CheckInsideMapX(x1, x2);
-       IsInside  &= SDLCommonFunc::CheckInsideMapY(y1, y2);
-  if (IsInside)
-  {
-    if (x_val_ > 0) // when object is moving by right  ===>
+    int height_min = 0;
+    if (input_type_.up_ == 1)
     {
-      
-      int val1 = tile_list[y1][x2]->getType();
-      int val2 = tile_list[y2][x2]->getType();
-
-      bool IsMoney  = GameMap::GetInstance()->ChecTileMoney(val1);
-           IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
-      if (IsMoney)
-      {
-          tile_list[y1][x2]->setType(0);
-          tile_list[y2][x2]->setType(0);
-          IncreaseMoney();
-      }
-      else
-      {
-          bool IsBlank1 = GameMap::GetInstance()->CheckBlank(val1);
-          bool IsBlank2 = GameMap::GetInstance()->CheckBlank(val2);
-          if (!IsBlank1 || !IsBlank2)
-          {
-              // Fixed post of object at current post of map.
-              // => Cannot moving when press button
-              x_pos_ = x2 * TILE_SIZE;
-              x_pos_ -= width_frame_ + 1;
-              x_val_ = 0; // cannot moving
-          }
-      }
-      
+        height_min = height_frame_;
     }
-    else if (x_val_ < 0) // When moving by left    <====
+    else
     {
-      int val1 = tile_list[y1][x1]->getType();
-      int val2 = tile_list[y2][x1]->getType();
-
-      bool IsMoney = GameMap::GetInstance()->ChecTileMoney(val1);
-           IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
-      if (IsMoney)
-      {
-          tile_list[y1][x1]->setType(0);
-          tile_list[y2][x1]->setType(0);
-          IncreaseMoney();
-      }
-      else
-      {
-          bool IsBlank1 = GameMap::GetInstance()->CheckBlank(val1);
-          bool IsBlank2 = GameMap::GetInstance()->CheckBlank(val2);
-          if (!IsBlank1 || !IsBlank2)
-          {
-              x_pos_ = (x1 + 1) * TILE_SIZE;
-              x_val_ = 0;
-          }
-      }
+        height_min = SDLCommonFunc::GetMin(height_frame_, TILE_SIZE);
     }
-  }
 
-  // Check vertical
-  int width_min = SDLCommonFunc::GetMin(width_frame_, TILE_SIZE);
+    x1 = (x_pos_ + x_val_) / TILE_SIZE;
+    x2 = (x_pos_ + x_val_ + width_frame_ - 1) / TILE_SIZE;
 
-  x1 = (x_pos_) / TILE_SIZE;
-  x2 = (x_pos_ + width_min) / TILE_SIZE;
+    y1 = (y_pos_) / TILE_SIZE;
+    y2 = (y_pos_ + height_min - 1) / TILE_SIZE;
 
-  y1 = (y_pos_ + y_val_) / TILE_SIZE;
-  y2 = (y_pos_ + y_val_ + height_frame_) / TILE_SIZE;
-
-  IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
-  IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
-  if (IsInside)
-  {
-    if (y_val_ > 0)
+    // Check x1, x2 with full width of map
+    // Check y1, y2 with full height of map
+    bool IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
+    IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
+    if (IsInside)
     {
-      //Similar for vertical
-      int val1 = tile_list[y2][x1]->getType();
-      int val2 = tile_list[y2][x2]->getType();
+        if (x_val_ > 0) //moving right
+        {
+            int tp1 = tile_list[y1][x2]->getType();
+            int tp2 = tile_list[y2][x2]->getType();
 
-      bool IsMoney = GameMap::GetInstance()->ChecTileMoney(val1);
-           IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
-      if (IsMoney)
-      {
-          tile_list[y2][x1]->setType(0);
-          tile_list[y2][x2]->setType(0);
-          IncreaseMoney();
-      }
-      else
-      {
-          bool IsBlank1 = GameMap::GetInstance()->CheckBlank(val1);
-          bool IsBlank2 = GameMap::GetInstance()->CheckBlank(val2);
+            IsMoney  = pMap->ChecTileMoney(tp1);
+            IsMoney |= pMap->ChecTileMoney(tp2);
 
-          if (!IsBlank1 || !IsBlank2)
-          {
-              y_pos_ = y2 * TILE_SIZE;
-              y_pos_ -= height_frame_;
-              y_val_ = 0;
+            if (IsMoney)
+            {
+                tile_list[y1][x2]->RemoveTile();
+                tile_list[y2][x2]->RemoveTile();
+                IncreaseMoney();
+            }
+            else
+            {
+                bool IsBlank1 = pMap->CheckBlank(tp1);
+                bool IsBlank2 = pMap->CheckBlank(tp2);
+                if (!IsBlank1 || !IsBlank2)
+                {
+                    // Fixed post of object at current post of map.
+                    // => Cannot moving when press button
+                    x_pos_ = x2 * TILE_SIZE;
+                    x_pos_ -= width_frame_ + 1;
+                    x_val_ = 0; // cannot moving
+                }
+            }
 
-              on_ground_ = true;
-              if (status_ == WALK_NONE)
-              {
-                  //input_type_.right_ = 1;
-                  status_ = WALK_RIGHT;
-              }
-          }
-      }
+        }
+        else if (x_val_ < 0) //moving left 
+        {
+            int tp1 = tile_list[y1][x1]->getType();
+            int tp2 = tile_list[y2][x1]->getType();
+
+            IsMoney = pMap->ChecTileMoney(tp1);
+            IsMoney |= pMap->ChecTileMoney(tp2);
+            if (IsMoney)
+            {
+                tile_list[y1][x1]->RemoveTile();
+                tile_list[y2][x1]->RemoveTile();
+                IncreaseMoney();
+            }
+            else
+            {
+                bool IsBlank1 = pMap->CheckBlank(tp1);
+                bool IsBlank2 = pMap->CheckBlank(tp2);
+                if (!IsBlank1 || !IsBlank2)
+                {
+                    x_pos_ = (x1 + 1) * TILE_SIZE;
+                    x_val_ = 0;
+                }
+            }
+        }
     }
-    else if (y_val_ < 0)
+
+    // Check vertical
+    int width_min = SDLCommonFunc::GetMin(width_frame_, TILE_SIZE);
+
+    x1 = (x_pos_) / TILE_SIZE;
+    x2 = (x_pos_ + width_min) / TILE_SIZE;
+
+    y1 = (y_pos_ + y_val_) / TILE_SIZE;
+    y2 = (y_pos_ + y_val_ + height_frame_) / TILE_SIZE;
+
+    IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
+    IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
+    if (IsInside)
     {
-      int val1 = tile_list[y1][x1]->getType();
-      int val2 = tile_list[y1][x2]->getType();
+        if (y_val_ > 0)
+        {
+            //Similar for vertical
+            int tp1 = tile_list[y2][x1]->getType();
+            int tp2 = tile_list[y2][x2]->getType();
 
-      bool IsMoney = GameMap::GetInstance()->ChecTileMoney(val1);
-           IsMoney |= GameMap::GetInstance()->ChecTileMoney(val2);
-      if (IsMoney)
-      {
-          tile_list[y1][x2]->setType(0);
-          tile_list[y1][x2]->setType(0);
-          IncreaseMoney();
-      }
-      else
-      {
-          bool IsBlank1 = GameMap::GetInstance()->CheckBlank(val1);
-          bool IsBlank2 = GameMap::GetInstance()->CheckBlank(val2);
+            IsMoney  = pMap->ChecTileMoney(tp1);
+            IsMoney |= pMap->ChecTileMoney(tp2);
+            if (IsMoney)
+            {
+                tile_list[y2][x1]->RemoveTile();
+                tile_list[y2][x2]->RemoveTile();
+                IncreaseMoney();
+            }
+            else
+            {
+                bool IsBlank1 = pMap->CheckBlank(tp1);
+                bool IsBlank2 = pMap->CheckBlank(tp2);
 
-          if (!IsBlank1 || !IsBlank2)
-          {
-              y_pos_ = (y1 + 1) * TILE_SIZE;
-              y_val_ = 0;
+                if (!IsBlank1 || !IsBlank2)
+                {
+                    y_pos_ = y2 * TILE_SIZE;
+                    y_pos_ -= height_frame_;
+                    y_val_ = 0;
 
-              if (!IsBlank1)
-              {
-                  tile_list[y1][x1]->setYVal(16);
-              }
-              else
-              {
-                  if (!IsBlank2)
-                  {
-                      tile_list[y1][x2]->setYVal(16);
-                  }
-              }
-              
-          }
-      }
+                    on_ground_ = true;
+                    if (status_ == WALK_NONE)
+                    {
+                        //input_type_.right_ = 1;
+                        status_ = WALK_RIGHT;
+                    }
+                }
+            }
+        }
+        else if (y_val_ < 0)
+        {
+            int tp1 = tile_list[y1][x1]->getType();
+            int tp2 = tile_list[y1][x2]->getType();
+
+            IsMoney  = pMap->ChecTileMoney(tp1);
+            IsMoney |= pMap->ChecTileMoney(tp2);
+            if (IsMoney)
+            {
+                tile_list[y1][x2]->RemoveTile();
+                tile_list[y1][x2]->RemoveTile();
+                IncreaseMoney();
+            }
+            else
+            {
+                bool IsBlank1 = pMap->CheckBlank(tp1);
+                bool IsBlank2 = pMap->CheckBlank(tp2);
+
+                if (!IsBlank1 || !IsBlank2)
+                {
+                    y_pos_ = (y1 + 1) * TILE_SIZE;
+                    y_val_ = 0;
+
+                    if (!IsBlank1)
+                    {
+                        tile_list[y1][x1]->setYVal(16);
+                    }
+                    else
+                    {
+                        if (!IsBlank2)
+                        {
+                            tile_list[y1][x2]->setYVal(16);
+                        }
+                    }
+
+                }
+            }
+        }
     }
-  }
 
-  GameMap::GetInstance()->SetMap(data_map);
-  x_pos_ += x_val_;
-  y_pos_ += y_val_;
+    x_pos_ += x_val_;
+    y_pos_ += y_val_;
 
-  if (x_pos_ < 0)
-  {
-    x_pos_ = 0;
-  }
-  else if (x_pos_ + width_frame_ >= data_map->getMaxX())
-  {
-    x_pos_ = data_map->getMaxX() - width_frame_ - 1;
-  }
+    if (x_pos_ < 0)
+    {
+        x_pos_ = 0;
+    }
+    else if (x_pos_ + width_frame_ >= data_map->getMaxX())
+    {
+        x_pos_ = data_map->getMaxX() - width_frame_ - 1;
+    }
 
-  if (y_pos_ > data_map->getMaxY())
-  {
-    think_time_ = 60;
-    is_falling_ = true;
-  }
+    if (y_pos_ > data_map->getMaxY())
+    {
+        falling_time_ = 60;
+        is_falling_ = true;
+    }
 }
 
 void MainObject::IncreaseMoney()
@@ -583,40 +525,37 @@ void MainObject::IncreaseMoney()
 
 void MainObject::UpdateImagePlayer(SDL_Renderer* des)
 {
-    if (on_ground_ == true)  // jump = 0;
+    if (on_ground_ == true)
     {
+        if (input_type_.down_ == 0)
+        {
+            LoadImg(sPlayerMove, des);
+        }
+        else if (input_type_.down_ == 1)
+        {
+            LoadImg(sPlayerDown, des);
+        }
+
         if (status_ == WALK_LEFT )
         {
-            if (input_type_.down_ == 0)
-            {
-                LoadImg(g_name_main_left, des);
-            }
-            else if (input_type_.down_ == 1)
-            {
-                LoadImg("img//player_down_left.png", des);
-            }
+            m_Flip = true;
         }
         else
         {
-            if (input_type_.down_ == 0)
-            {
-                LoadImg(g_name_main_right, des);
-            }
-            else if (input_type_.down_ == 1)
-            {
-                LoadImg("img//player_down_right.png", des);
-            }
+            m_Flip = false;
         }
     }
-    else // Jump always is  1
+    else 
     {
-        if (status_ == WALK_LEFT)
+        // when implement Jump.
+        LoadImg(sPlayerJump, des);
+        if (status_ == WALK_RIGHT)
         {
-            LoadImg(g_main_jump_left, des);
+            m_Flip = false;
         }
         else
         {
-            LoadImg(g_main_jump_right, des);
+            m_Flip = true;
         }
     }
 }

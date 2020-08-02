@@ -142,7 +142,7 @@ void BossObject::InitPlayer()
 
 void BossObject::CenterEntityOnMap(Map* g_map)
 {
-    g_map->CenterEntityOnMap(x_pos_, y_pos_);
+    g_map->UpdateMapInfo(x_pos_, y_pos_);
 }
 
 void BossObject::CheckToMap(Map* g_map)

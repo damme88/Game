@@ -3,9 +3,9 @@
 
 BulletObject::BulletObject()
 {
-  x_val_ = 0;
-  y_val_ = 0;
-  move_type_ = LINE_TYPE;
+    x_val_ = 0;
+    y_val_ = 0;
+    move_type_ = LINE_TYPE;
 }
 
 BulletObject::~BulletObject()
@@ -27,23 +27,23 @@ BulletObject* BulletObject::Clone()
 
 void BulletObject::HandelMove(const int& x_border, const int& y_border)
 {
-  Map* map_data = GameMap::GetInstance()->GetMap();
-  if (bullet_dir_ == DIR_RIGHT)
-  {
-    x_pos_ += x_val_;
-    if (x_pos_ - map_data->getStartX() > x_border)
+    Map* map_data = GameMap::GetInstance()->GetMap();
+    if (bullet_dir_ == DIR_RIGHT)
     {
-       is_move_ = false;
+        x_pos_ += x_val_;
+        if (x_pos_ - map_data->getStartX() > x_border)
+        {
+            is_move_ = false;
+        }
     }
-  }
-  else if (bullet_dir_ == DIR_LEFT)
-  {
-      x_pos_ -= x_val_;
-      if (x_pos_ - map_data->getStartX() < 0)
-      {
-          is_move_ = false;
-      }
-  }
+    else if (bullet_dir_ == DIR_LEFT)
+    {
+        x_pos_ -= x_val_;
+        if (x_pos_ - map_data->getStartX() < 0)
+        {
+            is_move_ = false;
+        }
+    }
 }
 
 bool BulletObject::CheckToMap()
@@ -53,11 +53,15 @@ bool BulletObject::CheckToMap()
     int x = (x_pos_) / TILE_SIZE;
     int y = (y_pos_) / TILE_SIZE;
 
-    if (x >= 0 && x < MAX_MAP_X && y >= 0 && y < MAX_MAP_Y)
+    bool IsInside = true;
+    IsInside  = SDLCommonFunc::CheckInsideMapX(x, x);
+    IsInside &= SDLCommonFunc::CheckInsideMapY(y, y);
+
+    if (IsInside)
     {
         BlockMap* pBlock = map_data->GetTile()[y][x];
-        int val1 = pBlock->getType();
-        if ((val1 != BLANK_TILE))
+        int val = pBlock->getType();
+        if ((val != BLANK_TILE))
         {
             is_move_ = false;
             x_pos_ = x * 64;
@@ -76,6 +80,7 @@ bool BulletObject::CheckToMap()
 
     return false;
 }
+
 void BulletObject::Show(SDL_Renderer* des)
 {
     Map* map_data = GameMap::GetInstance()->GetMap();

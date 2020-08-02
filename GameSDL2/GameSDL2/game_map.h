@@ -1,13 +1,18 @@
 
 #ifndef GAME_MAP_H_
 #define GAME_MAP_H_
+
 #include "CommonFunc.h"
 #include "BaseObject.h"
 #include "TileObject.h"
 
-#define SCROLL_SPEED 4
-#define MAX_TILES 20
-const INT GROUND_POS = SCREEN_HEIGHT - 64;
+#define BLOCK_BLANK         0
+#define BLOCK_BRICK_GRN     1
+#define BLOCK_BRICK_NOR     2
+#define BLOCK_BIRCK_Q       3
+#define BLOCK_BRICK_GRN2    4
+#define BLOCK_COIN          9
+
 class GameMap
 {
 public:
@@ -24,10 +29,12 @@ public:
   void LoadMap(char* name);
   void DrawMap(SDL_Renderer* des);
   void LoadMapTiles(SDL_Renderer* screen);
-  Map* GetMap() const {return game_map_;}
   void SetMap(Map* gMap) {game_map_ = gMap;}
+
   bool ChecTileMoney(const int& tile);
   bool CheckBlank(const int& tile);
+
+  Map* GetMap() const { return game_map_; }
 public:
   Map* game_map_;
   Input input_type_;
