@@ -1,4 +1,5 @@
 #include "PlayerPower.h"
+#include "Music.h"
 
 
 PlayerPower::PlayerPower(void)
@@ -53,9 +54,7 @@ void PlayerPower::InCrease()
     last_post += 40;
     position_list_.push_back(last_post);
 
-    Mix_Chunk* two_beep_chunk = Mix_LoadWAV(g_name_sound_increase);
-    if (two_beep_chunk != NULL)
-        Mix_PlayChannel(-1, two_beep_chunk, 0 );
+    Music::GetInstance()->PlaySoundGame(Music::POWER_UP);
 }
 
 //Player Money

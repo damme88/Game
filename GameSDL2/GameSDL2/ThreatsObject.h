@@ -44,9 +44,9 @@ public:
     bool get_is_alive() { return is_alive_; }
     SDL_Rect GetRectFrame();
     //Overridde
-protected:
+public:
     virtual void Show(SDL_Renderer* des);
-
+    virtual void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
 protected:
     Map* pMap_;
     Input input_type_;

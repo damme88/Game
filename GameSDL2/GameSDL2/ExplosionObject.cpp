@@ -1,5 +1,5 @@
 #include "ExplosionObject.h"
-
+#include "Music.h"
 
 ExplosionObject::ExplosionObject(void)
 {
@@ -60,5 +60,5 @@ void ExplosionObject::ImpRender(SDL_Renderer* screen, SDL_Rect& rect_pos)
     }
 
     Show(screen);
-    Mix_PlayChannel(-1, g_sound_ex_main, 0);
+    Music::GetInstance()->PlaySoundGame(Music::EXP_SOUND);
 }

@@ -38,7 +38,7 @@ bool InitData()
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
   
   //Create window
-  g_window = SDL_CreateWindow("SDL 2.0 Game Demo - Phat Trien Phan Mem 123AZ",
+  g_window = SDL_CreateWindow("Mushroom WORLD - Phat Trien Phan Mem 123AZ",
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                              SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
   if(g_window == NULL )
@@ -63,19 +63,9 @@ bool InitData()
         success = false;
       }
 
-      if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == PT_FAILED) 
+      if (Music::GetInstance()->Init() == false)
       {
-        success = false;
-      }
-
-      g_sound_bullet[0] = Mix_LoadWAV(g_name_audio_bullet_main1);
-      g_sound_bullet[1] = Mix_LoadWAV(g_name_audio_bullet_main2);
-      g_sound_explosion = Mix_LoadWAV(g_name_audio_ex_main);
-      g_sound_ex_main = Mix_LoadWAV(g_name_audio_ex_threats);
-
-      if (g_sound_bullet[0] == NULL || g_sound_bullet[1] == NULL || g_sound_explosion == NULL)
-      {
-        return false;
+          success = false;
       }
 
       g_font = TTF_OpenFont("font//ARCADE.ttf", 100);
@@ -128,11 +118,6 @@ int main( int argc, char* args[] )
     return PT_FAILED;
   }
 
-  g_music = Mix_LoadMUS("sound//Action.mid");
-  if (g_music == NULL)
-  {
-    return 0;
-  }
     ImpTimer fps;
 
    if(!LoadBackground())
@@ -178,14 +163,9 @@ int main( int argc, char* args[] )
    bossObject.set_ypos(10);
 
    ExplosionObject exp_threats;
-   ExplosionObject exp_main;
 
    bool ret = exp_threats.LoadImg("img//exp3.png", g_screen);
    if (!ret) return PT_FAILED;
-
-
-   ret = exp_main.LoadImg("img//exp3.png", g_screen);
-   if (!ret) return 0;
 
    bool quit = false;
 
@@ -206,29 +186,20 @@ int main( int argc, char* args[] )
            quit = true;
          }
 
-         p_player.HandleInputAction(g_event, g_screen, g_sound_bullet);
+         p_player.HandleInputAction(g_event, g_screen);
       }
 
-#ifdef USE_AUDIO
-      if( Mix_PlayingMusic() == 0 )
+
+      if (Music::GetInstance()->PlayMusic() == PT_FAILED)
       {
-        //Play the music
-        if( Mix_PlayMusic(g_music, -1 ) == PT_FAILED )
-        {
           return PT_FAILED;
-        }
       }
-#endif
 
        SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
        SDL_RenderClear(g_screen);
        g_background.Render(g_screen, NULL);
 
-       p_player.HandleBullet(g_screen);
-       p_player.DoPlayer();
-       p_player.Show(g_screen);
        game_map->DrawMap(g_screen);
-
 
        //Draw Geometric
        GeometricFormat rectange_size(0, 0, SCREEN_WIDTH, 40);
@@ -239,40 +210,55 @@ int main( int argc, char* args[] )
        ColorData color_data1(255, 255, 255);
        Gemometric::RenderOutline(outlie_size, color_data1, g_screen);
 
-
        player_power.Show(g_screen);
        player_money.Show(g_screen);
 
        pThreatAds.Render(g_screen);
-       bool bRet = pThreatAds.CheckCollision(g_screen, p_player.GetRectFrame());
+
+       p_player.HandleBullet(g_screen);
+       p_player.DoPlayer();
+       p_player.Show(g_screen);
+
+       bool bRet = pThreatAds.CheckCollision(g_screen, p_player.GetRectFrame(), false);
        if (bRet == true)
        {
-           SDL_Rect rect_pos;
-           rect_pos.x = p_player.GetRect().x;
-           rect_pos.y = p_player.GetRect().y;
-           rect_pos.w = p_player.get_frame_width();
-           rect_pos.h = p_player.get_frame_height();
-           exp_main.ImpRender(g_screen, rect_pos);
-
-
-           num_die++;
-           if (num_die <= 3)
+           if (p_player.get_is_death() == false)
            {
-               p_player.SetRect(0, 0);
-               p_player.set_think_time(60);
-               SDL_Delay(1000);
-               player_power.Decrease();
-               player_power.Render(g_screen);
-               continue;
+               Music::GetInstance()->PlaySoundGame(Music::DEATH_SOUND);
+               p_player.set_is_death(true);
+               p_player.set_alive_time(100);
            }
-           else
+       }
+
+       bool bDie = false;
+       if (p_player.get_is_falling() == true)
+       {
+           bDie = true;
+       }
+
+       if (bDie == true)
+       {
+           if (p_player.get_alive_time() <= 0)
            {
-               if (MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
+               num_die++;
+               if (num_die <= 3)
                {
-                   pThreatAds.Free();
-                   close();
-                   SDL_Quit();
-                   return 0;
+                   p_player.ResetAlive();
+                   player_power.Decrease();
+                   player_power.Render(g_screen);
+                   continue;
+               }
+               else
+               {
+                   Music::GetInstance()->PlaySoundGame(Music::GAMEOVER_SOUND);
+                   SDL_Delay(3000);
+                   if (MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
+                   {
+                       pThreatAds.Free();
+                       close();
+                       SDL_Quit();
+                       return 0;
+                   }
                }
            }
        }

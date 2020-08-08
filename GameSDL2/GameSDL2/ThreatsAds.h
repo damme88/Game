@@ -19,8 +19,9 @@ public:
 
     void BuildThreats(SDL_Renderer* screen);
     void Render(SDL_Renderer* screen);
-    bool CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_obj);
+    bool CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_obj, const bool& isdel = true);
     void Free();
+    void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
 private:
     std::vector <ThreatsObject*> pThreatsNormal_;
 };

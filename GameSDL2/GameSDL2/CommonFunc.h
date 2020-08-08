@@ -20,15 +20,6 @@ static  SDL_Window* g_window = NULL;
 static SDL_Renderer* g_screen = NULL;
 
 static SDL_Event g_event;
-static Mix_Music* g_music = NULL;
-static Mix_Chunk* g_sound_bullet[3];
-static Mix_Chunk* g_sound_explosion = NULL;
-static Mix_Chunk* g_sound_ex_main = NULL;
-
-static char g_name_audio_bullet_main1[] = {"sound//Fire.wav"};
-static char g_name_audio_bullet_main2[] = {"sound//Laser.wav"};
-static char g_name_audio_ex_main[]      = {"sound//Explosion+1.wav"};
-static char g_name_audio_ex_threats[]   = {"sound//Bomb1.wav"};
 
 static char g_name_threat_left[] = { "img//thread1_left.png" };
 static char g_name_threat_right[] = { "img//thread1_right.png" };
@@ -36,7 +27,7 @@ static char g_name_threat_right[] = { "img//thread1_right.png" };
 static char g_threat_bullet[] = { "img//bullet_threat.png" };
 static char g_plane_bullet[] = { "img//plane_bullet.png" };
 
-static char g_name_sound_increase[] = { "sound//two_beep_.wav" };
+
 static char g_name_money[] = { "img//money_img.png" };
 
 static char g_name_main_alive[] = {"img//player_pw.png"};

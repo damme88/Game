@@ -173,7 +173,7 @@ bool SDLCommonFunc::CheckCollision(const SDL_Rect& object1, const SDL_Rect& obje
         }
     }
 
-    if (left_a > left_b && left_a < bottom_b)
+    if (left_a > left_b && left_a < right_b)
     {
         if (top_a == top_b && bottom_a == bottom_b)
         {

@@ -225,6 +225,11 @@ void ThreatsObject::CheckToMap()
     }
 }
 
+void ThreatsObject::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
+{
+    ;
+}
+
 void ThreatsObject::Show(SDL_Renderer* des)
 {
     if (is_alive_ == true)

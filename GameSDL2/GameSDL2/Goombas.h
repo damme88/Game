@@ -12,6 +12,7 @@ public:
     ~Goombas();
     void Update();
     void Show(SDL_Renderer* des);
+    void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
 private:
     bool is_move_;
 };

@@ -34,6 +34,20 @@ void Goombas::Update()
     }
 }
 
+void Goombas::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
+{
+    if (events.type == SDL_KEYDOWN)
+    {
+        switch (events.key.keysym.sym)
+        {
+        case SDLK_RIGHT:
+        {
+            break;
+        }
+        }
+    }
+}
+
 void Goombas::Show(SDL_Renderer* des)
 {
     Update();

@@ -9,13 +9,15 @@ MainObject::MainObject()
   y_pos_ = GROUND_POS - TILE_SIZE;
   x_val_ = 0;
   y_val_ = 0;
-  falling_time_ = 0;
   width_frame_ = 0;
   height_frame_ = 0;
   status_ = WALK_NONE;
   money_count_ = 0;
   on_ground_ = false;
   is_falling_ = false;
+  is_death_ = false;
+  alive_time_ = 0;
+
   input_type_.left_ = 0;
   input_type_.right_ = 0;
   input_type_.up_ = 0;
@@ -45,8 +47,7 @@ SDL_Rect MainObject::GetRectFrame()
 }
 
 void MainObject::HandleInputAction(SDL_Event events,
-    SDL_Renderer* screen,
-    Mix_Chunk* bullet_sound[3])
+    SDL_Renderer* screen)
 {
     if (events.type == SDL_KEYDOWN)
     {
@@ -101,9 +102,8 @@ void MainObject::HandleInputAction(SDL_Event events,
             BulletObject* p_bullet = new BulletObject();
             p_bullet->LoadImg(kImgBullet, screen);
 
-#ifdef USE_AUDIO 
-            int ret = Mix_PlayChannel(-1, bullet_sound[0], 0);
-#endif
+            Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
+
             if (status_ == WALK_LEFT)
             {
                 p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
@@ -120,6 +120,7 @@ void MainObject::HandleInputAction(SDL_Event events,
         }
         else if (events.button.button == SDL_BUTTON_RIGHT)
         {
+            Music::GetInstance()->PlaySoundGame(Music::JUMP_SOUND);
             input_type_.jump_ = 1;
             input_type_.down_ = 0;
         }
@@ -245,7 +246,7 @@ void MainObject::Show(SDL_Renderer* des)
         frame_ = 0;
     }
 
-    if (falling_time_ == 0)
+    if (is_falling_ == false)
     {
         rect_.x = x_pos_ - map_x_;
         rect_.y = y_pos_ - map_y_;
@@ -261,7 +262,7 @@ void MainObject::DoPlayer()
     map_x_ = data_map->getStartX();
     map_y_ = data_map->getStartY();
 
-    if (falling_time_ == 0)
+    if (is_falling_ == false)
     {
         x_val_ = 0;
         y_val_ += GRAVITY_SPEED;
@@ -294,25 +295,17 @@ void MainObject::DoPlayer()
         CheckToMap();
         data_map->UpdateMapInfo(x_pos_, y_pos_);
     }
-
-    if (falling_time_ > 0)
+    else
     {
-        falling_time_--;
-        if (falling_time_ == 0)
+        if (alive_time_ > 0)
         {
-            if (x_pos_ > 256)
-            {
-                x_pos_ -= 256;
-            }
-            else
-            {
-                x_pos_ = 0;
-            }
-
-            y_pos_ = 0;
-            x_val_ = 0;
-            y_val_ = 0;
-            on_ground_ = false;
+            alive_time_ -= 1;
+        }
+        else
+        {
+            alive_time_ = 0;
+            is_falling_ = false;
+            is_death_ = false;
         }
     }
 }
@@ -331,169 +324,163 @@ void MainObject::CheckToMap()
     Map* data_map = pMap->GetMap();
     VT(VT(BlockMap*)) tile_list = data_map->GetTile();
 
-    int height_min = 0;
-    if (input_type_.up_ == 1)
+    if (is_death_ == false)
     {
-        height_min = height_frame_;
-    }
-    else
-    {
-        height_min = SDLCommonFunc::GetMin(height_frame_, TILE_SIZE);
-    }
+        x1 = (x_pos_ + x_val_) / TILE_SIZE;
+        x2 = (x_pos_ + x_val_ + width_frame_ - 1) / TILE_SIZE;
 
-    x1 = (x_pos_ + x_val_) / TILE_SIZE;
-    x2 = (x_pos_ + x_val_ + width_frame_ - 1) / TILE_SIZE;
+        y1 = (y_pos_) / TILE_SIZE;
+        y2 = (y_pos_ + height_frame_ - 1) / TILE_SIZE;
 
-    y1 = (y_pos_) / TILE_SIZE;
-    y2 = (y_pos_ + height_min - 1) / TILE_SIZE;
-
-    // Check x1, x2 with full width of map
-    // Check y1, y2 with full height of map
-    bool IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
-    IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
-    if (IsInside)
-    {
-        if (x_val_ > 0) //moving right
+        // Check x1, x2 with full width of map
+        // Check y1, y2 with full height of map
+        bool IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
+        IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
+        if (IsInside)
         {
-            int tp1 = tile_list[y1][x2]->getType();
-            int tp2 = tile_list[y2][x2]->getType();
-
-            IsMoney  = pMap->ChecTileMoney(tp1);
-            IsMoney |= pMap->ChecTileMoney(tp2);
-
-            if (IsMoney)
+            if (x_val_ > 0) //moving right
             {
-                tile_list[y1][x2]->RemoveTile();
-                tile_list[y2][x2]->RemoveTile();
-                IncreaseMoney();
-            }
-            else
-            {
-                bool IsBlank1 = pMap->CheckBlank(tp1);
-                bool IsBlank2 = pMap->CheckBlank(tp2);
-                if (!IsBlank1 || !IsBlank2)
+                int tp1 = tile_list[y1][x2]->getType();
+                int tp2 = tile_list[y2][x2]->getType();
+
+                IsMoney = pMap->ChecTileMoney(tp1);
+                IsMoney |= pMap->ChecTileMoney(tp2);
+
+                if (IsMoney)
                 {
-                    // Fixed post of object at current post of map.
-                    // => Cannot moving when press button
-                    x_pos_ = x2 * TILE_SIZE;
-                    x_pos_ -= width_frame_ + 1;
-                    x_val_ = 0; // cannot moving
+                    tile_list[y1][x2]->RemoveTile();
+                    tile_list[y2][x2]->RemoveTile();
+                    IncreaseMoney();
                 }
-            }
-
-        }
-        else if (x_val_ < 0) //moving left 
-        {
-            int tp1 = tile_list[y1][x1]->getType();
-            int tp2 = tile_list[y2][x1]->getType();
-
-            IsMoney = pMap->ChecTileMoney(tp1);
-            IsMoney |= pMap->ChecTileMoney(tp2);
-            if (IsMoney)
-            {
-                tile_list[y1][x1]->RemoveTile();
-                tile_list[y2][x1]->RemoveTile();
-                IncreaseMoney();
-            }
-            else
-            {
-                bool IsBlank1 = pMap->CheckBlank(tp1);
-                bool IsBlank2 = pMap->CheckBlank(tp2);
-                if (!IsBlank1 || !IsBlank2)
+                else
                 {
-                    x_pos_ = (x1 + 1) * TILE_SIZE;
-                    x_val_ = 0;
-                }
-            }
-        }
-    }
-
-    // Check vertical
-    int width_min = SDLCommonFunc::GetMin(width_frame_, TILE_SIZE);
-
-    x1 = (x_pos_) / TILE_SIZE;
-    x2 = (x_pos_ + width_min) / TILE_SIZE;
-
-    y1 = (y_pos_ + y_val_) / TILE_SIZE;
-    y2 = (y_pos_ + y_val_ + height_frame_) / TILE_SIZE;
-
-    IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
-    IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
-    if (IsInside)
-    {
-        if (y_val_ > 0)
-        {
-            //Similar for vertical
-            int tp1 = tile_list[y2][x1]->getType();
-            int tp2 = tile_list[y2][x2]->getType();
-
-            IsMoney  = pMap->ChecTileMoney(tp1);
-            IsMoney |= pMap->ChecTileMoney(tp2);
-            if (IsMoney)
-            {
-                tile_list[y2][x1]->RemoveTile();
-                tile_list[y2][x2]->RemoveTile();
-                IncreaseMoney();
-            }
-            else
-            {
-                bool IsBlank1 = pMap->CheckBlank(tp1);
-                bool IsBlank2 = pMap->CheckBlank(tp2);
-
-                if (!IsBlank1 || !IsBlank2)
-                {
-                    y_pos_ = y2 * TILE_SIZE;
-                    y_pos_ -= height_frame_;
-                    y_val_ = 0;
-
-                    on_ground_ = true;
-                    if (status_ == WALK_NONE)
+                    bool IsBlank1 = pMap->CheckBlank(tp1);
+                    bool IsBlank2 = pMap->CheckBlank(tp2);
+                    if (!IsBlank1 || !IsBlank2)
                     {
-                        //input_type_.right_ = 1;
-                        status_ = WALK_RIGHT;
+                        // Fixed post of object at current post of map.
+                        // => Cannot moving when press button
+                        x_pos_ = x2 * TILE_SIZE;
+                        x_pos_ -= width_frame_ + 1;
+                        x_val_ = 0; // cannot moving
+                    }
+                }
+
+            }
+            else if (x_val_ < 0) //moving left 
+            {
+                int tp1 = tile_list[y1][x1]->getType();
+                int tp2 = tile_list[y2][x1]->getType();
+
+                IsMoney = pMap->ChecTileMoney(tp1);
+                IsMoney |= pMap->ChecTileMoney(tp2);
+                if (IsMoney)
+                {
+                    tile_list[y1][x1]->RemoveTile();
+                    tile_list[y2][x1]->RemoveTile();
+                    IncreaseMoney();
+                }
+                else
+                {
+                    bool IsBlank1 = pMap->CheckBlank(tp1);
+                    bool IsBlank2 = pMap->CheckBlank(tp2);
+                    if (!IsBlank1 || !IsBlank2)
+                    {
+                        x_pos_ = (x1 + 1) * TILE_SIZE;
+                        x_val_ = 0;
                     }
                 }
             }
         }
-        else if (y_val_ < 0)
+
+        // Check vertical
+        int width_min = SDLCommonFunc::GetMin(width_frame_, TILE_SIZE);
+
+        x1 = (x_pos_) / TILE_SIZE;
+        x2 = (x_pos_ + width_min) / TILE_SIZE;
+
+        y1 = (y_pos_ + y_val_) / TILE_SIZE;
+        y2 = (y_pos_ + y_val_ + height_frame_) / TILE_SIZE;
+
+        IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
+        IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
+        if (IsInside)
         {
-            int tp1 = tile_list[y1][x1]->getType();
-            int tp2 = tile_list[y1][x2]->getType();
-
-            IsMoney  = pMap->ChecTileMoney(tp1);
-            IsMoney |= pMap->ChecTileMoney(tp2);
-            if (IsMoney)
+            if (y_val_ > 0)
             {
-                tile_list[y1][x2]->RemoveTile();
-                tile_list[y1][x2]->RemoveTile();
-                IncreaseMoney();
-            }
-            else
-            {
-                bool IsBlank1 = pMap->CheckBlank(tp1);
-                bool IsBlank2 = pMap->CheckBlank(tp2);
+                //Similar for vertical
+                int tp1 = tile_list[y2][x1]->getType();
+                int tp2 = tile_list[y2][x2]->getType();
 
-                if (!IsBlank1 || !IsBlank2)
+                IsMoney = pMap->ChecTileMoney(tp1);
+                IsMoney |= pMap->ChecTileMoney(tp2);
+                if (IsMoney)
                 {
-                    y_pos_ = (y1 + 1) * TILE_SIZE;
-                    y_val_ = 0;
+                    tile_list[y2][x1]->RemoveTile();
+                    tile_list[y2][x2]->RemoveTile();
+                    IncreaseMoney();
+                }
+                else
+                {
+                    bool IsBlank1 = pMap->CheckBlank(tp1);
+                    bool IsBlank2 = pMap->CheckBlank(tp2);
 
-                    if (!IsBlank1)
+                    if (!IsBlank1 || !IsBlank2)
                     {
-                        tile_list[y1][x1]->setYVal(16);
-                    }
-                    else
-                    {
-                        if (!IsBlank2)
+                        y_pos_ = y2 * TILE_SIZE;
+                        y_pos_ -= height_frame_;
+                        y_val_ = 0;
+
+                        on_ground_ = true;
+                        if (status_ == WALK_NONE)
                         {
-                            tile_list[y1][x2]->setYVal(16);
+                            //input_type_.right_ = 1;
+                            status_ = WALK_RIGHT;
                         }
                     }
+                }
+            }
+            else if (y_val_ < 0)
+            {
+                int tp1 = tile_list[y1][x1]->getType();
+                int tp2 = tile_list[y1][x2]->getType();
 
+                IsMoney = pMap->ChecTileMoney(tp1);
+                IsMoney |= pMap->ChecTileMoney(tp2);
+                if (IsMoney)
+                {
+                    tile_list[y1][x2]->RemoveTile();
+                    tile_list[y1][x2]->RemoveTile();
+                    IncreaseMoney();
+                }
+                else
+                {
+                    bool IsBlank1 = pMap->CheckBlank(tp1);
+                    bool IsBlank2 = pMap->CheckBlank(tp2);
+
+                    if (!IsBlank1 || !IsBlank2)
+                    {
+                        y_pos_ = (y1 + 1) * TILE_SIZE;
+                        y_val_ = 0;
+
+                        if (!IsBlank1)
+                        {
+                            tile_list[y1][x1]->setYVal(16);
+                        }
+                        else
+                        {
+                            if (!IsBlank2)
+                            {
+                                tile_list[y1][x2]->setYVal(16);
+                            }
+                        }
+
+                    }
                 }
             }
         }
     }
+    
 
     x_pos_ += x_val_;
     y_pos_ += y_val_;
@@ -507,9 +494,8 @@ void MainObject::CheckToMap()
         x_pos_ = data_map->getMaxX() - width_frame_ - 1;
     }
 
-    if (y_pos_ > data_map->getMaxY())
+    if (y_pos_ > data_map->getMaxY() + 100)
     {
-        falling_time_ = 60;
         is_falling_ = true;
     }
 }
@@ -517,45 +503,68 @@ void MainObject::CheckToMap()
 void MainObject::IncreaseMoney()
 {
     money_count_++;
-    Mix_Chunk* beep_sound = Mix_LoadWAV(kSoundBeep);
-    if (beep_sound != NULL)
-        Mix_PlayChannel(-1, beep_sound, 0 );
+    Music::GetInstance()->PlaySoundGame(Music::COIN_INCREASING);
 }
 
 
 void MainObject::UpdateImagePlayer(SDL_Renderer* des)
 {
-    if (on_ground_ == true)
+    if (is_death_ == true)
     {
-        if (input_type_.down_ == 0)
+        LoadImg(sPlayerDeath, des);
+    }
+    else
+    {
+        if (on_ground_ == true)
         {
-            LoadImg(sPlayerMove, des);
-        }
-        else if (input_type_.down_ == 1)
-        {
-            LoadImg(sPlayerDown, des);
-        }
+            if (input_type_.down_ == 0)
+            {
+                LoadImg(sPlayerMove, des);
+            }
+            else if (input_type_.down_ == 1)
+            {
+                LoadImg(sPlayerDown, des);
+            }
 
-        if (status_ == WALK_LEFT )
-        {
-            m_Flip = true;
+            if (status_ == WALK_LEFT)
+            {
+                m_Flip = true;
+            }
+            else
+            {
+                m_Flip = false;
+            }
         }
         else
         {
-            m_Flip = false;
+            // when implement Jump.
+            LoadImg(sPlayerJump, des);
+            if (status_ == WALK_RIGHT)
+            {
+                m_Flip = false;
+            }
+            else
+            {
+                m_Flip = true;
+            }
         }
     }
-    else 
-    {
-        // when implement Jump.
-        LoadImg(sPlayerJump, des);
-        if (status_ == WALK_RIGHT)
-        {
-            m_Flip = false;
-        }
-        else
-        {
-            m_Flip = true;
-        }
-    }
+}
+
+void MainObject::ResetAlive()
+{
+    GameMap* pMap = GameMap::GetInstance();
+    if (pMap == NULL) return;
+
+    int current_xp = x_pos_;
+    int current_yp = GROUND_POS - 64;
+
+    current_xp -= TILE_SIZE * 5;
+    SDL_Rect rect;
+    rect.x = x_pos_ - map_x_;
+    rect.y = current_yp - map_y_;
+    SetRect(rect.x, rect.y);
+
+    x_pos_ = current_xp;
+    y_pos_ = current_yp;
 }

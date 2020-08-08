@@ -125,7 +125,7 @@ void GameMap::DrawMap(SDL_Renderer* des)
         for (int x_pos = -x1; x_pos < x2; x_pos += TILE_SIZE)
         {
             BlockMap* pBlock = game_map_->GetTile()[map_y][map_x];
-            if (pBlock->GetTile() != NULL)
+            if (pBlock != NULL && pBlock->GetTile() != NULL)
             {
                 pBlock->setXpMap(x_pos);
                 pBlock->setYpMap(y_pos);

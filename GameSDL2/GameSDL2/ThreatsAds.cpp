@@ -12,6 +12,18 @@ ThreatsAds::~ThreatsAds()
 
 }
 
+void ThreatsAds::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
+{
+    for (int i = 0; i < pThreatsNormal_.size(); i++)
+    {
+        ThreatsObject* obj_threat = pThreatsNormal_.at(i);
+        if (obj_threat != NULL)
+        {
+            obj_threat->HandleInputAction(events, screen);
+        }
+
+    }
+}
 
 void ThreatsAds::BuildThreats(SDL_Renderer* screen)
 {
@@ -51,7 +63,7 @@ void ThreatsAds::Render(SDL_Renderer* screen)
 }
 
 
-bool ThreatsAds::CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_object)
+bool ThreatsAds::CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_object, const bool& isDel/*true*/)
 {
     bool bRet = false;
     for (int i = 0; i < pThreatsNormal_.size(); i++)
@@ -64,7 +76,7 @@ bool ThreatsAds::CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_objec
 
             if (bCollision)
             {
-                if (bCollision)
+                if (isDel == true)
                 {
                     pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
                 }
