@@ -5,7 +5,7 @@ Music* Music::instance_ = NULL;
 
 Music::Music()
 {
-
+    music_state_ = MS_STOP;
 }
 
 
@@ -31,16 +31,20 @@ bool Music::Init()
         return false;
     }
 
-    gChunkBullet = Mix_LoadWAV(gSMainFire);
+    gChunkBullet    = Mix_LoadWAV(gSMainFire);
     gChunkMainDeath = Mix_LoadWAV(gSMainDeath);
     gChunkBulletCol = Mix_LoadWAV(gSBulletCol);
-    gChunkCoin = Mix_LoadWAV(gSCoinUp);
-    gChunkJump = Mix_LoadWAV(gSJump);
-    gChunkGameOver = Mix_LoadWAV(gSGameOver);
+    gChunkCoin      = Mix_LoadWAV(gSCoinUp);
+    gChunkJump      = Mix_LoadWAV(gSJump);
+    gChunkGameOver  = Mix_LoadWAV(gSGameOver);
+    gChunkGoombassHaha = Mix_LoadWAV(gSGoombassSoundHaha);
+    gChunkPause = Mix_LoadWAV(gSGamePause);
 
     g_music = Mix_LoadMUS("sound//overworld.wav");
     if (gChunkBullet == NULL || gChunkMainDeath == NULL || 
-        gChunkCoin == NULL || gChunkBulletCol == NULL || gChunkJump == NULL)
+        gChunkCoin == NULL || gChunkBulletCol == NULL || 
+        gChunkJump == NULL || gChunkGoombassHaha == NULL ||
+        gChunkPause == NULL)
     {
         return false;
     }
@@ -85,17 +89,48 @@ int Music::PlaySoundGame(int soundType)
     {
         Mix_PlayChannel(-1, gChunkGameOver, 0);
     }
+    else if (soundType == GOOM_BASS_HAHA)
+    {
+        Mix_PlayChannel(-1, gChunkGoombassHaha, 0);
+    }
+    else if (soundType == GAME_PAUSE)
+    {
+        Mix_PlayChannel(-1, gChunkPause, 0);
+    }
     return ret;
 }
 
 int Music::PlayMusic()
 {
-    if (Mix_PlayingMusic() == 0)
+    if (music_state_ == MS_STOP)
     {
-        //Play the music
         if (Mix_PlayMusic(g_music, -1) == PT_FAILED)
         {
             return PT_FAILED;
         }
+        music_state_ = MS_PLAY;
+    }
+}
+
+void Music::StopMusic()
+{
+    if (music_state_ != MS_STOP)
+    {
+        Mix_HaltMusic();
+        music_state_ = MS_STOP;
+    }
+}
+
+void Music::PauseMusic()
+{
+    if (music_state_ != MS_PAUSE)
+    {
+        Mix_PauseMusic();
+        music_state_ = MS_PAUSE;
+    }
+    else
+    {
+        Mix_ResumeMusic();
+        music_state_ = MS_PLAY;
     }
 }

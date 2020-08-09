@@ -27,8 +27,8 @@ void ThreatsAds::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
 
 void ThreatsAds::BuildThreats(SDL_Renderer* screen)
 {
-    Goombas* pGoombass = new Goombas[3];
-    for (int i = 0; i < 3; i++)
+    Goombas* pGoombass = new Goombas[1];
+    for (int i = 0; i < 1; i++)
     {
         Goombas* pObj = (pGoombass + i);
         if (pObj != NULL)

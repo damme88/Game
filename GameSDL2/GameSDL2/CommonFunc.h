@@ -106,7 +106,6 @@ namespace SDLCommonFunc
   int GetMax(const int& a, const int& b);
   int GetMin(const int& a, const int& b);
   bool CheckCollision(const SDL_Rect& object1, const SDL_Rect& object2);
-  int ShowMenu(SDL_Renderer* g_screen, TTF_Font* font);
   bool CheckInsideMapX(UINT x1, UINT x2);
   bool CheckInsideMapY(UINT y1, UINT y2);
 }

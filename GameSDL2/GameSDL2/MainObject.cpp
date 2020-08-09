@@ -17,6 +17,7 @@ MainObject::MainObject()
   is_falling_ = false;
   is_death_ = false;
   alive_time_ = 0;
+  fast_run_ = false;
 
   input_type_.left_ = 0;
   input_type_.right_ = 0;
@@ -76,6 +77,12 @@ void MainObject::HandleInputAction(SDL_Event events,
             UpdateImagePlayer(screen);
             break;
         }
+        case SDLK_RSHIFT:
+        case SDLK_LSHIFT:
+        {
+            fast_run_ = true;
+        }
+        break;
         }
     }
     else if (events.type == SDL_KEYUP)
@@ -91,6 +98,12 @@ void MainObject::HandleInputAction(SDL_Event events,
         case SDLK_DOWN:
         {
             input_type_.down_ = 0;
+        }
+        break;
+        case SDLK_RSHIFT:
+        case SDLK_LSHIFT:
+        {
+            fast_run_ = false;
         }
         break;
         }
@@ -275,10 +288,18 @@ void MainObject::DoPlayer()
         if (input_type_.left_ == 1)
         {
             x_val_ = -PLAYER_SPEED;
+            if (fast_run_ == true)
+            {
+                x_val_*= 1.5;
+            }
         }
         else if (input_type_.right_ == 1)
         {
             x_val_ = PLAYER_SPEED;
+            if (fast_run_ == true)
+            {
+                x_val_ *= 1.5;
+            }
         }
 
         if (input_type_.jump_ == 1)
@@ -306,6 +327,7 @@ void MainObject::DoPlayer()
             alive_time_ = 0;
             is_falling_ = false;
             is_death_ = false;
+            Music::GetInstance()->PauseMusic();
         }
     }
 }
@@ -479,11 +501,14 @@ void MainObject::CheckToMap()
                 }
             }
         }
+        x_pos_ += x_val_;
+        y_pos_ += y_val_;
     }
-    
-
-    x_pos_ += x_val_;
-    y_pos_ += y_val_;
+    else
+    {
+        x_pos_ += 0.3*x_val_;
+        y_pos_ += 0.3*y_val_;
+    }
 
     if (x_pos_ < 0)
     {

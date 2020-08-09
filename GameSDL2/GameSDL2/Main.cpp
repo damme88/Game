@@ -10,6 +10,7 @@
 #include "Geometric.h"
 #include "BossObject.h"
 #include "ThreatsAds.h"
+#include "MenuGame.h"
 
 TTF_Font* g_font = NULL;
 TTF_Font* g_font_text = NULL;
@@ -169,7 +170,7 @@ int main( int argc, char* args[] )
 
    bool quit = false;
 
-   int ret_menu = SDLCommonFunc::ShowMenu(g_screen, g_font);
+   int ret_menu = MenuGame::GetInstance()->StartMenu(g_screen, g_font);
    if (ret_menu == 1) 
      quit = true;
 
@@ -183,10 +184,27 @@ int main( int argc, char* args[] )
       {
          if(g_event.type == SDL_QUIT )
          {
-           quit = true;
+            quit = true;
          }
-
+         else if (g_event.type == SDL_KEYDOWN)
+         {
+             if (g_event.key.keysym.sym == SDLK_ESCAPE)
+             {
+                 Music::GetInstance()->PauseMusic();
+                 Music::GetInstance()->PlaySoundGame(Music::GAME_PAUSE);
+                 int ret = MenuGame::GetInstance()->PauseMenu(g_screen, g_font_text);
+                 if (ret == 0)
+                 {
+                     break;
+                 }
+                 else
+                 {
+                     quit = true;
+                 }
+             }
+         }
          p_player.HandleInputAction(g_event, g_screen);
+         pThreatAds.HandleInputAction(g_event, g_screen);
       }
 
 
@@ -224,6 +242,7 @@ int main( int argc, char* args[] )
        {
            if (p_player.get_is_death() == false)
            {
+               Music::GetInstance()->PauseMusic();
                Music::GetInstance()->PlaySoundGame(Music::DEATH_SOUND);
                p_player.set_is_death(true);
                p_player.set_alive_time(100);

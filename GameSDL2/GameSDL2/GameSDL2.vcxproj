@@ -95,6 +95,7 @@
     <ClCompile Include="ImpTimer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainObject.cpp" />
+    <ClCompile Include="MenuGame.cpp" />
     <ClCompile Include="Music.cpp" />
     <ClCompile Include="PlayerPower.cpp" />
     <ClCompile Include="TileObject.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="Goombas.h" />
     <ClInclude Include="ImpTimer.h" />
     <ClInclude Include="MainObject.h" />
+    <ClInclude Include="MenuGame.h" />
     <ClInclude Include="Music.h" />
     <ClInclude Include="PlayerPower.h" />
     <ClInclude Include="TileObject.h" />

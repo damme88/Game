@@ -5,6 +5,8 @@
 Goombas::Goombas()
 {
     is_move_ = true;
+    is_change_ = false;
+    goom_type_ = GOOM_BASE;
 }
 
 
@@ -40,16 +42,53 @@ void Goombas::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
     {
         switch (events.key.keysym.sym)
         {
-        case SDLK_RIGHT:
+        case SDLK_g:
         {
+            is_change_ = true;
+            goom_type_ = GOOM_HORN;
+            break;
+        }
+        case SDLK_h:
+        {
+            is_change_ = true;
+            goom_type_ = GOOM_HAHA;
             break;
         }
         }
     }
 }
 
+void Goombas::UpdateImg(SDL_Renderer* des)
+{
+    if (goom_type_ == GOOM_BASE)
+    {
+        LoadImg(sGoombassBase, des);
+    }
+    else if (goom_type_ == GOOM_HORN)
+    {
+        LoadImg(sGoombasGreen, des);
+        y_pos_ = GROUND_POS - height_frame_ - 20;
+    }
+    else if (goom_type_ == GOOM_HAHA)
+    {
+        LoadImg(sGoombassHaha, des);
+        y_pos_ = GROUND_POS - height_frame_;
+        Music::GetInstance()->PlaySoundGame(Music::GOOM_BASS_HAHA);
+    }
+    else
+    {
+        LoadImg(sGoombassBase, des);
+    }
+}
+
 void Goombas::Show(SDL_Renderer* des)
 {
+    if (is_change_ == true)
+    {
+        UpdateImg(des);
+        is_change_ = false;
+    }
+
     Update();
     ThreatsObject::Show(des);
 }

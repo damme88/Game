@@ -86,6 +86,7 @@ private:
   bool on_ground_;
   bool is_falling_;
   bool is_death_;
+  bool fast_run_;
 
   int frame_;
   int status_;
