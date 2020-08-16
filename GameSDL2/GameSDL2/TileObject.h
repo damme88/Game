@@ -59,8 +59,16 @@ public:
     void setXpMap(int xp) { xp_map_ = xp; }
     void setYpMap(int yp) { yp_map_ = yp; }
     void RemoveTile();
+    void UpdateImage(SDL_Renderer* screen);
+
+    bool GetHasMushroom() const { return has_mushroom_; }
+    void SetHasMushroom(const bool& bMushroom) { has_mushroom_ = bMushroom; }
+    bool GetOnMushroom() const { return on_mushroom_; }
+    void SetOnMushroom(const bool& onMushroom) { on_mushroom_ = onMushroom; }
 private:
     TileMat* m_tile;
+    bool has_mushroom_;
+    bool on_mushroom_;
     int m_type;
     int x_index_;
     int y_index_;

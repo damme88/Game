@@ -153,8 +153,7 @@ int main( int argc, char* args[] )
    TextObject money_count;
    money_count.setColor(TextObject::WHITE_TEXT);
 
-   ThreatsAds pThreatAds;
-   pThreatAds.BuildThreats(g_screen);
+   ThreatsAds::GetInstance()->BuildThreats(g_screen);
 
    //Init Boss Object
    BossObject bossObject;
@@ -204,7 +203,7 @@ int main( int argc, char* args[] )
              }
          }
          p_player.HandleInputAction(g_event, g_screen);
-         pThreatAds.HandleInputAction(g_event, g_screen);
+         ThreatsAds::GetInstance()->HandleInputAction(g_event, g_screen);
       }
 
 
@@ -216,6 +215,8 @@ int main( int argc, char* args[] )
        SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
        SDL_RenderClear(g_screen);
        g_background.Render(g_screen, NULL);
+
+       ThreatsAds::GetInstance()->DrawSecondObject(g_screen);
 
        game_map->DrawMap(g_screen);
 
@@ -231,13 +232,13 @@ int main( int argc, char* args[] )
        player_power.Show(g_screen);
        player_money.Show(g_screen);
 
-       pThreatAds.Render(g_screen);
+       ThreatsAds::GetInstance()->Render(g_screen);
 
        p_player.HandleBullet(g_screen);
-       p_player.DoPlayer();
+       p_player.DoPlayer(g_screen);
        p_player.Show(g_screen);
 
-       bool bRet = pThreatAds.CheckCollision(g_screen, p_player.GetRectFrame(), false);
+       bool bRet = ThreatsAds::GetInstance()->CheckCollision(g_screen, p_player.GetRectFrame(), false);
        if (bRet == true)
        {
            if (p_player.get_is_death() == false)
@@ -246,6 +247,10 @@ int main( int argc, char* args[] )
                Music::GetInstance()->PlaySoundGame(Music::DEATH_SOUND);
                p_player.set_is_death(true);
                p_player.set_alive_time(100);
+               //if (pThreatAds.GetBoolCol() == true)
+               //{
+               //    p_player.SetBoomDeadth(true);
+               //}
            }
        }
 
@@ -273,13 +278,19 @@ int main( int argc, char* args[] )
                    SDL_Delay(3000);
                    if (MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
                    {
-                       pThreatAds.Free();
+                       ThreatsAds::GetInstance()->Free();
                        close();
                        SDL_Quit();
                        return 0;
                    }
                }
            }
+       }
+
+       bool ret2 = ThreatsAds::GetInstance()->CheckCollisionSecond(g_screen, p_player.GetRectFrame(), true);
+       if (ret2 == true)
+       {
+           int a = 5;
        }
 
        //COLLISION THREAT -> Main Bullet
@@ -289,7 +300,7 @@ int main( int argc, char* args[] )
          BulletObject* p_bullet = bullet_arr.at(am);
          if (p_bullet)
          {
-            bool bRet = pThreatAds.CheckCollision(g_screen, p_bullet->GetRect());
+            bool bRet = ThreatsAds::GetInstance()->CheckCollision(g_screen, p_bullet->GetRect());
             if (bRet)
             {
                 SDL_Rect rc_pos;
@@ -378,7 +389,7 @@ int main( int argc, char* args[] )
   }
 
   delete game_map;
-  pThreatAds.Free();
+  ThreatsAds::GetInstance()->Free();
   close();
   return 0;
 }

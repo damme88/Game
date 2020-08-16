@@ -1,6 +1,8 @@
 
 #include "MainObject.h"
 #include "Geometric.h"
+#include "TMushRoom.h"
+#include "ThreatsAds.h"
 
 MainObject::MainObject()
 {
@@ -24,6 +26,7 @@ MainObject::MainObject()
   input_type_.up_ = 0;
   input_type_.down_ = 0;
   input_type_.jump_ = 0;
+  //is_dead_boom_ = false;
 }
 
 MainObject::~MainObject()
@@ -269,7 +272,7 @@ void MainObject::Show(SDL_Renderer* des)
     }
 }
 
-void MainObject::DoPlayer()
+void MainObject::DoPlayer(SDL_Renderer* des)
 {
     Map* data_map = GameMap::GetInstance()->GetMap();
     map_x_ = data_map->getStartX();
@@ -313,7 +316,7 @@ void MainObject::DoPlayer()
             on_ground_ = false;
         }
 
-        CheckToMap();
+        CheckToMap(des);
         data_map->UpdateMapInfo(x_pos_, y_pos_);
     }
     else
@@ -332,7 +335,7 @@ void MainObject::DoPlayer()
     }
 }
 
-void MainObject::CheckToMap()
+void MainObject::CheckToMap(SDL_Renderer* des)
 {
     GameMap* pMap = GameMap::GetInstance();
     if (pMap == NULL) return;
@@ -485,18 +488,62 @@ void MainObject::CheckToMap()
                         y_pos_ = (y1 + 1) * TILE_SIZE;
                         y_val_ = 0;
 
+                        int xd;
+                        int yd;
                         if (!IsBlank1)
                         {
-                            tile_list[y1][x1]->setYVal(16);
+                            xd = x1;
+                            yd = y1;
                         }
                         else
                         {
-                            if (!IsBlank2)
-                            {
-                                tile_list[y1][x2]->setYVal(16);
-                            }
+                            xd = x2;
+                            yd = y1;
                         }
 
+                        bool checkMushroom = tile_list[yd][xd]->GetHasMushroom();
+                        if (checkMushroom == true)
+                        {
+                            BlockMap* pBlock = tile_list[yd][xd];
+                            pBlock->setType(BLOCK_USED);
+                            pBlock->UpdateImage(des);
+                            pBlock->SetHasMushroom(false);
+                            TMushroom* pMushRoom = new TMushroom();
+                            bool ret = pMushRoom->LoadImg("img//mushroom.png", des);
+                            if (ret)
+                            {
+                                SDL_Rect Rect = pBlock->GetTile()->GetRect();
+                                int x_pos = Rect.x + data_map->getStartX();
+                                int y_pos = Rect.y + data_map->getStartY();
+                                pMushRoom->set_clips();
+                                pMushRoom->set_xpos(x_pos);
+                                pMushRoom->set_ypos(y_pos);
+                                pMushRoom->set_y_val(4);
+                                pMushRoom->SetIdxTile(xd, yd);
+                                ThreatsAds::GetInstance()->AddSecondObject(pMushRoom);
+                            }
+                        }
+                        else
+                        {
+                            if (!IsBlank1)
+                            {
+                                if (tile_list[y1][x1]->getType() != BLOCK_USED)
+                                {
+                                    tile_list[y1][x1]->setYVal(16);
+                                }
+                                
+                            }
+                            else
+                            {
+                                if (!IsBlank2)
+                                {
+                                    if (tile_list[y1][x2]->getType() != BLOCK_USED)
+                                    {
+                                        tile_list[y1][x2]->setYVal(16);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -506,8 +553,15 @@ void MainObject::CheckToMap()
     }
     else
     {
-        x_pos_ += 0.3*x_val_;
-        y_pos_ += 0.3*y_val_;
+        /*if (is_dead_boom_ == true)
+        {
+            y_pos_ -= y_val_;
+        }
+        else
+        {*/
+            x_pos_ += 0.3*x_val_;
+            y_pos_ += 0.3*y_val_;
+        //}
     }
 
     if (x_pos_ < 0)
@@ -523,6 +577,11 @@ void MainObject::CheckToMap()
     {
         is_falling_ = true;
     }
+
+    //if (y_pos_ < 0)
+    //{
+    //    is_falling_ = true;
+    //}
 }
 
 void MainObject::IncreaseMoney()

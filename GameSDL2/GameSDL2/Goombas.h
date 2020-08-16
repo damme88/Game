@@ -7,7 +7,7 @@
 #include "Music.h"
 
 static char sGoombasGreen[] = { "img//goombas2.png" };
-static char sGoombassHaha[] = { "img//goombas_haha.png" };
+static char sGoombassHaha[] = { "img//goombas22.png" };
 static char sGoombassBase[] = { "img//goombas.png" };
 
 class Goombas : public ThreatsObject
@@ -19,6 +19,8 @@ public:
     void Show(SDL_Renderer* des);
     void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
     void UpdateImg(SDL_Renderer* des);
+    void SetIsBoom(bool boom) { is_boom_ = boom; }
+    bool GetIsBoom() const { return is_boom_; }
     enum GoomType
     {
         GOOM_BASE = 0,
@@ -26,6 +28,7 @@ public:
         GOOM_HAHA = 2,
     };
 private:
+    bool is_boom_;
     bool is_move_;
     bool is_change_;
     int goom_type_;

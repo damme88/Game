@@ -98,10 +98,12 @@
     <ClCompile Include="MenuGame.cpp" />
     <ClCompile Include="Music.cpp" />
     <ClCompile Include="PlayerPower.cpp" />
+    <ClCompile Include="TBoom.cpp" />
     <ClCompile Include="TileObject.cpp" />
     <ClCompile Include="TextObject.cpp" />
     <ClCompile Include="ThreatsAds.cpp" />
     <ClCompile Include="ThreatsObject.cpp" />
+    <ClCompile Include="TMushRoom.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseObject.h" />
@@ -117,10 +119,12 @@
     <ClInclude Include="MenuGame.h" />
     <ClInclude Include="Music.h" />
     <ClInclude Include="PlayerPower.h" />
+    <ClInclude Include="TBoom.h" />
     <ClInclude Include="TileObject.h" />
     <ClInclude Include="TextObject.h" />
     <ClInclude Include="ThreatsAds.h" />
     <ClInclude Include="ThreatsObject.h" />
+    <ClInclude Include="TMushRoom.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

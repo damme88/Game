@@ -76,6 +76,10 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
             }
         }
     }
+
+    BlockMap* pBlock = game_map_->GetTile()[6][7];
+    pBlock->SetHasMushroom(true);
+
 }
 
 void GameMap::DrawMap(SDL_Renderer* des)

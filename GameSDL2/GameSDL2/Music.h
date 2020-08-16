@@ -13,6 +13,9 @@ static Mix_Chunk* gChunkJump = NULL;
 static Mix_Chunk* gChunkGameOver = NULL;
 static Mix_Chunk* gChunkGoombassHaha = NULL;
 static Mix_Chunk* gChunkPause = NULL;
+static Mix_Chunk* gChunkBoom = NULL;
+static Mix_Chunk* gChunkMushroom = NULL;
+static Mix_Chunk* gChunkMushroomMeat = NULL;
 
 static char gSMainFire[] = { "sound//fireball.wav"};
 static char gSMainDeath[] = { "sound//death.wav"};
@@ -22,6 +25,9 @@ static char gSJump[] = {"sound//jump.wav"};
 static char gSGameOver[] = {"sound//gameover.wav"};
 static char gSGamePause[] = { "sound//pause.wav" };
 static char gSGoombassSoundHaha[] = { "sound//goombas_haha.wav" };
+static char gSExpBoom[] = { "sound//Bomb2.wav" };
+static char gSMushroom[] = { "sound//mushroomappear.wav" };
+static char gSMushroomMeat[] = { "sound//mushroomeat.wav" };
 
 class Music
 {
@@ -31,14 +37,17 @@ public:
 
     enum SoundType
     {
-        FIRE_SOUND = 0,
-        POWER_UP = 1,
-        EXP_SOUND = 2,
+        FIRE_SOUND  = 0,
+        POWER_UP    = 1,
+        EXP_SOUND   = 2,
         DEATH_SOUND = 3,
         COIN_INCREASING = 4,
-        JUMP_SOUND = 5,
+        JUMP_SOUND  = 5,
         GAMEOVER_SOUND = 6,
-        GAME_PAUSE = 7,
+        GAME_PAUSE  = 7,
+        EXP_BOOM    = 8,
+        MUSHROM_SHOW = 9,
+        MUSHROOM_MEAT = 10,
     };
 
     enum GoomBassType

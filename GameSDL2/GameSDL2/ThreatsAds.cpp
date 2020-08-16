@@ -1,9 +1,14 @@
 #include "ThreatsAds.h"
 #include "Goombas.h"
+#include "TBoom.h"
+
+#define NO_BOOM 
+
+ThreatsAds* ThreatsAds::instance_ = NULL;
 
 ThreatsAds::ThreatsAds()
 {
-
+    is_boom_cool_ = false;
 }
 
 
@@ -20,8 +25,26 @@ void ThreatsAds::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
         if (obj_threat != NULL)
         {
             obj_threat->HandleInputAction(events, screen);
+#ifndef NO_BOOM
+            if (obj_threat->GetType() == ThreatsObject::TH_GOOMBAS)
+            {
+                Goombas* pObject = static_cast<Goombas*>(obj_threat);
+                if (pObject->GetIsBoom())
+                {
+                    pObject->SetIsBoom(false);
+                    TBoom* pBom = new TBoom();
+                    bool ret = pBom->LoadImg("img//boom_boom64.png", screen);
+                    if (ret)
+                    {
+                        pBom->set_clips();
+                        pBom->set_xpos(pObject->get_x_pos());
+                        pBom->set_ypos(pObject->get_y_pos());
+                        pThreatsNormal_.push_back(pBom);
+                    }
+                }
+            }
+#endif
         }
-
     }
 }
 
@@ -40,6 +63,21 @@ void ThreatsAds::BuildThreats(SDL_Renderer* screen)
             pThreatsNormal_.push_back(pObj);
         }
     }
+
+#ifndef NO_BOOM
+    pEx_ = new ExplosionObject();
+    pEx_->LoadImg("img//exp5.png", screen);
+    pEx_->set_clips();
+#endif
+}
+
+void ThreatsAds::AddSecondObject(ThreatsObject* pObj)
+{
+    if (pObj != NULL)
+    {
+        Music::GetInstance()->PlaySoundGame(Music::MUSHROM_SHOW);
+        pSecondObject_.push_back(pObj);
+    }
 }
 
 
@@ -48,20 +86,36 @@ void ThreatsAds::Render(SDL_Renderer* screen)
     for (int i = 0; i < pThreatsNormal_.size(); i++)
     {
         ThreatsObject* obj_threat = pThreatsNormal_.at(i);
-        Goombas* pObject = static_cast<Goombas*>(obj_threat);
-        if (pObject->get_is_alive() == true)
+        if (obj_threat->GetType() == ThreatsObject::TH_GOOMBAS)
         {
-            pObject->DoPlayer();
-            pObject->Show(screen);
+            Goombas* pObject = static_cast<Goombas*>(obj_threat);
+            if (pObject->get_is_alive() == true)
+            {
+                pObject->DoPlayer();
+                pObject->Show(screen);
+            }
+            else
+            {
+                obj_threat->Free();
+                pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
+            }
         }
-        else
+        else if (obj_threat->GetType() == ThreatsObject::TH_BOOM)
         {
-            obj_threat->Free();
-            pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
+            TBoom* pObject = static_cast<TBoom*>(obj_threat);
+            pObject->Show(screen);
         }
     }
 }
 
+void ThreatsAds::DrawSecondObject(SDL_Renderer* des)
+{
+    for (int i = 0; i < pSecondObject_.size(); i++)
+    {
+        ThreatsObject* obj_threat = pSecondObject_.at(i);
+        obj_threat->Show(des);
+    }
+}
 
 bool ThreatsAds::CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_object, const bool& isDel/*true*/)
 {
@@ -76,12 +130,24 @@ bool ThreatsAds::CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_objec
 
             if (bCollision)
             {
-                if (isDel == true)
+                bRet = true;
+            /*    if (pThreat->GetType() == ThreatsObject::TH_BOOM)
                 {
                     pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
+                    SDL_Rect rect;
+                    rect = pThreat->GetRect();
+                    pEx_->ImpRender(screen, rect);
+                    Music::GetInstance()->PlaySoundGame(Music::EXP_BOOM);
+                    is_boom_cool_ = true;
                 }
-
-                bRet = true;
+                else
+                {*/
+                    if (isDel == true)
+                    {
+                        pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
+                    }
+                    //Music::GetInstance()->PlaySoundGame(Music::EXP_SOUND);
+                //}
                 break;
             }
         }
@@ -89,6 +155,36 @@ bool ThreatsAds::CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_objec
 
     return bRet;
 }
+
+bool ThreatsAds::CheckCollisionSecond(SDL_Renderer* screen, 
+                                      const SDL_Rect& rect_object,
+                                      const bool& isDel/*true*/)
+{
+    bool bRet = false;
+    for (int i = 0; i < pSecondObject_.size(); i++)
+    {
+        ThreatsObject* pThreat = pSecondObject_.at(i);
+        if (pThreat)
+        {
+            SDL_Rect rect = pThreat->GetRectFrame();
+            bool bCollision = SDLCommonFunc::CheckCollision(rect_object, rect);
+
+            if (bCollision)
+            {
+                bRet = true;
+               
+                if (isDel == true)
+                {
+                    pSecondObject_.erase(pSecondObject_.begin() + i);
+                }
+                Music::GetInstance()->PlaySoundGame(Music::MUSHROOM_MEAT);
+                break;
+            }
+        }
+    }
+    return bRet;
+}
+
 
 void ThreatsAds::Free()
 {

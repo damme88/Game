@@ -10,6 +10,8 @@ BlockMap::BlockMap()
     m_type  = 0;
     xp_map_ = 0;
     yp_map_ = 0;
+    has_mushroom_ = false;
+    on_mushroom_ = false;
 }
 
 BlockMap::~BlockMap()
@@ -68,6 +70,13 @@ void BlockMap::RemoveTile()
         m_tile->Free();
         m_tile = NULL;
     }
+}
+
+void BlockMap::UpdateImage(SDL_Renderer* screen)
+{
+    char filename[40];
+    sprintf_s(filename, "map//%d.png", m_type);
+    m_tile->LoadImg(filename, screen);
 }
 
 TileMat::TileMat()

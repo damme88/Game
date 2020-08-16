@@ -45,8 +45,8 @@ public:
   void HandleInputAction(SDL_Event events, 
                          SDL_Renderer* screen); 
 
-  void DoPlayer();
-  void CheckToMap();
+  void DoPlayer(SDL_Renderer* des);
+  void CheckToMap(SDL_Renderer* des);
 
   void DrawBound(SDL_Renderer* des);
   void HandleBullet(SDL_Renderer* des);
@@ -72,6 +72,7 @@ public:
   void set_bullet_list(VT(BulletObject*) bullet_list);
   void InitExp(SDL_Renderer* des);
   void ResetAlive();
+  //void SetBoomDeadth(bool b) { is_dead_boom_ = b; }
 protected:
   void UpdateImagePlayer(SDL_Renderer* des);
 
@@ -81,7 +82,7 @@ private:
   SDL_Rect frame_clip_[4];
   Input input_type_;
   ExplosionObject exp_;
-
+  //bool is_dead_boom_;
   bool is_jump_;
   bool on_ground_;
   bool is_falling_;

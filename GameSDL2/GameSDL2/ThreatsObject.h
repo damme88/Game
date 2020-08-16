@@ -13,9 +13,6 @@
 #define GRAVITY_SPEED 0.8
 #define MAX_FALL_SPEED 10
 
-#define PLAYER_SPEED 2
-#define PLAYER_HIGHT_VAL 18;
-
 #define NUM_FRAME 2
 
 class ThreatsObject : public BaseObject
@@ -23,6 +20,14 @@ class ThreatsObject : public BaseObject
 public:
     ThreatsObject();
     ~ThreatsObject();
+
+    enum TypeThreats
+    {
+        TH_UNDEF    = 0,
+        TH_GOOMBAS  = 1,
+        TH_BOOM     = 2,
+        TH_MUSHROOM = 3,
+    };
 
     bool LoadImg(std::string path, SDL_Renderer* screen);
     void CheckToMap();
@@ -42,6 +47,7 @@ public:
     int get_width_frame() const { return width_frame_; }
     int get_height_frame() const { return height_frame_; }
     bool get_is_alive() { return is_alive_; }
+    int GetType() const { return type_; }
     SDL_Rect GetRectFrame();
     //Overridde
 public:
@@ -60,6 +66,7 @@ protected:
     int height_frame_;
     int frame_;
     int v_dir_;
+    int type_;
 
     float x_val_;
     float y_val_;

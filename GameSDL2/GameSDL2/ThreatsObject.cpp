@@ -5,7 +5,7 @@
 
 ThreatsObject::ThreatsObject()
 {
-    is_clip_ = false;
+    is_clip_ = true;
     is_alive_ = true;
 
     on_ground_ = 0;
@@ -27,7 +27,7 @@ ThreatsObject::ThreatsObject()
     input_type_.right_ = 0;
     input_type_.up_ = 0;
     input_type_.down_ = 0;
-
+    type_ = TH_UNDEF;
     pMap_ = GameMap::GetInstance()->GetMap();
 }
 

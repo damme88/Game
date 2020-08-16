@@ -25,5 +25,7 @@ private:
     int frame_height_;
     unsigned int frame_;
     SDL_Rect frame_clip_[FRAME_EXP];
+    unsigned int iDelay[FRAME_EXP];
+    unsigned long passed_time_;
 };
 

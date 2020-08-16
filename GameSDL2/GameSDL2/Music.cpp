@@ -39,17 +39,20 @@ bool Music::Init()
     gChunkGameOver  = Mix_LoadWAV(gSGameOver);
     gChunkGoombassHaha = Mix_LoadWAV(gSGoombassSoundHaha);
     gChunkPause = Mix_LoadWAV(gSGamePause);
+    gChunkBoom = Mix_LoadWAV(gSExpBoom);
+    gChunkMushroom = Mix_LoadWAV(gSMushroom);
+    gChunkMushroomMeat = Mix_LoadWAV(gSMushroomMeat);
 
     g_music = Mix_LoadMUS("sound//overworld.wav");
     if (gChunkBullet == NULL || gChunkMainDeath == NULL || 
         gChunkCoin == NULL || gChunkBulletCol == NULL || 
         gChunkJump == NULL || gChunkGoombassHaha == NULL ||
-        gChunkPause == NULL)
+        gChunkPause == NULL || gChunkBoom == NULL ||
+        gChunkMushroom == NULL || gChunkMushroomMeat == NULL)
     {
         return false;
     }
 
-    //g_music = Mix_LoadMUS("sound//Action.mid");
     if (g_music == NULL)
     {
         return false;
@@ -97,11 +100,24 @@ int Music::PlaySoundGame(int soundType)
     {
         Mix_PlayChannel(-1, gChunkPause, 0);
     }
+    else if (soundType == EXP_BOOM)
+    {
+        Mix_PlayChannel(-1, gChunkBoom, 0);
+    }
+    else if (soundType == MUSHROM_SHOW)
+    {
+        Mix_PlayChannel(-1, gChunkMushroom, 0);
+    }
+    else if (soundType == MUSHROOM_MEAT)
+    {
+        Mix_PlayChannel(-1, gChunkMushroomMeat, 0);
+    }
     return ret;
 }
 
 int Music::PlayMusic()
 {
+#if 0
     if (music_state_ == MS_STOP)
     {
         if (Mix_PlayMusic(g_music, -1) == PT_FAILED)
@@ -110,6 +126,8 @@ int Music::PlayMusic()
         }
         music_state_ = MS_PLAY;
     }
+#endif
+    return 0;
 }
 
 void Music::StopMusic()

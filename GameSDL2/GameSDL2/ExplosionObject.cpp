@@ -3,6 +3,11 @@
 
 ExplosionObject::ExplosionObject(void)
 {
+    iDelay[0] = 1000;
+    iDelay[1] = 1000;
+    iDelay[2] = 1000;
+    iDelay[3] = 1000;
+    passed_time_ = 0.0;
 }
 
 
@@ -50,15 +55,18 @@ void ExplosionObject::Show(SDL_Renderer* screen)
 void ExplosionObject::ImpRender(SDL_Renderer* screen, SDL_Rect& rect_pos)
 {
     int x_pos = rect_pos.x - frame_width_*0.5;
-    int y_pos = rect_pos.y - frame_height_*0.2;
+    int y_pos = rect_pos.y - frame_height_*0.5;
 
     SetRect(x_pos, y_pos);
-    frame_++;
-    if (frame_ > FRAME_EXP - 1)
+    // Create delay times when next frame
+    if (SDL_GetTicks() - iDelay[frame_] > passed_time_)
     {
-        frame_ = 0;
+        passed_time_ = SDL_GetTicks();
+        ++frame_;
+        if (frame_ > FRAME_EXP - 1)
+        {
+            frame_ = 0;
+        }
     }
-
     Show(screen);
-    Music::GetInstance()->PlaySoundGame(Music::EXP_SOUND);
 }

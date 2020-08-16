@@ -69,6 +69,12 @@
     <ClCompile Include="MenuGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TBoom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TMushRoom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonFunc.h">
@@ -120,6 +126,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MenuGame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TBoom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TMushRoom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

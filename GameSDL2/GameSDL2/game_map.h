@@ -5,6 +5,7 @@
 #include "CommonFunc.h"
 #include "BaseObject.h"
 #include "TileObject.h"
+//#include "ThreatsObject.h"
 
 #define BLOCK_BLANK         0
 #define BLOCK_BRICK_GRN     1
@@ -12,6 +13,7 @@
 #define BLOCK_BIRCK_Q       3
 #define BLOCK_BRICK_GRN2    4
 #define BLOCK_COIN          9
+#define BLOCK_USED          10
 
 class GameMap
 {
@@ -33,14 +35,15 @@ public:
 
   bool ChecTileMoney(const int& tile);
   bool CheckBlank(const int& tile);
-
   Map* GetMap() const { return game_map_; }
+
 public:
   Map* game_map_;
   Input input_type_;
 
 private:
     static GameMap* instance_;
+   //VT(ThreatsObject*) listSecondObject_;
 };
 
 #endif
