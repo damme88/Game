@@ -28,7 +28,7 @@ void TMushroom::Update()
         {
             y_val_ = 0;
             is_fall_ = true;
-            x_val_ = 5;
+            x_val_ = 8;
         }
     }
 }

@@ -116,14 +116,14 @@ bool SDLCommonFunc::CheckCollision(const SDL_Rect& object1, const SDL_Rect& obje
 
 bool SDLCommonFunc::CheckInsideMapX(UINT x1, UINT x2)
 {
-    if (x1 >= 0 && x2 < MAX_MAP_X)
+    if (x1 >= 0 && x1 < MAX_MAP_X && x2 >= 0 && x2 < MAX_MAP_X)
         return true;
     return false;
 }
 
 bool SDLCommonFunc::CheckInsideMapY(UINT y1, UINT y2)
 {
-    if (y1 >= 0 && y2 < MAX_MAP_Y)
+    if (y1 >= 0 && y1 < MAX_MAP_Y && y2 >= 0 && y2 < MAX_MAP_Y)
     {
         return true;
     }

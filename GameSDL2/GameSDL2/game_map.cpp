@@ -158,3 +158,24 @@ bool GameMap::CheckBlank(const int& tile)
         return true;
     return false;
 }
+
+void GameMap::RenderBlockDe(SDL_Renderer* des)
+{
+    for (int i = 0; i < m_BlockDeList.size(); ++i)
+    {
+        BlockDebris* pBlockDe = m_BlockDeList.at(i);
+        if (pBlockDe != NULL)
+        {
+            if (pBlockDe->GetDestroy() == false)
+            {
+                pBlockDe->Render(des);
+            }
+            else
+            {
+                delete pBlockDe;
+                pBlockDe = NULL;
+                m_BlockDeList.erase(m_BlockDeList.begin() + i);
+            }
+        }
+    }
+}

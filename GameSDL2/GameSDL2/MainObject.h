@@ -9,7 +9,6 @@
 #include "Music.h"
 #include <vector>
 
-
 #define GRAVITY_SPEED       0.8
 #define MAX_FALL_SPEED      16
 
@@ -60,9 +59,11 @@ public:
   bool get_is_falling() const { return is_falling_; }
   bool get_is_death() const { return is_death_; }
   int get_alive_time() const { return alive_time_; }
+  int get_level_mushroom()const { return level_mushroom_; }
   VT(BulletObject*) get_bullet_list() const;
   SDL_Rect GetRectFrame();
 
+  void setLevelMushroom() { level_mushroom_++; }
   void setXYPos(const int& xp, const int& yp) { x_pos_ = xp; y_pos_ = yp; }
   void set_is_falling(const bool& is_falling) { is_falling_ = is_falling; }
   void set_is_death(const bool& is_death) { is_death_ = is_death; }
@@ -88,6 +89,7 @@ private:
   bool is_falling_;
   bool is_death_;
   bool fast_run_;
+  int level_mushroom_;
 
   int frame_;
   int status_;

@@ -85,6 +85,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseObject.cpp" />
+    <ClCompile Include="BlockDebris.cpp" />
     <ClCompile Include="BossObject.cpp" />
     <ClCompile Include="BulletObject.cpp" />
     <ClCompile Include="CommonFunc.cpp" />
@@ -95,6 +96,7 @@
     <ClCompile Include="ImpTimer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainObject.cpp" />
+    <ClCompile Include="MapData.cpp" />
     <ClCompile Include="MenuGame.cpp" />
     <ClCompile Include="Music.cpp" />
     <ClCompile Include="PlayerPower.cpp" />
@@ -107,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseObject.h" />
+    <ClInclude Include="BlockDebris.h" />
     <ClInclude Include="BossObject.h" />
     <ClInclude Include="BulletObject.h" />
     <ClInclude Include="CommonFunc.h" />
@@ -116,6 +119,7 @@
     <ClInclude Include="Goombas.h" />
     <ClInclude Include="ImpTimer.h" />
     <ClInclude Include="MainObject.h" />
+    <ClInclude Include="MapData.h" />
     <ClInclude Include="MenuGame.h" />
     <ClInclude Include="Music.h" />
     <ClInclude Include="PlayerPower.h" />

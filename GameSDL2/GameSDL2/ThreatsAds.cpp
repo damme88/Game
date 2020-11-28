@@ -185,6 +185,45 @@ bool ThreatsAds::CheckCollisionSecond(SDL_Renderer* screen,
     return bRet;
 }
 
+bool ThreatsAds::CheckCollisionLocal(SDL_Renderer* screen)
+{
+    bool ret = false;
+    for (int i = 0; i < pSecondObject_.size(); i++)
+    {
+        ThreatsObject* pThreat1 = pSecondObject_.at(i);
+        if (pThreat1)
+        {
+            SDL_Rect rect1 = pThreat1->GetRectFrame();
+            for (int i = 0; i < pThreatsNormal_.size(); i++)
+            {
+                ThreatsObject* pThreat2 = pThreatsNormal_.at(i);
+                if (pThreat2)
+                {
+                    SDL_Rect rect2 = pThreat2->GetRectFrame();
+                    bool bCollision = SDLCommonFunc::CheckCollision(rect1, rect2);
+                    if (bCollision)
+                    {
+                        ret = true;
+                        pSecondObject_.erase(pSecondObject_.begin() + i);
+
+                        if (pThreat2->GetType() == ThreatsObject::TH_GOOMBAS)
+                        {
+                            Goombas* pGoombas = static_cast<Goombas*>(pThreat2);
+                            if (pGoombas != NULL)
+                            {
+                                pGoombas->SetIsChange(true);
+                                pGoombas->SetIsType(Goombas::GOOM_X5);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return ret;
+}
 
 void ThreatsAds::Free()
 {

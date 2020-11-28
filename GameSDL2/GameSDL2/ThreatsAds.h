@@ -29,6 +29,7 @@ public:
     void Render(SDL_Renderer* screen);
     bool CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_obj, const bool& isdel = true);
     bool CheckCollisionSecond(SDL_Renderer* screen, const SDL_Rect& rect_object, const bool& isdel = true);
+    bool CheckCollisionLocal(SDL_Renderer* screen);
     void Free();
     void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
     bool GetBoolCol() const { return is_boom_cool_; }

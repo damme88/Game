@@ -2,10 +2,9 @@
 #ifndef GAME_MAP_H_
 #define GAME_MAP_H_
 
-#include "CommonFunc.h"
-#include "BaseObject.h"
-#include "TileObject.h"
-//#include "ThreatsObject.h"
+#include <vector>
+#include "MapData.h"
+#include "BlockDebris.h"
 
 #define BLOCK_BLANK         0
 #define BLOCK_BRICK_GRN     1
@@ -37,13 +36,14 @@ public:
   bool CheckBlank(const int& tile);
   Map* GetMap() const { return game_map_; }
 
+  void RenderBlockDe(SDL_Renderer* des);
 public:
   Map* game_map_;
   Input input_type_;
+  std::vector<BlockDebris*> m_BlockDeList;
 
 private:
     static GameMap* instance_;
-   //VT(ThreatsObject*) listSecondObject_;
 };
 
 #endif

@@ -16,6 +16,7 @@ static Mix_Chunk* gChunkPause = NULL;
 static Mix_Chunk* gChunkBoom = NULL;
 static Mix_Chunk* gChunkMushroom = NULL;
 static Mix_Chunk* gChunkMushroomMeat = NULL;
+static Mix_Chunk* gChunkBlockDes = NULL;
 
 static char gSMainFire[] = { "sound//fireball.wav"};
 static char gSMainDeath[] = { "sound//death.wav"};
@@ -28,6 +29,7 @@ static char gSGoombassSoundHaha[] = { "sound//goombas_haha.wav" };
 static char gSExpBoom[] = { "sound//Bomb2.wav" };
 static char gSMushroom[] = { "sound//mushroomappear.wav" };
 static char gSMushroomMeat[] = { "sound//mushroomeat.wav" };
+static char gSBlocklDes[] = { "sound//blockbreak.wav" };
 
 class Music
 {
@@ -48,6 +50,7 @@ public:
         EXP_BOOM    = 8,
         MUSHROM_SHOW = 9,
         MUSHROOM_MEAT = 10,
+        BLOCK_DEBRIS = 11,
     };
 
     enum GoomBassType

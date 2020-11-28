@@ -290,8 +290,10 @@ int main( int argc, char* args[] )
        bool ret2 = ThreatsAds::GetInstance()->CheckCollisionSecond(g_screen, p_player.GetRectFrame(), true);
        if (ret2 == true)
        {
-           int a = 5;
+           p_player.setLevelMushroom();
        }
+
+       //ThreatsAds::GetInstance()->CheckCollisionLocal(g_screen);
 
        //COLLISION THREAT -> Main Bullet
        std::vector<BulletObject*> bullet_arr = p_player.get_bullet_list();
@@ -364,6 +366,7 @@ int main( int argc, char* args[] )
            player_power.Render(g_screen);
        }
 
+       game_map->RenderBlockDe(g_screen);
 
        ////Process Boss
        //int val = MAX_MAP_X*TILE_SIZE - (ga_map.start_x_ + p_player.GetRect().x);

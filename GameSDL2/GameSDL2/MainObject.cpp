@@ -3,6 +3,7 @@
 #include "Geometric.h"
 #include "TMushRoom.h"
 #include "ThreatsAds.h"
+#include "BlockDebris.h"
 
 MainObject::MainObject()
 {
@@ -20,6 +21,7 @@ MainObject::MainObject()
   is_death_ = false;
   alive_time_ = 0;
   fast_run_ = false;
+  level_mushroom_ = 0;
 
   input_type_.left_ = 0;
   input_type_.right_ = 0;
@@ -115,24 +117,27 @@ void MainObject::HandleInputAction(SDL_Event events,
     {
         if (events.button.button == SDL_BUTTON_LEFT)
         {
-            BulletObject* p_bullet = new BulletObject();
-            p_bullet->LoadImg(kImgBullet, screen);
-
-            Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
-
-            if (status_ == WALK_LEFT)
+            if (level_mushroom_ == 2)
             {
-                p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
-                p_bullet->set_xy_pos(x_pos_, y_pos_ + height_frame_*0.22);
+                BulletObject* p_bullet = new BulletObject();
+                p_bullet->LoadImg(kImgBullet, screen);
+
+                Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
+
+                if (status_ == WALK_LEFT)
+                {
+                    p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
+                    p_bullet->set_xy_pos(x_pos_, y_pos_ + height_frame_*0.22);
+                }
+                else
+                {
+                    p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
+                    p_bullet->set_xy_pos(x_pos_ + width_frame_ - 20, y_pos_ + height_frame_*0.22);
+                }
+                p_bullet->set_x_val(20);
+                p_bullet->set_is_move(true);
+                p_bullet_list_.push_back(p_bullet);
             }
-            else
-            {
-                p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
-                p_bullet->set_xy_pos(x_pos_ + width_frame_ - 20, y_pos_ + height_frame_*0.22);
-            }
-            p_bullet->set_x_val(20);
-            p_bullet->set_is_move(true);
-            p_bullet_list_.push_back(p_bullet);
         }
         else if (events.button.button == SDL_BUTTON_RIGHT)
         {
@@ -527,19 +532,46 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                         {
                             if (!IsBlank1)
                             {
-                                if (tile_list[y1][x1]->getType() != BLOCK_USED)
+                                if (tile_list[y1][x1]->getType() == BLOCK_BRICK_NOR)
                                 {
-                                    tile_list[y1][x1]->setYVal(16);
+                                    if (level_mushroom_ == 0)
+                                    {
+                                        tile_list[y1][x1]->setYVal(16);
+                                    }
+                                    else
+                                    {
+                                        Music::GetInstance()->PlaySoundGame(Music::BLOCK_DEBRIS);
+                                        tile_list[y1][x1]->setType(BLOCK_BLANK);
+                                        BlockDebris* pBlockDe = new BlockDebris();
+                                        int xp = tile_list[y1][x1]->getXpMap() + 0.5*TILE_SIZE;
+                                        int yp = tile_list[y1][x1]->getYpMap() + 0.5*TILE_SIZE;
+                                        pBlockDe->SetPos(xp, yp);
+                                        pBlockDe->Init(des);
+                                        pMap->m_BlockDeList.push_back(pBlockDe);
+                                    }
                                 }
-                                
                             }
                             else
                             {
                                 if (!IsBlank2)
                                 {
-                                    if (tile_list[y1][x2]->getType() != BLOCK_USED)
+                                    if (tile_list[y1][x2]->getType() == BLOCK_BRICK_NOR)
                                     {
-                                        tile_list[y1][x2]->setYVal(16);
+                                        if (level_mushroom_ == 0)
+                                        {
+                                            tile_list[y1][x2]->setYVal(16);
+                                        }
+                                        else
+                                        {
+                                            Music::GetInstance()->PlaySoundGame(Music::BLOCK_DEBRIS);
+                                            tile_list[y1][x2]->setType(BLOCK_BLANK);
+                                            BlockDebris* pBlockDe = new BlockDebris();
+                                            int xp = tile_list[y1][x2]->getXpMap() + 0.5*TILE_SIZE;;
+                                            int yp = tile_list[y1][x2]->getYpMap() + 0.5*TILE_SIZE;;
+                                            pBlockDe->SetPos(xp, yp);
+                                            pBlockDe->Init(des);
+                                            pMap->m_BlockDeList.push_back(pBlockDe);
+                                        }
                                     }
                                 }
                             }

@@ -10,6 +10,8 @@ BaseObject::BaseObject()
   rect_.w = 0;
   rect_.h = 0;
   m_Flip = false;
+  m_angle_ = false;
+  angle_ = 0.0;
 }
 
 BaseObject::~BaseObject()
@@ -71,6 +73,10 @@ void BaseObject::Render(SDL_Renderer* des, const SDL_Rect* clip /*=NULL*/)
   if (m_Flip == true)
   {
       SDL_RenderCopyEx(des, p_object_, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
+  }
+  else if (m_angle_ = true)
+  {
+      SDL_RenderCopyEx(des, p_object_, clip, &renderQuad, angle_, NULL, SDL_FLIP_NONE);
   }
   else
   {

@@ -18,15 +18,18 @@ public:
   void setAlpha(const Uint8& alpha);
   void setBlendMode(const SDL_BlendMode& blending);
   void SetIsFlip(const bool& flip) { m_Flip = flip; }
-
+  void SetAngle(float angle) { angle_ = angle; }
   bool GetFlip() const { return m_Flip; }
+  void SetIsAngle() { m_angle_ = true; }
   SDL_Rect GetRect() const { return rect_; }
   SDL_Texture* GetObject() { return p_object_; }
 
 protected:
+  float angle_;
   SDL_Texture* p_object_;
   SDL_Rect rect_;
   bool m_Flip;
+  bool m_angle_;
 };
 
 
