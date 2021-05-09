@@ -15,7 +15,7 @@ public:
 
     int getXIdx() { return x_index_; }
     int getYIdx() { return y_index_; }
-    int getType() { return m_type; }
+    std::string getType() { return m_type; }
     int getXVal() { return xVal_; }
     int getYVal() { return yVal_; }
     int getXpMap() { return xp_map_; }
@@ -24,7 +24,7 @@ public:
     void setTile(TileMat* pTile) { m_tile = pTile; }
     void setXIdx(int x) { x_index_ = x; }
     void setYIdx(int y) { y_index_ = y; }
-    void setType(int type) { m_type = type; }
+    void setType(std::string type) { m_type = type; }
     void setXVal(int xv) { xVal_ = xv; }
     void setYVal(int yv) { yVal_ = yv; }
     void setXpMap(int xp) { xp_map_ = xp; }
@@ -40,7 +40,7 @@ private:
     TileMat* m_tile;
     bool has_mushroom_;
     bool on_mushroom_;
-    int m_type;
+    std::string m_type;
     int x_index_;
     int y_index_;
     int xp_map_;

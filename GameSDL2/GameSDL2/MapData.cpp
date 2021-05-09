@@ -8,7 +8,7 @@ BlockMap::BlockMap()
     xVal_ = 0;
     yVal_ = 0;
     m_tile = NULL;
-    m_type = 0;
+    m_type = "0";
     xp_map_ = 0;
     yp_map_ = 0;
     has_mushroom_ = false;
@@ -57,7 +57,7 @@ void BlockMap::Update()
 
 void BlockMap::Render(SDL_Renderer* screen)
 {
-    if (m_tile && m_type != 0)
+    if (m_tile && m_type != "0")
     {
         m_tile->Show(screen);
     }

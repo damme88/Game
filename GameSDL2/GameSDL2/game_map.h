@@ -6,13 +6,13 @@
 #include "MapData.h"
 #include "BlockDebris.h"
 
-#define BLOCK_BLANK         0
-#define BLOCK_BRICK_GRN     1
-#define BLOCK_BRICK_NOR     2
-#define BLOCK_BIRCK_Q       3
-#define BLOCK_BRICK_GRN2    4
-#define BLOCK_COIN          9
-#define BLOCK_USED          10
+#define BLOCK_BLANK         "0"
+#define BLOCK_BRICK_GRN     "1"
+#define BLOCK_BRICK_NOR     "2"
+#define BLOCK_BIRCK_Q       "3"
+#define BLOCK_BRICK_GRN2    "4"
+#define BLOCK_COIN          "9"
+#define BLOCK_USED          "10"
 
 class GameMap
 {
@@ -32,10 +32,10 @@ public:
   void LoadMapTiles(SDL_Renderer* screen);
   void SetMap(Map* gMap) {game_map_ = gMap;}
 
-  bool ChecTileMoney(const int& tile);
-  bool CheckBlank(const int& tile);
+  bool ChecTileMoney(const std::string& tile);
+  bool CheckBlank(const std::string& tile);
   Map* GetMap() const { return game_map_; }
-
+  std::vector<std::string> SplitBySpace(std::string str);
   void RenderBlockDe(SDL_Renderer* des);
 public:
   Map* game_map_;

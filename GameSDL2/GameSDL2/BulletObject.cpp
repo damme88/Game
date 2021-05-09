@@ -60,7 +60,7 @@ bool BulletObject::CheckToMap()
     if (IsInside)
     {
         BlockMap* pBlock = map_data->GetTile()[y][x];
-        int val = pBlock->getType();
+        std::string val = pBlock->getType();
         if ((val != BLANK_TILE))
         {
             is_move_ = false;

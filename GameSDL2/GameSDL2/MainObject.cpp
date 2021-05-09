@@ -370,8 +370,8 @@ void MainObject::CheckToMap(SDL_Renderer* des)
         {
             if (x_val_ > 0) //moving right
             {
-                int tp1 = tile_list[y1][x2]->getType();
-                int tp2 = tile_list[y2][x2]->getType();
+                std::string tp1 = tile_list[y1][x2]->getType();
+                std::string tp2 = tile_list[y2][x2]->getType();
 
                 IsMoney = pMap->ChecTileMoney(tp1);
                 IsMoney |= pMap->ChecTileMoney(tp2);
@@ -399,8 +399,8 @@ void MainObject::CheckToMap(SDL_Renderer* des)
             }
             else if (x_val_ < 0) //moving left 
             {
-                int tp1 = tile_list[y1][x1]->getType();
-                int tp2 = tile_list[y2][x1]->getType();
+                std::string tp1 = tile_list[y1][x1]->getType();
+                std::string tp2 = tile_list[y2][x1]->getType();
 
                 IsMoney = pMap->ChecTileMoney(tp1);
                 IsMoney |= pMap->ChecTileMoney(tp2);
@@ -439,8 +439,8 @@ void MainObject::CheckToMap(SDL_Renderer* des)
             if (y_val_ > 0)
             {
                 //Similar for vertical
-                int tp1 = tile_list[y2][x1]->getType();
-                int tp2 = tile_list[y2][x2]->getType();
+                std::string tp1 = tile_list[y2][x1]->getType();
+                std::string tp2 = tile_list[y2][x2]->getType();
 
                 IsMoney = pMap->ChecTileMoney(tp1);
                 IsMoney |= pMap->ChecTileMoney(tp2);
@@ -472,8 +472,8 @@ void MainObject::CheckToMap(SDL_Renderer* des)
             }
             else if (y_val_ < 0)
             {
-                int tp1 = tile_list[y1][x1]->getType();
-                int tp2 = tile_list[y1][x2]->getType();
+                std::string tp1 = tile_list[y1][x1]->getType();
+                std::string tp2 = tile_list[y1][x2]->getType();
 
                 IsMoney = pMap->ChecTileMoney(tp1);
                 IsMoney |= pMap->ChecTileMoney(tp2);

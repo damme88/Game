@@ -134,8 +134,8 @@ void ThreatsObject::CheckToMap()
         {
             BlockMap* pBlock1 = tile_list[y1][x2];
             BlockMap* pBlock2 = tile_list[y2][x2];
-            int type1 = pBlock1->getType();
-            int type2 = pBlock2->getType();
+            std::string type1 = pBlock1->getType();
+            std::string type2 = pBlock2->getType();
 
             if ((type1 != BLANK_TILE && type1 != STATE_MONEY) ||
                 (type2 != BLANK_TILE && type2 != STATE_MONEY))
@@ -150,8 +150,8 @@ void ThreatsObject::CheckToMap()
         {
             BlockMap* pBlock1 = tile_list[y1][x1];
             BlockMap* pBlock2 = tile_list[y2][x1];
-            int type1 = pBlock1->getType();
-            int type2 = pBlock2->getType();
+            std::string type1 = pBlock1->getType();
+            std::string type2 = pBlock2->getType();
 
             if ((type1 != BLANK_TILE && type1 != STATE_MONEY) ||
                 (type2 != BLANK_TILE && type2 != STATE_MONEY))
@@ -179,8 +179,8 @@ void ThreatsObject::CheckToMap()
     {
         if (y_val_ > 0)
         {
-            int type1 = tile_list[y2][x1]->getType();
-            int type2 = tile_list[y2][x2]->getType();
+            std::string type1 = tile_list[y2][x1]->getType();
+            std::string type2 = tile_list[y2][x2]->getType();
 
             //Similar for vertical
             if ((type1 != BLANK_TILE && type1 != STATE_MONEY) ||
@@ -198,8 +198,8 @@ void ThreatsObject::CheckToMap()
         }
         else if (y_val_ < 0)
         {
-            int type1 = tile_list[y1][x1]->getType();
-            int type2 = tile_list[y1][x2]->getType();
+            std::string type1 = tile_list[y1][x1]->getType();
+            std::string type2 = tile_list[y1][x2]->getType();
 
             if ((type1 != BLANK_TILE && type1 != STATE_MONEY) ||
                 (type2 != BLANK_TILE && type2 != STATE_MONEY))

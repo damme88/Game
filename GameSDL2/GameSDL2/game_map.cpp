@@ -1,5 +1,6 @@
 
 #include "game_map.h"
+#include <fstream>
 
 GameMap* GameMap::instance_ = NULL;
 
@@ -15,6 +16,44 @@ GameMap::~GameMap()
 
 void GameMap::LoadMap(char* name)
 {
+    int nCount = MAX_MAP_X*TILE_SIZE;
+    std::fstream fsFile;
+    fsFile.open(name, std::ios::in);
+    if (fsFile.is_open() == true)
+    {
+        int idx_row = 0;  // run vertical based on height
+        int idx_col = 0;  // run horizontal based on width
+        while (!fsFile.eof())
+        {
+            char* contentLine = new char[nCount];
+            fsFile.getline(contentLine, nCount);
+            std::string str(contentLine);
+            std::vector<std::string> tile_list = SplitBySpace(str);
+            delete[] contentLine;
+            VT(BlockMap*) xTemp;
+            for (int i = 0; i < tile_list.size(); ++i)
+            {
+                std::string strTile = tile_list.at(i);
+                BlockMap* pBlock = new BlockMap();
+                int cx = idx_row*TILE_SIZE;
+                int cy = idx_col*TILE_SIZE;
+                //if (val > 0)
+                //{
+                    pBlock->setType(strTile);
+                    pBlock->setYIdx(cy);
+                    pBlock->setXIdx(cx);
+                //}
+                xTemp.push_back(pBlock);
+                idx_row++;
+            }
+            game_map_->AddList(xTemp);
+        }
+        idx_row = 0;
+        idx_col++;
+    }
+
+    fsFile.close();
+#if 0
     FILE* fp = NULL;
     fopen_s(&fp, name, "rb");
     if (fp == NULL)
@@ -40,18 +79,37 @@ void GameMap::LoadMap(char* name)
         }
         game_map_->AddList(xTemp);
     }
-
+    //fclose(fp);
+#endif
     game_map_->SetMaxX(MAX_MAP_X*TILE_SIZE);
     game_map_->SetMaxY(MAX_MAP_Y*TILE_SIZE);
 
     game_map_->SetFileMap((std::string)name);
+}
 
-    fclose(fp);
+std::vector<std::string> GameMap::SplitBySpace(std::string str)
+{
+    std::vector<std::string> list;
+    std::string word = "";
+    for (auto x : str)
+    {
+        if (x == ' ')
+        {
+            list.push_back(word);
+            word = "";
+        }
+        else
+        {
+            word = word + x;
+        }
+    }
+
+    return list;
 }
 
 void GameMap::LoadMapTiles(SDL_Renderer* screen)
 {
-    char filename[40];
+    char* filename = NULL;
     for (int y = 0; y < MAX_MAP_Y; y++)
     {
         for (int x = 0; x < MAX_MAP_X; x++)
@@ -59,8 +117,9 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
             BlockMap* pBlock = game_map_->GetTile()[y][x];
             if (pBlock != NULL)
             {
-                int type = game_map_->GetTile()[y][x]->getType();
-                sprintf_s(filename, "map/%d.png", type);
+                std::string type = game_map_->GetTile()[y][x]->getType();
+                std::string str = "map/" + type + ".png";
+                filename = const_cast<char*>(str.c_str());
                 TileMat* pTile = new TileMat();
                 if (type == BLOCK_BIRCK_Q ||
                     type == BLOCK_COIN)
@@ -142,7 +201,7 @@ void GameMap::DrawMap(SDL_Renderer* des)
     }
 }
 
-bool GameMap::ChecTileMoney(const int& tile)
+bool GameMap::ChecTileMoney(const std::string& tile)
 {
     if (tile == STATE_MONEY ||
         tile == STATE_MONEY)
@@ -152,7 +211,7 @@ bool GameMap::ChecTileMoney(const int& tile)
     return false;
 }
 
-bool GameMap::CheckBlank(const int& tile)
+bool GameMap::CheckBlank(const std::string& tile)
 {
     if (tile == BLANK_TILE)
         return true;

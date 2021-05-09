@@ -43,13 +43,13 @@ const int RENDER_DRAW_COLOR = 0XFF;
 #define PT_SUCCESS 0
 
 #define TILE_SIZE 64
-#define BLANK_TILE 0
+#define BLANK_TILE "0"
 
 #define MAX_MAP_X 200
 #define MAX_MAP_Y 10
 
-#define STATE_MONEY 9
-#define  STATE_MONEY2 24
+#define STATE_MONEY "9"
+#define  STATE_MONEY2 "24"
 
 //Screen
 const int FRAMES_PER_SECOND = 25;
