@@ -8,7 +8,7 @@
 
 static char sGoombas2[] = { "img//goombas2.png" };
 static char sGoombassHaha[] = { "img//goombas22.png" };
-static char sGoombassBase[] = { "img//goombas.png" };
+static char sGoombassBase[] = { "img//zoombie.png" };
 static char sGoombas5[] = { "img//goombas5.png" };
 
 class Goombas : public ThreatsObject

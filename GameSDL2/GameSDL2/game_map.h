@@ -14,6 +14,12 @@
 #define BLOCK_COIN          "9"
 #define BLOCK_USED          "10"
 
+#define STATE_MONEY "9"
+#define  STATE_MONEY2 "24"
+
+#define TILE_SKIP1 "T109"
+#define TILE_SKIP2 "T110"
+
 class GameMap
 {
 public:
@@ -33,9 +39,9 @@ public:
   void SetMap(Map* gMap) {game_map_ = gMap;}
 
   bool ChecTileMoney(const std::string& tile);
+  bool CheckSkipMap(const std::string& tile);
   bool CheckBlank(const std::string& tile);
   Map* GetMap() const { return game_map_; }
-  std::vector<std::string> SplitBySpace(std::string str);
   void RenderBlockDe(SDL_Renderer* des);
 public:
   Map* game_map_;

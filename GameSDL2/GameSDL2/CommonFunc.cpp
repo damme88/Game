@@ -1,4 +1,5 @@
 
+#include <sstream> 
 #include "CommonFunc.h"
 
 int SDLCommonFunc::GetMax(const int& a, const int& b)
@@ -128,4 +129,24 @@ bool SDLCommonFunc::CheckInsideMapY(UINT y1, UINT y2)
         return true;
     }
     return false;
+}
+
+bool SDLCommonFunc::CheckInsideMap(UINT x, UINT y)
+{
+    if (x >= 0 && x < MAX_MAP_X && y >= 0 && y < MAX_MAP_Y)
+        return true;
+    return false;
+}
+
+std::vector<std::string>SDLCommonFunc::SplitBySpace(const std::string& sData)
+{
+    std::vector<std::string> retList;
+    std::stringstream ss(sData);
+    std::string sRet;
+    while (std::getline(ss, sRet, ' '))
+    {
+        retList.push_back(sRet);
+    }
+
+    return retList;
 }

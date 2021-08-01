@@ -65,6 +65,7 @@ bool Music::Init()
 
 int Music::PlaySoundGame(int soundType)
 {
+    return 0;
     int ret = 0;
     if (soundType == FIRE_SOUND)
     {
@@ -123,7 +124,7 @@ int Music::PlaySoundGame(int soundType)
 
 int Music::PlayMusic()
 {
-#if 1
+#if 0
     if (music_state_ == MS_STOP)
     {
         if (Mix_PlayMusic(g_music, -1) == PT_FAILED)

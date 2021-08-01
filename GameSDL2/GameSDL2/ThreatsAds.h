@@ -7,7 +7,7 @@ const INT NUM_SPACE = 20;
 static char space_img_name[] = {"img//thread1_left.png"};
 
 const INT NUM_STATIC = 15;
-static char  static_img_name[] = {"img//goombas.png"};
+static char  static_img_name[] = {"img//zoombie.png"};
 
 static char plane_img_name[] = {"img//plane_threat.png"};
 

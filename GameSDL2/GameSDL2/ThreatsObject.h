@@ -13,7 +13,7 @@
 #define GRAVITY_SPEED 0.8
 #define MAX_FALL_SPEED 10
 
-#define NUM_FRAME 2
+#define NUM_FRAME 8
 
 class ThreatsObject : public BaseObject
 {

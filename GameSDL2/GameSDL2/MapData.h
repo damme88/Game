@@ -77,5 +77,4 @@ private:
     VT(VT(BlockMap*)) m_tile;
 };
 
-
 #endif

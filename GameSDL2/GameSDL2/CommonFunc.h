@@ -21,6 +21,17 @@ static SDL_Renderer* g_screen = NULL;
 
 static SDL_Event g_event;
 
+static char sRectKey[] = { "img//sman_rect.png" };
+static char sTriangleKey[] = { "img//sman_triangle.png" };
+static char sCircleKey[] = { "img//sman_circle.png" };
+static char sXKey[] = { "img//sman_x.png" };
+
+
+static char sRightControl[] = { "img//sman_right_ctrl.png" };
+static char sLeftControl[] = { "img//sman_left_ctrl.png" };
+static char sUpControl[] = { "img//sman_up_ctrl.png" };
+static char sDownControl[] = { "img//sman_down_ctrl.png" };
+
 static char g_name_threat_left[] = { "img//thread1_left.png" };
 static char g_name_threat_right[] = { "img//thread1_right.png" };
 
@@ -28,9 +39,9 @@ static char g_threat_bullet[] = { "img//bullet_threat.png" };
 static char g_plane_bullet[] = { "img//plane_bullet.png" };
 
 
-static char g_name_money[] = { "img//money_img.png" };
+static char g_name_money[] = { "img//sman_coin_num.png" };
 
-static char g_name_main_alive[] = {"img//player_pw.png"};
+static char g_name_main_alive[] = {"img//sman_live.png"};
 
 
 const int COLOR_KEY_R = 125;
@@ -48,9 +59,6 @@ const int RENDER_DRAW_COLOR = 0XFF;
 #define MAX_MAP_X 200
 #define MAX_MAP_Y 10
 
-#define STATE_MONEY "9"
-#define  STATE_MONEY2 "24"
-
 //Screen
 const int FRAMES_PER_SECOND = 25;
 const int SCREEN_WIDTH = 1280;
@@ -60,7 +68,7 @@ const int SPEED_SCREEN = 2;
 
 //ground pos
 
-const int GROUND_POS = SCREEN_HEIGHT - TILE_SIZE;
+const int GROUND_POS = SCREEN_HEIGHT - 4*TILE_SIZE;
 
 typedef struct GeometricFormat
 {
@@ -108,6 +116,8 @@ namespace SDLCommonFunc
   bool CheckCollision(const SDL_Rect& object1, const SDL_Rect& object2);
   bool CheckInsideMapX(UINT x1, UINT x2);
   bool CheckInsideMapY(UINT y1, UINT y2);
+  bool CheckInsideMap(UINT x, UINT y);
+  std::vector<std::string> SplitBySpace(const std::string& sData);
 }
 
 #endif

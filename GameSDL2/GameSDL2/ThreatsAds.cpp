@@ -59,7 +59,7 @@ void ThreatsAds::BuildThreats(SDL_Renderer* screen)
             pObj->set_is_clip(true);
             pObj->LoadImg(static_img_name, screen);
             pObj->set_xpos(15*64 + i*100);
-            pObj->set_ypos(GROUND_POS - pObj->get_height_frame());
+            pObj->set_ypos(GROUND_POS - pObj->get_height_frame() - 400);
             pThreatsNormal_.push_back(pObj);
         }
     }

@@ -1,6 +1,29 @@
 
 #include "BaseObject.h"
 
+DataImg::DataImg()
+{
+    m_Color.r = 0;
+    m_Color.g = 0;
+    m_Color.b = 0;
+    m_Color.a = 1;
+}
+
+DataImg::~DataImg()
+{
+    
+}
+
+bool DataImg::IsColorKey()
+{
+    if (m_Color.r == COLOR_KEY_R &&
+        m_Color.g == COLOR_KEY_G &&
+        m_Color.b == COLOR_KEY_B)
+    {
+        return true;
+    }
+    return false;
+}
 
 BaseObject::BaseObject()
 {
@@ -17,9 +40,27 @@ BaseObject::BaseObject()
 BaseObject::~BaseObject()
 {
   Free();
+
+  if (m_pixelList.size() > 0)
+  {
+      for (int i = 0; i < m_pixelList.size(); i++)
+      {
+          VT(DataImg*) xList = m_pixelList.at(i);
+          for (int j = 0; j < xList.size(); ++j)
+          {
+              DataImg*  pData = xList.at(j);
+              if (pData != NULL)
+              {
+                  delete pData;
+                  pData = NULL;
+              }
+          }
+      }
+      m_pixelList.clear();
+  }
 }
 
-bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen)
+bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen, const bool& bGetPixel)
 {
   //The final texture
   Free();
@@ -42,6 +83,14 @@ bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen)
       rect_.h = loadedSurface->h;
     }
 
+    if (bGetPixel == true)
+    {
+        if (m_pixelList.size() <= 0)
+        {
+            m_pixelList = GetPixelImg(loadedSurface, loadedSurface->w, loadedSurface->h);
+        }
+    }
+    
     //Get rid of old loaded surface
     SDL_FreeSurface( loadedSurface );
   }
@@ -93,6 +142,79 @@ void BaseObject::setBlendMode(const SDL_BlendMode& blending)
 {
   SDL_SetTextureBlendMode(p_object_, blending);
 }
+
+VT(VT(DataImg*)) BaseObject::GetPixelImg(SDL_Surface * pSurface, int width, int height)
+{
+    VT(VT(DataImg*)) pixelList;
+    if (pSurface != NULL && pSurface->format != NULL)
+    {
+        int bpp = pSurface->format->BytesPerPixel;
+        for (int y = 0; y < height; y++)
+        {
+            VT(DataImg*) xList;
+            for (int x = 0; x < width; x++)
+            {
+                Uint8 *p = (Uint8 *)pSurface->pixels + y * pSurface->pitch + x * bpp;
+                Uint32 data = 0;
+                if (bpp == 1)
+                {
+                    data = *p;
+                }
+                else if (bpp == 2)
+                {
+                    data = *(Uint16 *)p;
+                }
+                else if (bpp == 3)
+                {
+                    if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+                    {
+                        data = p[0] << 16 | p[1] << 8 | p[2];
+                    }
+                    else
+                    {
+                        data = p[0] | p[1] << 8 | p[2] << 16;
+                    }
+                }
+                else if (bpp == 4)
+                {
+                    data = *(Uint32 *)p;
+                }
+                else
+                {
+                    data = 0;
+                }
+
+                SDL_Color rgb;
+                rgb.a = 1;
+                SDL_GetRGB(data, pSurface->format, &rgb.r, &rgb.g, &rgb.b);
+                DataImg* pData = new DataImg();
+                pData->m_Color = rgb;
+                xList.push_back(pData);
+            }
+            pixelList.push_back(xList);
+        }
+    }
+
+    return pixelList;
+}
+
+DataImg* BaseObject::GetPixelPos(int x, int y)
+{
+    DataImg* pDataImg = NULL;
+    
+    if (y >= 0 && y < m_pixelList.size())
+    {
+        VT(DataImg*) xList = m_pixelList.at(y);
+        if (x >= 0 && x < xList.size())
+        {
+            pDataImg = xList.at(x);
+        }
+    }
+    
+    return pDataImg;
+}
+
+
 
 void BaseObject::setAlpha(const Uint8& alpha)
 {

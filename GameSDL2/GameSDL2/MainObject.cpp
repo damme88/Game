@@ -7,39 +7,40 @@
 
 MainObject::MainObject()
 {
-  frame_ = 0;
-  x_pos_ = 128;
-  y_pos_ = GROUND_POS - TILE_SIZE;
-  x_val_ = 0;
-  y_val_ = 0;
-  width_frame_ = 0;
-  height_frame_ = 0;
-  status_ = WALK_NONE;
-  money_count_ = 0;
-  on_ground_ = false;
-  is_falling_ = false;
-  is_death_ = false;
-  alive_time_ = 0;
-  fast_run_ = false;
-  level_mushroom_ = 0;
+    on_ground_ = false;
+    is_falling_ = false;
+    is_death_ = false;
+    fast_run_ = false;
+    m_bSlopeMoving = false;
 
-  input_type_.left_ = 0;
-  input_type_.right_ = 0;
-  input_type_.up_ = 0;
-  input_type_.down_ = 0;
-  input_type_.jump_ = 0;
-  //is_dead_boom_ = false;
+    frame_ = 0;
+    x_pos_ = 128;
+    y_pos_ = GROUND_POS - TILE_SIZE;
+    x_val_ = 0;
+    y_val_ = 0;
+    width_frame_ = 0;
+    height_frame_ = 0;
+    status_ = WALK_NONE;
+    money_count_ = 0;
+    level_mushroom_ = 0;
+    alive_time_ = 0;
+    input_type_.left_ = 0;
+    input_type_.right_ = 0;
+    input_type_.up_ = 0;
+    input_type_.down_ = 0;
+    input_type_.jump_ = 0;
+    //is_dead_boom_ = false;
 }
 
 MainObject::~MainObject()
 {
-  Free();
+    Free();
 }
 
 void MainObject::InitExp(SDL_Renderer* des)
 {
-    exp_.Free();
-    exp_.LoadImg(sPlayerExp, des);
+    //exp_.Free();
+    //exp_.LoadImg(sPlayerExp, des);
 }
 
 SDL_Rect MainObject::GetRectFrame()
@@ -55,6 +56,9 @@ SDL_Rect MainObject::GetRectFrame()
 void MainObject::HandleInputAction(SDL_Event events,
     SDL_Renderer* screen)
 {
+    if (is_falling_)
+        return;
+
     if (events.type == SDL_KEYDOWN)
     {
         switch (events.key.keysym.sym)
@@ -77,9 +81,9 @@ void MainObject::HandleInputAction(SDL_Event events,
         }
         case SDLK_DOWN:
         {
-            input_type_.up_ = 0;
-            input_type_.down_ = 1;
-            UpdateImagePlayer(screen);
+            /* input_type_.up_ = 0;
+             input_type_.down_ = 1;
+             UpdateImagePlayer(screen);*/
             break;
         }
         case SDLK_RSHIFT:
@@ -102,7 +106,7 @@ void MainObject::HandleInputAction(SDL_Event events,
             break;
         case SDLK_DOWN:
         {
-            input_type_.down_ = 0;
+            ;// input_type_.down_ = 0;
         }
         break;
         case SDLK_RSHIFT:
@@ -159,6 +163,36 @@ void MainObject::HandleInputAction(SDL_Event events,
     }
 }
 
+void MainObject::UpdateCtrlState(int ctrl_type, SDL_Renderer* screen)
+{
+    if (ctrl_type == 1) // RIGHT
+    {
+        status_ = WALK_RIGHT;
+        input_type_.right_ = 1;
+        input_type_.left_ = 0;
+        UpdateImagePlayer(screen);
+    }
+    else if(ctrl_type == 2) //LEFT:
+    {
+        status_ = WALK_LEFT;
+        input_type_.left_ = 1;
+        input_type_.right_ = 0;
+        UpdateImagePlayer(screen);
+    }
+    else if (ctrl_type == 3) //DOWN:
+    {
+        input_type_.up_ = 0;
+        input_type_.down_ = 1;
+        UpdateImagePlayer(screen);
+    }
+    else if (ctrl_type == 0)
+    {
+        input_type_.right_ = 0;
+        input_type_.left_ = 0;
+        input_type_.up_ = 0;
+        input_type_.down_ = 0;
+    }
+}
 
 void MainObject::HandleBullet(SDL_Renderer* des)
 {
@@ -174,7 +208,7 @@ void MainObject::HandleBullet(SDL_Renderer* des)
                 if (ret == true)
                 {
                     SDL_Rect rect_pos = p_bullet->GetRect();
-                    exp_.ImpRender(des, rect_pos);
+                    //exp_.ImpRender(des, rect_pos);
                     continue;
                 }
                 else
@@ -269,8 +303,8 @@ void MainObject::Show(SDL_Renderer* des)
 
     if (is_falling_ == false)
     {
-        rect_.x = x_pos_ - map_x_;
-        rect_.y = y_pos_ - map_y_;
+        rect_.x = x_pos_ - start_map_x_;
+        rect_.y = y_pos_ - start_map_y_;
 
         SDL_Rect* currentClip = &frame_clip_[frame_];
         BaseObject::Render(des, currentClip);
@@ -280,14 +314,14 @@ void MainObject::Show(SDL_Renderer* des)
 void MainObject::DoPlayer(SDL_Renderer* des)
 {
     Map* data_map = GameMap::GetInstance()->GetMap();
-    map_x_ = data_map->getStartX();
-    map_y_ = data_map->getStartY();
+    start_map_x_ = data_map->getStartX();
+    start_map_y_ = data_map->getStartY();
 
     if (is_falling_ == false)
     {
         x_val_ = 0;
         y_val_ += GRAVITY_SPEED;
-
+        
         if (y_val_ >= MAX_FALL_SPEED)
         {
             y_val_ = MAX_FALL_SPEED;
@@ -343,234 +377,212 @@ void MainObject::DoPlayer(SDL_Renderer* des)
 void MainObject::CheckToMap(SDL_Renderer* des)
 {
     GameMap* pMap = GameMap::GetInstance();
-    if (pMap == NULL) return;
-
-    int x1 = 0;
-    int x2 = 0;
-    int y1 = 0;
-    int y2 = 0;
-    bool IsMoney = false;
-
+    if (pMap == NULL) 
+        return;
     Map* data_map = pMap->GetMap();
+    if (data_map == NULL)
+        return;
+
+
+    bool IsMoney = false;
     VT(VT(BlockMap*)) tile_list = data_map->GetTile();
 
     if (is_death_ == false)
     {
-        x1 = (x_pos_ + x_val_) / TILE_SIZE;
-        x2 = (x_pos_ + x_val_ + width_frame_ - 1) / TILE_SIZE;
-
-        y1 = (y_pos_) / TILE_SIZE;
-        y2 = (y_pos_ + height_frame_ - 1) / TILE_SIZE;
-
-        // Check x1, x2 with full width of map
-        // Check y1, y2 with full height of map
-        bool IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
-        IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
-        if (IsInside)
+        if (x_val_ > 0) // MOVE RIGHT
         {
-            if (x_val_ > 0) //moving right
+            int xPosNext = (x_pos_ + width_frame_ + x_val_);
+            int yPosEnd = (y_pos_ + height_frame_ - EPXILON);
+
+            int nextTileX = xPosNext / TILE_SIZE;
+            int curTileY = yPosEnd / TILE_SIZE;
+
+            int pX = xPosNext - nextTileX*TILE_SIZE;
+            int pY = yPosEnd - curTileY*TILE_SIZE;
+
+            bool IsInside = SDLCommonFunc::CheckInsideMap(nextTileX, curTileY);
+            if (IsInside)
             {
-                std::string tp1 = tile_list[y1][x2]->getType();
-                std::string tp2 = tile_list[y2][x2]->getType();
-
-                IsMoney = pMap->ChecTileMoney(tp1);
-                IsMoney |= pMap->ChecTileMoney(tp2);
-
-                if (IsMoney)
+                BlockMap* pBlock = tile_list[curTileY][nextTileX];
+                if (pBlock != NULL)
                 {
-                    tile_list[y1][x2]->RemoveTile();
-                    tile_list[y2][x2]->RemoveTile();
-                    IncreaseMoney();
-                }
-                else
-                {
-                    bool IsBlank1 = pMap->CheckBlank(tp1);
-                    bool IsBlank2 = pMap->CheckBlank(tp2);
-                    if (!IsBlank1 || !IsBlank2)
+                    std::string sLType = pBlock->getType();
+                    bool bBlank = pMap->CheckBlank(sLType);
+                    if (!bBlank)
                     {
-                        // Fixed post of object at current post of map.
-                        // => Cannot moving when press button
-                        x_pos_ = x2 * TILE_SIZE;
-                        x_pos_ -= width_frame_ + 1;
-                        x_val_ = 0; // cannot moving
-                    }
-                }
-
-            }
-            else if (x_val_ < 0) //moving left 
-            {
-                std::string tp1 = tile_list[y1][x1]->getType();
-                std::string tp2 = tile_list[y2][x1]->getType();
-
-                IsMoney = pMap->ChecTileMoney(tp1);
-                IsMoney |= pMap->ChecTileMoney(tp2);
-                if (IsMoney)
-                {
-                    tile_list[y1][x1]->RemoveTile();
-                    tile_list[y2][x1]->RemoveTile();
-                    IncreaseMoney();
-                }
-                else
-                {
-                    bool IsBlank1 = pMap->CheckBlank(tp1);
-                    bool IsBlank2 = pMap->CheckBlank(tp2);
-                    if (!IsBlank1 || !IsBlank2)
-                    {
-                        x_pos_ = (x1 + 1) * TILE_SIZE;
-                        x_val_ = 0;
-                    }
-                }
-            }
-        }
-
-        // Check vertical
-        int width_min = SDLCommonFunc::GetMin(width_frame_, TILE_SIZE);
-
-        x1 = (x_pos_) / TILE_SIZE;
-        x2 = (x_pos_ + width_min) / TILE_SIZE;
-
-        y1 = (y_pos_ + y_val_) / TILE_SIZE;
-        y2 = (y_pos_ + y_val_ + height_frame_) / TILE_SIZE;
-
-        IsInside = SDLCommonFunc::CheckInsideMapX(x1, x2);
-        IsInside &= SDLCommonFunc::CheckInsideMapY(y1, y2);
-        if (IsInside)
-        {
-            if (y_val_ > 0)
-            {
-                //Similar for vertical
-                std::string tp1 = tile_list[y2][x1]->getType();
-                std::string tp2 = tile_list[y2][x2]->getType();
-
-                IsMoney = pMap->ChecTileMoney(tp1);
-                IsMoney |= pMap->ChecTileMoney(tp2);
-                if (IsMoney)
-                {
-                    tile_list[y2][x1]->RemoveTile();
-                    tile_list[y2][x2]->RemoveTile();
-                    IncreaseMoney();
-                }
-                else
-                {
-                    bool IsBlank1 = pMap->CheckBlank(tp1);
-                    bool IsBlank2 = pMap->CheckBlank(tp2);
-
-                    if (!IsBlank1 || !IsBlank2)
-                    {
-                        y_pos_ = y2 * TILE_SIZE;
-                        y_pos_ -= height_frame_;
-                        y_val_ = 0;
-
-                        on_ground_ = true;
-                        if (status_ == WALK_NONE)
+                        bool bSkip = pMap->CheckSkipMap(sLType);
+                        if (bSkip == false)
                         {
-                            //input_type_.right_ = 1;
-                            status_ = WALK_RIGHT;
-                        }
-                    }
-                }
-            }
-            else if (y_val_ < 0)
-            {
-                std::string tp1 = tile_list[y1][x1]->getType();
-                std::string tp2 = tile_list[y1][x2]->getType();
-
-                IsMoney = pMap->ChecTileMoney(tp1);
-                IsMoney |= pMap->ChecTileMoney(tp2);
-                if (IsMoney)
-                {
-                    tile_list[y1][x2]->RemoveTile();
-                    tile_list[y1][x2]->RemoveTile();
-                    IncreaseMoney();
-                }
-                else
-                {
-                    bool IsBlank1 = pMap->CheckBlank(tp1);
-                    bool IsBlank2 = pMap->CheckBlank(tp2);
-
-                    if (!IsBlank1 || !IsBlank2)
-                    {
-                        y_pos_ = (y1 + 1) * TILE_SIZE;
-                        y_val_ = 0;
-
-                        int xd;
-                        int yd;
-                        if (!IsBlank1)
-                        {
-                            xd = x1;
-                            yd = y1;
-                        }
-                        else
-                        {
-                            xd = x2;
-                            yd = y1;
-                        }
-
-                        bool checkMushroom = tile_list[yd][xd]->GetHasMushroom();
-                        if (checkMushroom == true)
-                        {
-                            BlockMap* pBlock = tile_list[yd][xd];
-                            pBlock->setType(BLOCK_USED);
-                            pBlock->UpdateImage(des);
-                            pBlock->SetHasMushroom(false);
-                            TMushroom* pMushRoom = new TMushroom();
-                            bool ret = pMushRoom->LoadImg("img//mushroom.png", des);
-                            if (ret)
+                            bool bCol = false;
+                            int xPixelCol = 0;
+                            if (pX >= 0 && pY >= 0)
                             {
-                                SDL_Rect Rect = pBlock->GetTile()->GetRect();
-                                int x_pos = Rect.x + data_map->getStartX();
-                                int y_pos = Rect.y + data_map->getStartY();
-                                pMushRoom->set_clips();
-                                pMushRoom->set_xpos(x_pos);
-                                pMushRoom->set_ypos(y_pos);
-                                pMushRoom->set_y_val(4);
-                                pMushRoom->SetIdxTile(xd, yd);
-                                ThreatsAds::GetInstance()->AddSecondObject(pMushRoom);
-                            }
-                        }
-                        else
-                        {
-                            if (!IsBlank1)
-                            {
-                                if (tile_list[y1][x1]->getType() == BLOCK_BRICK_NOR)
+                                int yPix = (pY <= 0 ? 0 : (pY - 1));
+                                for (int j = 0; j <= pX; j++)
                                 {
-                                    if (level_mushroom_ == 0)
+                                    DataImg* pData = pBlock->GetTile()->GetPixelPos(j, yPix);
+                                    if (pData != NULL)
                                     {
-                                        tile_list[y1][x1]->setYVal(16);
-                                    }
-                                    else
-                                    {
-                                        Music::GetInstance()->PlaySoundGame(Music::BLOCK_DEBRIS);
-                                        tile_list[y1][x1]->setType(BLOCK_BLANK);
-                                        BlockDebris* pBlockDe = new BlockDebris();
-                                        int xp = tile_list[y1][x1]->getXpMap() + 0.5*TILE_SIZE;
-                                        int yp = tile_list[y1][x1]->getYpMap() + 0.5*TILE_SIZE;
-                                        pBlockDe->SetPos(xp, yp);
-                                        pBlockDe->Init(des);
-                                        pMap->m_BlockDeList.push_back(pBlockDe);
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            bCol = true;
+                                            xPixelCol = j;
+                                            break;
+                                        }
                                     }
                                 }
                             }
-                            else
+
+                            if (bCol == true)
                             {
-                                if (!IsBlank2)
+                                if (x_val_ >= pX)
                                 {
-                                    if (tile_list[y1][x2]->getType() == BLOCK_BRICK_NOR)
+                                    INT xtemp = x_val_ - pX;
+                                    xtemp += xPixelCol;
+                                    x_pos_ += xtemp;
+                                }
+                                x_val_ = 0;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                x_val_ = 0;
+            }
+        }
+        else if (x_val_ < 0) // MOVE LEFT
+        {
+            int yPos = (y_pos_ + height_frame_ - EPXILON);
+            int xPosPrev = (x_pos_ + x_val_);
+
+            int curTileY = yPos / TILE_SIZE;
+            int prevTileX = xPosPrev / TILE_SIZE;
+
+            int pX = xPosPrev - prevTileX*TILE_SIZE;
+            int pY = yPos - curTileY*TILE_SIZE;
+
+            bool IsInside = SDLCommonFunc::CheckInsideMap(prevTileX, curTileY);
+            if (IsInside)
+            {
+                BlockMap* pBlock = tile_list[curTileY][prevTileX];
+                if (pBlock != NULL)
+                {
+                    std::string sLType = pBlock->getType();
+                    bool bBlank = pMap->CheckBlank(sLType);
+                    if (!bBlank)
+                    {
+                        bool bSkip = pMap->CheckSkipMap(sLType);
+                        if (bSkip == false)
+                        {
+                            bool bCol = false;
+                            INT xLimit = 0;
+                            if (pX >= 0 && pY >= 0)
+                            {
+                                int yPix = (pY <= 0 ? 0 : (pY - 1));
+                                for (int j = TILE_SIZE - 1; j >= pX; j--)
+                                {
+                                    DataImg* pData = pBlock->GetTile()->GetPixelPos(j, yPix);
+                                    if (pData != NULL)
                                     {
-                                        if (level_mushroom_ == 0)
+                                        if (pData->IsColorKey() == false)
                                         {
-                                            tile_list[y1][x2]->setYVal(16);
+                                            bCol = true;
+                                            xLimit = j;
+                                            break;
                                         }
-                                        else
+                                    }
+                                }
+                            }
+
+                            if (bCol == true)
+                            {
+                                INT xTemp = xLimit - pX;
+                                xTemp = abs(x_val_) - xTemp;
+                                x_pos_ -= xTemp;
+                                x_val_ = 0;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                x_val_ = 0;
+            }
+        }
+
+        if (m_bSlopeMoving == true)
+        {
+            if (x_val_ > 0)
+            {
+                double angle = M_PI / 4;
+                double x_a = sin(angle)*x_val_;
+                double y_a = cos(angle)*x_val_;
+                x_pos_ += x_a;
+                y_pos_ -= y_a;
+            }
+        }
+        else
+        {
+            x_pos_ += x_val_;
+        }
+
+        if (y_val_ > 0)
+        {
+            int pX1 = 0;
+            int pX2 = 0;
+            int pY = 0;
+
+            int curTileX1 = x_pos_ / TILE_SIZE;
+            pX1 = x_pos_ - curTileX1*TILE_SIZE;
+
+            int curTileX2 = (x_pos_ + width_frame_) / TILE_SIZE;
+            pX2 = (x_pos_ + width_frame_) - curTileX2*TILE_SIZE;
+            if (pX2 == 0)
+            {
+                curTileX2 -= 1;
+                pX2 = (x_pos_ + width_frame_) - curTileX2*TILE_SIZE;
+            }
+
+            int yPosNext = y_pos_ + height_frame_ + y_val_;
+            int nextTileY = yPosNext / TILE_SIZE;
+            pY = yPosNext - nextTileY*TILE_SIZE;
+
+            bool bInside1 = SDLCommonFunc::CheckInsideMap(curTileX1, nextTileY);
+            bool bInside2 = SDLCommonFunc::CheckInsideMap(curTileX2, nextTileY);
+            if (bInside1 && bInside2)
+            {
+                int yLimit = 0;
+                int yLimit1 = 0;
+                int yLimit2 = 0;
+                bool bCol1 = false;
+                bool bCol2 = false;
+
+                BlockMap* pBlock1 = tile_list[nextTileY][curTileX1];
+                if (pBlock1 != NULL)
+                {
+                    std::string tp1 = pBlock1->getType();
+                    bool bBlank1 = pMap->CheckBlank(tp1);
+                    if (!bBlank1)
+                    {
+                        bool bSkip1 = pMap->CheckSkipMap(tp1);
+                        if (bSkip1 == false)
+                        {
+                            if (pX1 >= 0 && pY >= 0)
+                            {
+                                for (int p = 0; p <= pY; p++)
+                                {
+                                    INT xp = (pX1 <= 0 ? 0 : pX1 - 1);
+                                    DataImg* pData = pBlock1->GetTile()->GetPixelPos(xp, p);
+                                    if (pData != NULL)
+                                    {
+                                        if (pData->IsColorKey() == false)
                                         {
-                                            Music::GetInstance()->PlaySoundGame(Music::BLOCK_DEBRIS);
-                                            tile_list[y1][x2]->setType(BLOCK_BLANK);
-                                            BlockDebris* pBlockDe = new BlockDebris();
-                                            int xp = tile_list[y1][x2]->getXpMap() + 0.5*TILE_SIZE;;
-                                            int yp = tile_list[y1][x2]->getYpMap() + 0.5*TILE_SIZE;;
-                                            pBlockDe->SetPos(xp, yp);
-                                            pBlockDe->Init(des);
-                                            pMap->m_BlockDeList.push_back(pBlockDe);
+                                            yLimit1 = p;
+                                            bCol1 = true;
+                                            break;
                                         }
                                     }
                                 }
@@ -578,22 +590,181 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                         }
                     }
                 }
+               
+                BlockMap* pBlock2 = tile_list[nextTileY][curTileX2];
+                if (pBlock2 != NULL)
+                {
+                    std::string tp2 = pBlock2->getType();
+                    bool bBlank2 = pMap->CheckBlank(tp2);
+                    if (!bBlank2)
+                    {
+                        bool bSkip2 = pMap->CheckSkipMap(tp2);
+                        if (bSkip2 == false)
+                        {
+                            if (pX2 >= 0 && pY >= 0)
+                            {
+                                for (int p = 0; p <= pY; p++)
+                                {
+                                    INT xp = (pX2 <= 0 ? 0 : pX2 - 1);
+                                    DataImg* pData = pBlock2->GetTile()->GetPixelPos(xp, p);
+                                    if (pData != NULL)
+                                    {
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            yLimit2 = p;
+                                            bCol2 = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (bCol1 == true && bCol2 == false)
+                {
+                    yLimit = yLimit1;
+                }
+                else if (bCol1 == false && bCol2 == true)
+                {
+                    yLimit = yLimit2;
+                }
+                else if (bCol1 == true && bCol2 == true)
+                {
+                    yLimit = min(yLimit1, yLimit2);
+                }
+
+                if (bCol2 == true || bCol1 == true)
+                {
+                    if (abs(y_val_) < pY)
+                    {
+                        INT yTemp = pY - yLimit;
+                        yTemp = abs(y_val_) - yTemp;
+                        y_pos_ += yTemp;
+                    }
+                    else
+                    {
+                        INT yTemp = abs(y_val_) - pY;
+                        yTemp += yLimit;
+                        y_pos_ += yTemp;
+                    }
+
+                    y_val_ = 0;
+                    on_ground_ = true;
+                    if (status_ == WALK_NONE)
+                    {
+                        status_ = WALK_RIGHT;
+                    }
+                }
             }
         }
-        x_pos_ += x_val_;
+        else if (y_val_ < 0)
+        {
+            int curTileX1 = (x_pos_) / TILE_SIZE;
+            int curTileX2 = (x_pos_ + width_frame_) / TILE_SIZE;
+            int prevTileY = (y_pos_ + y_val_) / TILE_SIZE;
+
+            int pX1 = x_pos_ - curTileX1*TILE_SIZE;
+            int pX2 = (x_pos_ + width_frame_) - curTileX1*TILE_SIZE;
+            int pY = (y_pos_ + y_val_) - prevTileY*TILE_SIZE;
+
+            bool bInside1 = SDLCommonFunc::CheckInsideMap(curTileX1, prevTileY);
+            bool bInside2 = SDLCommonFunc::CheckInsideMap(curTileX2, prevTileY);
+            if (bInside1 && bInside2)
+            {
+                bool bCol1 = false;
+                bool bCol2 = false;
+                INT yLimit1 = 0;
+                INT yLimit2 = 0;
+                INT yLimit = 0;
+
+                BlockMap* pBlock1 = tile_list[prevTileY][curTileX1];
+                if (pBlock1 != NULL)
+                {
+                    std::string tp1 = pBlock1->getType();
+                    bool bBlank1 = pMap->CheckBlank(tp1);
+                    if (!bBlank1)
+                    {
+                        bool bSkip1 = pMap->CheckSkipMap(tp1);
+                        if (bSkip1 == false)
+                        {
+                            if (pX1 >= 0 && pY >= 0)
+                            {
+                                // Tim ra diem va cham pixel tren tile gan nhat voi player
+                                for (int p = TILE_SIZE - 1; p >= pY; p--)
+                                {
+                                    INT xp = (pX1 <= 0 ? 0 : pX1 - 1);
+                                    DataImg* pData = pBlock1->GetTile()->GetPixelPos(xp, p);
+                                    if (pData != NULL && pData->IsColorKey() == false)
+                                    {
+                                        yLimit1 = p;
+                                        bCol1 = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                BlockMap* pBlock2 = tile_list[prevTileY][curTileX2];
+                if (pBlock2 != NULL)
+                {
+                    std::string tp2 = pBlock2->getType();
+                    bool bBlank2 = pMap->CheckBlank(tp2);
+                    if (!bBlank2)
+                    {
+                        bool bSkip2 = pMap->CheckSkipMap(tp2);
+                        if (bSkip2 == false)
+                        {
+                            if (pX2 >= 0 && pY >= 0)
+                            {
+                                // Tim ra diem va cham pixel tren tile gan nhat voi player
+                                for (int p = TILE_SIZE - 1; p >= pY; p--)
+                                {
+                                    INT xp = (pX2 <= 0 ? 0 : pX2 - 1);
+                                    DataImg* pData = pBlock2->GetTile()->GetPixelPos(xp, p);
+                                    if (pData != NULL && pData->IsColorKey() == false)
+                                    {
+                                        yLimit2 = p;
+                                        bCol2 = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (bCol1 && !bCol2)
+                {
+                    yLimit = yLimit1;
+                }
+                else if (!bCol1 && bCol2) 
+                {
+                    yLimit = yLimit2;
+                }
+                else if (bCol1 && bCol2)
+                {
+                    yLimit = max(yLimit1, yLimit2);
+                }
+
+                if (bCol1 || bCol2)
+                {
+                    INT yTemp = yLimit - pY;
+                    yTemp = abs(y_val_) - yTemp;
+                    y_val_ = 0;
+                    y_pos_ -= yTemp;
+                }
+            }
+        }
         y_pos_ += y_val_;
     }
     else
     {
-        /*if (is_dead_boom_ == true)
-        {
-            y_pos_ -= y_val_;
-        }
-        else
-        {*/
-            x_pos_ += 0.3*x_val_;
-            y_pos_ += 0.3*y_val_;
-        //}
+        x_pos_ += 0.5*x_val_;
+        y_pos_ += 0.5*y_val_;
     }
 
     if (x_pos_ < 0)
@@ -602,18 +773,13 @@ void MainObject::CheckToMap(SDL_Renderer* des)
     }
     else if (x_pos_ + width_frame_ >= data_map->getMaxX())
     {
-        x_pos_ = data_map->getMaxX() - width_frame_ - 1;
+        x_pos_ = data_map->getMaxX() - width_frame_ - EPXILON;
     }
 
     if (y_pos_ > data_map->getMaxY() + 100)
     {
         is_falling_ = true;
     }
-
-    //if (y_pos_ < 0)
-    //{
-    //    is_falling_ = true;
-    //}
 }
 
 void MainObject::IncreaseMoney()
@@ -677,8 +843,8 @@ void MainObject::ResetAlive()
 
     current_xp -= TILE_SIZE * 5;
     SDL_Rect rect;
-    rect.x = x_pos_ - map_x_;
-    rect.y = current_yp - map_y_;
+    rect.x = x_pos_ - start_map_x_;
+    rect.y = current_yp - start_map_y_;
     SetRect(rect.x, rect.y);
 
     x_pos_ = current_xp;

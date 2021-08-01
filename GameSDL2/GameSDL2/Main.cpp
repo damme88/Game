@@ -11,6 +11,7 @@
 #include "BossObject.h"
 #include "ThreatsAds.h"
 #include "MenuGame.h"
+#include "OptionObject.h"
 
 TTF_Font* g_font = NULL;
 TTF_Font* g_font_text = NULL;
@@ -39,7 +40,7 @@ bool InitData()
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
   
   //Create window
-  g_window = SDL_CreateWindow("Mushroom WORLD - Phat Trien Phan Mem 123AZ",
+  g_window = SDL_CreateWindow("Sman",
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                              SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
   if(g_window == NULL )
@@ -88,7 +89,7 @@ bool InitData()
 
 bool LoadBackground()
 {
-  bool ret = g_background.LoadImg("img//background.png", g_screen);
+  bool ret = g_background.LoadImg("img//background.png", g_screen, false);
   if (ret == false)
   {
     return false;
@@ -113,7 +114,6 @@ void close()
 
 int main( int argc, char* args[] )
 {
-  //Start up SDL and create window
   if (InitData() == false)
   {
     return PT_FAILED;
@@ -127,18 +127,18 @@ int main( int argc, char* args[] )
    }
 
   GameMap* game_map = GameMap::GetInstance();
-
-  game_map->LoadMap("map//map.dat");
+  game_map->LoadMap("map//map.tmp");
   game_map->LoadMapTiles(g_screen);
 
+  OptionObject option_control;
+  bool ret_option = option_control.Init(g_screen);
 
    MainObject p_player;
    p_player.LoadImg(sPlayerMove, g_screen);
-   p_player.InitExp(g_screen);
+   //p_player.InitExp(g_screen);
 
    PlayerPower player_power;
    player_power.Init(g_screen);
-
 
    PlayerMoney player_money;
    player_money.Init(g_screen);
@@ -153,14 +153,14 @@ int main( int argc, char* args[] )
    TextObject money_count;
    money_count.setColor(TextObject::WHITE_TEXT);
 
-   ThreatsAds::GetInstance()->BuildThreats(g_screen);
+   //ThreatsAds::GetInstance()->BuildThreats(g_screen);
 
-   //Init Boss Object
-   BossObject bossObject;
-   bossObject.LoadImg("img//boss_object.png", g_screen);
-   int xPosBoss = MAX_MAP_X*TILE_SIZE - SCREEN_WIDTH*0.6;
-   bossObject.set_xpos(xPosBoss);
-   bossObject.set_ypos(10);
+   ////Init Boss Object
+   //BossObject bossObject;
+   //bossObject.LoadImg("img//boss_object.png", g_screen);
+   //int xPosBoss = MAX_MAP_X*TILE_SIZE - SCREEN_WIDTH*0.6;
+   //bossObject.set_xpos(xPosBoss);
+   //bossObject.set_ypos(10);
 
    ExplosionObject exp_threats;
 
@@ -202,6 +202,8 @@ int main( int argc, char* args[] )
                  }
              }
          }
+
+         option_control.HandleInputAction(g_event, g_screen);
          p_player.HandleInputAction(g_event, g_screen);
          ThreatsAds::GetInstance()->HandleInputAction(g_event, g_screen);
       }
@@ -220,6 +222,10 @@ int main( int argc, char* args[] )
 
        game_map->DrawMap(g_screen);
 
+       //DRAW OPTION CONTROL
+       option_control.Show(g_screen);
+       int type_ctrl = option_control.GetTypeCtrl();
+
        //Draw Geometric
        GeometricFormat rectange_size(0, 0, SCREEN_WIDTH, 40);
        ColorData color_data(36, 36, 36);
@@ -237,7 +243,9 @@ int main( int argc, char* args[] )
        p_player.HandleBullet(g_screen);
        p_player.DoPlayer(g_screen);
        p_player.Show(g_screen);
-
+#ifdef USING_OPTION_MOBILE
+       p_player.UpdateCtrlState(type_ctrl, g_screen);
+#endif
        bool bRet = ThreatsAds::GetInstance()->CheckCollision(g_screen, p_player.GetRectFrame(), false);
        if (bRet == true)
        {
@@ -368,20 +376,8 @@ int main( int argc, char* args[] )
 
        game_map->RenderBlockDe(g_screen);
 
-       ////Process Boss
-       //int val = MAX_MAP_X*TILE_SIZE - (ga_map.start_x_ + p_player.GetRect().x);
-       //if (val <= SCREEN_WIDTH)
-       //{
-       //    bossObject.SetMapXY(ga_map.start_x_, ga_map.start_y_);
-       //    bossObject.DoPlayer(ga_map);
-       //    bossObject.MakeBullet(g_screen, SCREEN_WIDTH, SCREEN_HEIGHT);
-       //    bossObject.Show(g_screen);
-       //}
-       
-
        //Update screen
        SDL_RenderPresent(g_screen);
-
 
        //Cap the frame rate
        int val1 = fps.get_ticks();

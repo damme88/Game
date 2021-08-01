@@ -55,7 +55,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -99,6 +99,7 @@
     <ClCompile Include="MapData.cpp" />
     <ClCompile Include="MenuGame.cpp" />
     <ClCompile Include="Music.cpp" />
+    <ClCompile Include="OptionObject.cpp" />
     <ClCompile Include="PlayerPower.cpp" />
     <ClCompile Include="TBoom.cpp" />
     <ClCompile Include="TileObject.cpp" />
@@ -122,6 +123,7 @@
     <ClInclude Include="MapData.h" />
     <ClInclude Include="MenuGame.h" />
     <ClInclude Include="Music.h" />
+    <ClInclude Include="OptionObject.h" />
     <ClInclude Include="PlayerPower.h" />
     <ClInclude Include="TBoom.h" />
     <ClInclude Include="TileObject.h" />

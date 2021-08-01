@@ -4,12 +4,24 @@
 
 #include "CommonFunc.h"
 
+#define VT(T) std::vector<T>
+
+class DataImg
+{
+public:
+    DataImg();
+    ~DataImg();
+    SDL_Color m_Color;
+    bool IsColorKey();
+};
+
+
 class BaseObject
 {
 public:
   BaseObject();
   ~BaseObject();
-  virtual bool LoadImg(std::string path, SDL_Renderer* screen);
+  virtual bool LoadImg(std::string path, SDL_Renderer* screen, const bool& bGetPixel = true);
   void Render(SDL_Renderer* des, const SDL_Rect* clip = NULL);
   
   void Free();
@@ -23,8 +35,10 @@ public:
   void SetIsAngle() { m_angle_ = true; }
   SDL_Rect GetRect() const { return rect_; }
   SDL_Texture* GetObject() { return p_object_; }
-
+  VT(VT(DataImg*)) GetPixelImg(SDL_Surface* pSurface, int width, int height);
+  DataImg* GetPixelPos(int x, int y);
 protected:
+  VT(VT(DataImg*)) m_pixelList;
   float angle_;
   SDL_Texture* p_object_;
   SDL_Rect rect_;

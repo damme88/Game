@@ -10,7 +10,7 @@ class TileMat : public BaseObject
 public:
     TileMat();
     ~TileMat();
-    bool LoadImg(std::string path, SDL_Renderer* screen);
+    bool LoadImg(std::string path, SDL_Renderer* screen, const bool& bGetPixel = true);
     void Show(SDL_Renderer* des);
 
     void SetClip();

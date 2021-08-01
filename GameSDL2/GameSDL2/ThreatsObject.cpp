@@ -144,6 +144,7 @@ void ThreatsObject::CheckToMap()
                 x_pos_ -= width_frame_ + 1;
                 x_val_ = 0;
                 v_dir_ = -v_dir_;
+                m_Flip = !m_Flip;
             }
         }
         else if (x_val_ < 0) // When moving by left    <====
@@ -159,6 +160,7 @@ void ThreatsObject::CheckToMap()
                 x_pos_ = (x1 + 1) * TILE_SIZE;
                 x_val_ = 0;
                 v_dir_ = -v_dir_;
+                m_Flip = !m_Flip;
             }
         }
     }
@@ -239,16 +241,20 @@ void ThreatsObject::Show(SDL_Renderer* des)
 
         if (is_clip_ == true)
         {
-            if (SDL_GetTicks() - m_DelayTime[frame_] > passed_time_)
+            /*         if (SDL_GetTicks() - m_DelayTime[frame_] > passed_time_)
+                     {
+                         passed_time_ = SDL_GetTicks();
+                         ++frame_;
+                         if (frame_ > NUM_FRAME - 1)
+                         {
+                             frame_ = 0;
+                         }
+                     }*/
+            ++frame_;
+            if (frame_ > NUM_FRAME - 1)
             {
-                passed_time_ = SDL_GetTicks();
-                ++frame_;
-                if (frame_ > NUM_FRAME - 1)
-                {
-                    frame_ = 0;
-                }
+                frame_ = 0;
             }
-
             SDL_Rect* currentClip = &frame_clip_[frame_];
             BaseObject::Render(des, currentClip);
         }

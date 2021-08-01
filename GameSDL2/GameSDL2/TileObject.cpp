@@ -27,9 +27,9 @@ void TileMat::SetClip()
     }
 }
 
-bool TileMat::LoadImg(std::string path, SDL_Renderer* screen)
+bool TileMat::LoadImg(std::string path, SDL_Renderer* screen, const bool& bGetPixel)
 {
-    bool ret = BaseObject::LoadImg(path, screen);
+    bool ret = BaseObject::LoadImg(path, screen, bGetPixel);
     if (is_clip_ == true)
     {
         if (ret == true)

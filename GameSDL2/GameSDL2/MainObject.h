@@ -14,15 +14,17 @@
 
 #define PLAYER_SPEED        8
 #define PLAYER_HIGHT_VAL    18
-#define PLAYER_FRAMES       4
+#define PLAYER_FRAMES       8
 
-static char sPlayerMove[] = {"img//player_move.png"};
-static char sPlayerJump[] = {"img//player_jump.png"};
+static char sPlayerMove[] = {"img//sman_walk.png"};
+static char sPlayerJump[] = {"img//sman_jump.png"};
 static char sPlayerDown[] = {"img//player_down.png" };
 static char sPlayerExp[] = { "img//player_exp.png" };
-static char sPlayerDeath[] = {"img//player_death.png" };
+static char sPlayerDeath[] = {"img//sman_hurt.png" };
 
 static char kImgBullet[] = {"img//player_bullet.png"};
+
+#define EPXILON 2
 
 class MainObject : public BaseObject
 {
@@ -73,6 +75,7 @@ public:
   void set_bullet_list(VT(BulletObject*) bullet_list);
   void InitExp(SDL_Renderer* des);
   void ResetAlive();
+  void UpdateCtrlState(int ctrl_type, SDL_Renderer* screen);
   //void SetBoomDeadth(bool b) { is_dead_boom_ = b; }
 protected:
   void UpdateImagePlayer(SDL_Renderer* des);
@@ -80,9 +83,10 @@ protected:
 private:
 
   VT(BulletObject*) p_bullet_list_;
-  SDL_Rect frame_clip_[4];
+  SDL_Rect frame_clip_[8];
   Input input_type_;
-  ExplosionObject exp_;
+  bool m_bSlopeMoving;
+  //ExplosionObject exp_;
   //bool is_dead_boom_;
   bool is_jump_;
   bool on_ground_;
@@ -93,8 +97,8 @@ private:
 
   int frame_;
   int status_;
-  int map_x_;
-  int map_y_;
+  int start_map_x_;
+  int start_map_y_;
   int width_frame_;
   int height_frame_;
   int money_count_;
