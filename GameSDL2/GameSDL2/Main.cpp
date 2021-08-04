@@ -368,7 +368,7 @@ int main( int argc, char* args[] )
        if (p_player.GetMoneyCount() >= 100)
        {
            int reVal = p_player.GetMoneyCount() - 10;
-           p_player.SetMoneyCount(reVal);
+           p_player.SetCoinCount(reVal);
 
            player_power.InCrease();
            player_power.Render(g_screen);

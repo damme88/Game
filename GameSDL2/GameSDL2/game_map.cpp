@@ -81,13 +81,12 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
 
                 filename = const_cast<char*>(str.c_str());
                 TileMat* pTile = new TileMat();
-#if T_USE_COIN
+
                 if (type == BLOCK_BIRCK_Q ||
                     type == BLOCK_COIN)
                 {
                     pTile->SetIsClip(true);
                 }
-#endif
                 bool ret = pTile->LoadImg(filename, screen);
                 if (ret)
                 {
@@ -133,38 +132,39 @@ void GameMap::DrawMap(SDL_Renderer* des)
     }
 }
 
-bool GameMap::ChecTileMoney(const std::string& tile)
-{
-    if (tile == STATE_MONEY ||
-        tile == STATE_MONEY)
-    {
-        return true;
-    }
-    return false;
-}
-
-bool GameMap::CheckSkipMap(const std::string& tile)
+bool GameMap::CheckCoinMap(const std::string& tile)
 {
     bool bRet = false;
-    if (tile == TILE_SKIP1 ||
-        tile == TILE_SKIP2)
-    {
-        bRet = true;
-    }
-#if 0
-
-    int nSize = sizeof(TILE_SKIP) / sizeof(TILE_SKIP[0]);
+    int nSize = sizeof(CoinMap) / sizeof(CoinMap[0]);
     for (int i = 0; i < nSize; ++i)
     {
-        char* sTile = TILE_SKIP[i];
-        std::string strTile{ sTile };
-        if (tile == strTile)
+        std::string sType = CoinMap[i];
+        std::string sInput(tile);
+        if (sInput == sType)
         {
             bRet = true;
             break;
         }
     }
-#endif
+
+    return bRet;
+}
+
+bool GameMap::CheckSkipMap(const std::string& tile)
+{
+    bool bRet = false;
+    int nSize = sizeof(SkipMap) / sizeof(SkipMap[0]);
+    for (int i = 0; i < nSize; ++i)
+    {
+        std::string sType = SkipMap[i];
+        std::string sInput(tile);
+        if (sInput == sType)
+        {
+            bRet = true;
+            break;
+        }
+    }
+
     return bRet;
 }
 

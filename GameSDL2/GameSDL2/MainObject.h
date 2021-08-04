@@ -9,9 +9,6 @@
 #include "Music.h"
 #include <vector>
 
-#define GRAVITY_SPEED       0.8
-#define MAX_FALL_SPEED      16
-
 #define PLAYER_SPEED        8
 #define PLAYER_HIGHT_VAL    18
 #define PLAYER_FRAMES       8
@@ -55,7 +52,7 @@ public:
 
   int get_x_pos()       const  { return x_pos_; }
   int get_y_pos()        const { return y_pos_; }
-  int GetMoneyCount()    const { return money_count_; };
+  int GetMoneyCount()    const { return m_CoinCount; };
   int get_frame_width()  const { return width_frame_; }
   int get_frame_height() const { return height_frame_; }
   bool get_is_falling() const { return is_falling_; }
@@ -70,13 +67,14 @@ public:
   void set_is_falling(const bool& is_falling) { is_falling_ = is_falling; }
   void set_is_death(const bool& is_death) { is_death_ = is_death; }
   void set_alive_time(const int& live_time) { alive_time_ = live_time; }
-  void SetMoneyCount(const int& money_count) {money_count_ = money_count;}
-  void IncreaseMoney();
+  void SetCoinCount(const int& mCoin) {m_CoinCount = mCoin;}
+  void DoUpCoin();
   void set_bullet_list(VT(BulletObject*) bullet_list);
   void InitExp(SDL_Renderer* des);
   void ResetAlive();
   void UpdateCtrlState(int ctrl_type, SDL_Renderer* screen);
   //void SetBoomDeadth(bool b) { is_dead_boom_ = b; }
+  BlockMap* GetBlockMap(int y, int x);
 protected:
   void UpdateImagePlayer(SDL_Renderer* des);
 
@@ -101,7 +99,7 @@ private:
   int start_map_y_;
   int width_frame_;
   int height_frame_;
-  int money_count_;
+  int m_CoinCount;
   int alive_time_;
 
   float x_val_;

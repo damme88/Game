@@ -10,9 +10,6 @@
 #define WIDHT_THREAT 44;
 #define HEIGHT_THREAT 50;
 
-#define GRAVITY_SPEED 0.8
-#define MAX_FALL_SPEED 10
-
 #define NUM_FRAME 8
 
 class ThreatsObject : public BaseObject

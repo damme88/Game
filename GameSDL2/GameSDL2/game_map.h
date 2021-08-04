@@ -11,15 +11,14 @@
 #define BLOCK_BRICK_NOR     "2"
 #define BLOCK_BIRCK_Q       "3"
 #define BLOCK_BRICK_GRN2    "4"
-#define BLOCK_COIN          "9"
+#define BLOCK_COIN          "M1"
 #define BLOCK_USED          "10"
 
-#define STATE_MONEY "9"
+#define STATE_MONEY "M1"
 #define  STATE_MONEY2 "24"
 
-#define TILE_SKIP1 "T109"
-#define TILE_SKIP2 "T110"
-
+const std::string SkipMap[] = { "TR_01", "TR_02", "tre_01", "tre_02", "tre_03", "tre_04" };
+const std::string CoinMap[] = { "M1", "M2" };
 class GameMap
 {
 public:
@@ -38,7 +37,7 @@ public:
   void LoadMapTiles(SDL_Renderer* screen);
   void SetMap(Map* gMap) {game_map_ = gMap;}
 
-  bool ChecTileMoney(const std::string& tile);
+  bool CheckCoinMap(const std::string& tile);
   bool CheckSkipMap(const std::string& tile);
   bool CheckBlank(const std::string& tile);
   Map* GetMap() const { return game_map_; }

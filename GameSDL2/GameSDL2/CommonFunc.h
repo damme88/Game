@@ -50,6 +50,9 @@ const int COLOR_KEY_B = 125;
 
 const int RENDER_DRAW_COLOR = 0XFF;
 
+#define GRAVITY_SPEED       1.0
+#define MAX_FALL_SPEED      15
+
 #define PT_FAILED -1
 #define PT_SUCCESS 0
 

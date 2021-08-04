@@ -21,7 +21,7 @@ MainObject::MainObject()
     width_frame_ = 0;
     height_frame_ = 0;
     status_ = WALK_NONE;
-    money_count_ = 0;
+    m_CoinCount = 0;
     level_mushroom_ = 0;
     alive_time_ = 0;
     input_type_.left_ = 0;
@@ -374,18 +374,43 @@ void MainObject::DoPlayer(SDL_Renderer* des)
     }
 }
 
+BlockMap* MainObject::GetBlockMap(int y, int x)
+{
+    BlockMap* pBlock = NULL;
+    GameMap* pMap = GameMap::GetInstance();
+    if (pMap != NULL && pMap->GetMap())
+    {
+        Map* data_map = pMap->GetMap();
+        VT(VT(BlockMap*)) tile_list = data_map->GetTile();
+        if (tile_list.empty() == false)
+        {
+            UINT yNum = tile_list.size();
+            if (y >= 0 && y < yNum)
+            {
+                UINT xNum = tile_list[y].size();
+                if (x >= 0 && x < xNum)
+                {
+                    pBlock = tile_list[y][x];
+                }
+            }
+        }
+    }
+
+    return pBlock;
+}
+
 void MainObject::CheckToMap(SDL_Renderer* des)
 {
     GameMap* pMap = GameMap::GetInstance();
-    if (pMap == NULL) 
+    if (pMap == NULL ||  pMap->GetMap() == NULL)
         return;
+
     Map* data_map = pMap->GetMap();
-    if (data_map == NULL)
+    VT(VT(BlockMap*)) tile_list = data_map->GetTile();
+    if (tile_list.empty() == true)
         return;
 
-
-    bool IsMoney = false;
-    VT(VT(BlockMap*)) tile_list = data_map->GetTile();
+    UINT yNum = tile_list.size();
 
     if (is_death_ == false)
     {
@@ -403,8 +428,12 @@ void MainObject::CheckToMap(SDL_Renderer* des)
             bool IsInside = SDLCommonFunc::CheckInsideMap(nextTileX, curTileY);
             if (IsInside)
             {
-                BlockMap* pBlock = tile_list[curTileY][nextTileX];
-                if (pBlock != NULL)
+                bool bCol = false;
+                int xPixelCol = 0;
+                bool bCoin = false;
+                int xTileCol = 0;
+                BlockMap* pBlock = GetBlockMap(curTileY, nextTileX);
+                if (pBlock != NULL && pBlock->GetTile() != NULL)
                 {
                     std::string sLType = pBlock->getType();
                     bool bBlank = pMap->CheckBlank(sLType);
@@ -413,21 +442,28 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                         bool bSkip = pMap->CheckSkipMap(sLType);
                         if (bSkip == false)
                         {
-                            bool bCol = false;
-                            int xPixelCol = 0;
-                            if (pX >= 0 && pY >= 0)
+                            bCoin = pMap->CheckCoinMap(sLType);
+                            if (bCoin == true)
                             {
-                                int yPix = (pY <= 0 ? 0 : (pY - 1));
-                                for (int j = 0; j <= pX; j++)
+                                pBlock->setType(BLANK_TILE);
+                                this->DoUpCoin();
+                            }
+                            else
+                            {
+                                if (pX >= 0 && pY >= 0)
                                 {
-                                    DataImg* pData = pBlock->GetTile()->GetPixelPos(j, yPix);
-                                    if (pData != NULL)
+                                    for (int j = 0; j < pX; j++)
                                     {
-                                        if (pData->IsColorKey() == false)
+                                        DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
+                                        if (pData != NULL)
                                         {
-                                            bCol = true;
-                                            xPixelCol = j;
-                                            break;
+                                            if (pData->IsColorKey() == false)
+                                            {
+                                                bCol = true;
+                                                xTileCol = nextTileX;
+                                                xPixelCol = j;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -435,12 +471,7 @@ void MainObject::CheckToMap(SDL_Renderer* des)
 
                             if (bCol == true)
                             {
-                                if (x_val_ >= pX)
-                                {
-                                    INT xtemp = x_val_ - pX;
-                                    xtemp += xPixelCol;
-                                    x_pos_ += xtemp;
-                                }
+                                x_pos_ = xTileCol*TILE_SIZE + xPixelCol - width_frame_;
                                 x_val_ = 0;
                             }
                         }
@@ -466,8 +497,12 @@ void MainObject::CheckToMap(SDL_Renderer* des)
             bool IsInside = SDLCommonFunc::CheckInsideMap(prevTileX, curTileY);
             if (IsInside)
             {
-                BlockMap* pBlock = tile_list[curTileY][prevTileX];
-                if (pBlock != NULL)
+                bool bCol = false;
+                INT xLimit = 0;
+                bool bCoin = false;
+                int xPrev = 0;
+                BlockMap* pBlock = GetBlockMap(curTileY, prevTileX);
+                if (pBlock != NULL && pBlock->GetTile() != NULL)
                 {
                     std::string sLType = pBlock->getType();
                     bool bBlank = pMap->CheckBlank(sLType);
@@ -476,21 +511,28 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                         bool bSkip = pMap->CheckSkipMap(sLType);
                         if (bSkip == false)
                         {
-                            bool bCol = false;
-                            INT xLimit = 0;
-                            if (pX >= 0 && pY >= 0)
+                            bCoin = pMap->CheckCoinMap(sLType);
+                            if (bCoin == true)
                             {
-                                int yPix = (pY <= 0 ? 0 : (pY - 1));
-                                for (int j = TILE_SIZE - 1; j >= pX; j--)
+                                pBlock->setType(BLANK_TILE);
+                                this->DoUpCoin();
+                            }
+                            else
+                            {
+                                if (pX >= 0 && pY >= 0)
                                 {
-                                    DataImg* pData = pBlock->GetTile()->GetPixelPos(j, yPix);
-                                    if (pData != NULL)
+                                    for (int j = TILE_SIZE - 1; j > pX; j--)
                                     {
-                                        if (pData->IsColorKey() == false)
+                                        DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
+                                        if (pData != NULL)
                                         {
-                                            bCol = true;
-                                            xLimit = j;
-                                            break;
+                                            if (pData->IsColorKey() == false)
+                                            {
+                                                bCol = true;
+                                                xLimit = j;
+                                                xPrev = prevTileX;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -498,9 +540,7 @@ void MainObject::CheckToMap(SDL_Renderer* des)
 
                             if (bCol == true)
                             {
-                                INT xTemp = xLimit - pX;
-                                xTemp = abs(x_val_) - xTemp;
-                                x_pos_ -= xTemp;
+                                x_pos_ = xPrev*TILE_SIZE + xLimit;
                                 x_val_ = 0;
                             }
                         }
@@ -538,13 +578,8 @@ void MainObject::CheckToMap(SDL_Renderer* des)
             int curTileX1 = x_pos_ / TILE_SIZE;
             pX1 = x_pos_ - curTileX1*TILE_SIZE;
 
-            int curTileX2 = (x_pos_ + width_frame_) / TILE_SIZE;
+            int curTileX2 = (x_pos_ + width_frame_ - EPXILON) / TILE_SIZE;
             pX2 = (x_pos_ + width_frame_) - curTileX2*TILE_SIZE;
-            if (pX2 == 0)
-            {
-                curTileX2 -= 1;
-                pX2 = (x_pos_ + width_frame_) - curTileX2*TILE_SIZE;
-            }
 
             int yPosNext = y_pos_ + height_frame_ + y_val_;
             int nextTileY = yPosNext / TILE_SIZE;
@@ -559,9 +594,12 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                 int yLimit2 = 0;
                 bool bCol1 = false;
                 bool bCol2 = false;
-
-                BlockMap* pBlock1 = tile_list[nextTileY][curTileX1];
-                if (pBlock1 != NULL)
+                bool bCoin1 = false;
+                bool bCoin2 = false;
+                int sTileY1 = 0;
+                int sTileY2 = 0;
+                BlockMap* pBlock1 = GetBlockMap(nextTileY, curTileX1);
+                if (pBlock1 != NULL && pBlock1->GetTile() != NULL)
                 {
                     std::string tp1 = pBlock1->getType();
                     bool bBlank1 = pMap->CheckBlank(tp1);
@@ -570,29 +608,39 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                         bool bSkip1 = pMap->CheckSkipMap(tp1);
                         if (bSkip1 == false)
                         {
-                            if (pX1 >= 0 && pY >= 0)
+                            bCoin1 = pMap->CheckCoinMap(tp1);
+                            if (bCoin1 == true)
                             {
-                                for (int p = 0; p <= pY; p++)
+                                pBlock1->setType(BLANK_TILE);
+                                this->DoUpCoin();
+                            }
+                            else
+                            {
+                                if (pX1 >= 0 && pY >= 0)
                                 {
-                                    INT xp = (pX1 <= 0 ? 0 : pX1 - 1);
-                                    DataImg* pData = pBlock1->GetTile()->GetPixelPos(xp, p);
-                                    if (pData != NULL)
+                                    for (int p = 0; p < pY; p++)
                                     {
-                                        if (pData->IsColorKey() == false)
+                                        DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
+                                        if (pData != NULL)
                                         {
-                                            yLimit1 = p;
-                                            bCol1 = true;
-                                            break;
+                                            if (pData->IsColorKey() == false)
+                                            {
+                                                yLimit1 = p;
+                                                bCol1 = true;
+                                                sTileY1 = nextTileY;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
                             }
+                            
                         }
                     }
                 }
                
-                BlockMap* pBlock2 = tile_list[nextTileY][curTileX2];
-                if (pBlock2 != NULL)
+                BlockMap* pBlock2 = GetBlockMap(nextTileY, curTileX2);
+                if (pBlock2 != NULL && pBlock2->GetTile() != NULL)
                 {
                     std::string tp2 = pBlock2->getType();
                     bool bBlank2 = pMap->CheckBlank(tp2);
@@ -601,19 +649,28 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                         bool bSkip2 = pMap->CheckSkipMap(tp2);
                         if (bSkip2 == false)
                         {
-                            if (pX2 >= 0 && pY >= 0)
+                            bCoin1 = pMap->CheckCoinMap(tp2);
+                            if (bCoin1 == true)
                             {
-                                for (int p = 0; p <= pY; p++)
+                                pBlock1->setType(BLANK_TILE);
+                                this->DoUpCoin();
+                            }
+                            else
+                            {
+                                if (pX2 >= 0 && pY >= 0)
                                 {
-                                    INT xp = (pX2 <= 0 ? 0 : pX2 - 1);
-                                    DataImg* pData = pBlock2->GetTile()->GetPixelPos(xp, p);
-                                    if (pData != NULL)
+                                    for (int p = 0; p < pY; p++)
                                     {
-                                        if (pData->IsColorKey() == false)
+                                        DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
+                                        if (pData != NULL)
                                         {
-                                            yLimit2 = p;
-                                            bCol2 = true;
-                                            break;
+                                            if (pData->IsColorKey() == false)
+                                            {
+                                                yLimit2 = p;
+                                                bCol2 = true;
+                                                sTileY2 = nextTileY;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -622,34 +679,32 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                     }
                 }
 
+                int sTile = 0;
                 if (bCol1 == true && bCol2 == false)
                 {
                     yLimit = yLimit1;
+                    sTile = sTileY1;
                 }
                 else if (bCol1 == false && bCol2 == true)
                 {
                     yLimit = yLimit2;
+                    sTile = sTileY2;
                 }
                 else if (bCol1 == true && bCol2 == true)
                 {
                     yLimit = min(yLimit1, yLimit2);
+                    if (yLimit == yLimit1)
+                        sTile = sTileY1;
+                    else
+                        sTile = sTileY2;
                 }
 
                 if (bCol2 == true || bCol1 == true)
                 {
-                    if (abs(y_val_) < pY)
-                    {
-                        INT yTemp = pY - yLimit;
-                        yTemp = abs(y_val_) - yTemp;
-                        y_pos_ += yTemp;
-                    }
-                    else
-                    {
-                        INT yTemp = abs(y_val_) - pY;
-                        yTemp += yLimit;
-                        y_pos_ += yTemp;
-                    }
-
+                    int sPos = 0;
+                    int curTileY = sTile - 1;
+                    sPos = curTileY*TILE_SIZE + yLimit;
+                    y_pos_ = sPos;
                     y_val_ = 0;
                     on_ground_ = true;
                     if (status_ == WALK_NONE)
@@ -662,11 +717,12 @@ void MainObject::CheckToMap(SDL_Renderer* des)
         else if (y_val_ < 0)
         {
             int curTileX1 = (x_pos_) / TILE_SIZE;
-            int curTileX2 = (x_pos_ + width_frame_) / TILE_SIZE;
+            int xPosCur = (x_pos_ + width_frame_ - EPXILON);
+            int curTileX2 = xPosCur / TILE_SIZE;
             int prevTileY = (y_pos_ + y_val_) / TILE_SIZE;
 
             int pX1 = x_pos_ - curTileX1*TILE_SIZE;
-            int pX2 = (x_pos_ + width_frame_) - curTileX1*TILE_SIZE;
+            int pX2 = xPosCur - curTileX2*TILE_SIZE;
             int pY = (y_pos_ + y_val_) - prevTileY*TILE_SIZE;
 
             bool bInside1 = SDLCommonFunc::CheckInsideMap(curTileX1, prevTileY);
@@ -678,9 +734,12 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                 INT yLimit1 = 0;
                 INT yLimit2 = 0;
                 INT yLimit = 0;
-
-                BlockMap* pBlock1 = tile_list[prevTileY][curTileX1];
-                if (pBlock1 != NULL)
+                INT yPre1 = 0;
+                int yPre2 = 0;
+                bool bCoin1 = false;
+                bool bCoin2 = false;
+                BlockMap* pBlock1 = GetBlockMap(prevTileY, curTileX1);
+                if (pBlock1 != NULL && pBlock1->GetTile() != NULL)
                 {
                     std::string tp1 = pBlock1->getType();
                     bool bBlank1 = pMap->CheckBlank(tp1);
@@ -689,18 +748,27 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                         bool bSkip1 = pMap->CheckSkipMap(tp1);
                         if (bSkip1 == false)
                         {
-                            if (pX1 >= 0 && pY >= 0)
+                            bCoin1 = pMap->CheckCoinMap(tp1);
+                            if (bCoin1 == true)
                             {
-                                // Tim ra diem va cham pixel tren tile gan nhat voi player
-                                for (int p = TILE_SIZE - 1; p >= pY; p--)
+                                pBlock1->setType(BLANK_TILE);
+                                this->DoUpCoin();
+                            }
+                            else
+                            {
+                                if (pX1 >= 0 && pY >= 0)
                                 {
-                                    INT xp = (pX1 <= 0 ? 0 : pX1 - 1);
-                                    DataImg* pData = pBlock1->GetTile()->GetPixelPos(xp, p);
-                                    if (pData != NULL && pData->IsColorKey() == false)
+                                    // Tim ra diem va cham pixel tren tile gan nhat voi player
+                                    for (int p = TILE_SIZE - 1; p > pY; p--)
                                     {
-                                        yLimit1 = p;
-                                        bCol1 = true;
-                                        break;
+                                        DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
+                                        if (pData != NULL && pData->IsColorKey() == false)
+                                        {
+                                            yLimit1 = p;
+                                            bCol1 = true;
+                                            yPre1 = prevTileY;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -708,8 +776,8 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                     }
                 }
                 
-                BlockMap* pBlock2 = tile_list[prevTileY][curTileX2];
-                if (pBlock2 != NULL)
+                BlockMap* pBlock2 = GetBlockMap(prevTileY, curTileX2);
+                if (pBlock2 != NULL && pBlock2->GetTile() != NULL)
                 {
                     std::string tp2 = pBlock2->getType();
                     bool bBlank2 = pMap->CheckBlank(tp2);
@@ -718,18 +786,27 @@ void MainObject::CheckToMap(SDL_Renderer* des)
                         bool bSkip2 = pMap->CheckSkipMap(tp2);
                         if (bSkip2 == false)
                         {
-                            if (pX2 >= 0 && pY >= 0)
+                            bCoin2 = pMap->CheckCoinMap(tp2);
+                            if (bCoin2 == true)
                             {
-                                // Tim ra diem va cham pixel tren tile gan nhat voi player
-                                for (int p = TILE_SIZE - 1; p >= pY; p--)
+                                pBlock2->setType(BLANK_TILE);
+                                this->DoUpCoin();
+                            }
+                            else
+                            {
+                                if (pX2 >= 0 && pY >= 0)
                                 {
-                                    INT xp = (pX2 <= 0 ? 0 : pX2 - 1);
-                                    DataImg* pData = pBlock2->GetTile()->GetPixelPos(xp, p);
-                                    if (pData != NULL && pData->IsColorKey() == false)
+                                    for (int p = TILE_SIZE - 1; p > pY; p--)
                                     {
-                                        yLimit2 = p;
-                                        bCol2 = true;
-                                        break;
+
+                                        DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
+                                        if (pData != NULL && pData->IsColorKey() == false)
+                                        {
+                                            yLimit2 = p;
+                                            bCol2 = true;
+                                            yPre2 = prevTileY;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -752,10 +829,18 @@ void MainObject::CheckToMap(SDL_Renderer* des)
 
                 if (bCol1 || bCol2)
                 {
-                    INT yTemp = yLimit - pY;
-                    yTemp = abs(y_val_) - yTemp;
+                    if (yLimit == yLimit1)
+                    {
+                        INT sPos = yPre1*TILE_SIZE + yLimit;
+                        y_pos_ = sPos;
+                    }
+                    else
+                    {
+                        INT sPos = yPre2*TILE_SIZE + yLimit;
+                        y_pos_ = sPos;
+                    }
+
                     y_val_ = 0;
-                    y_pos_ -= yTemp;
                 }
             }
         }
@@ -782,9 +867,9 @@ void MainObject::CheckToMap(SDL_Renderer* des)
     }
 }
 
-void MainObject::IncreaseMoney()
+void MainObject::DoUpCoin()
 {
-    money_count_++;
+    m_CoinCount++;
     Music::GetInstance()->PlaySoundGame(Music::COIN_INCREASING);
 }
 

@@ -89,7 +89,7 @@ int Music::PlaySoundGame(int soundType)
     }
     else if (soundType == JUMP_SOUND)
     {
-        Mix_PlayChannel(-1, gChunkJump, 0);
+        ;// Mix_PlayChannel(-1, gChunkJump, 0);
     }
     else if (soundType == GAMEOVER_SOUND)
     {
