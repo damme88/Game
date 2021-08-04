@@ -87,7 +87,20 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
                 {
                     pTile->SetIsClip(true);
                 }
-                bool ret = pTile->LoadImg(filename, screen);
+
+                bool bGetPixel = true;
+                if (type == "T11" ||
+                    type == "tre_01" ||
+                    type == "tre_02" ||
+                    type == "tre_03" ||
+                    type == "tre_04" ||
+                    type == "TR_01" ||
+                    type == "TR_02")
+                {
+                    bGetPixel = false;
+                }
+
+                bool ret = pTile->LoadImg(filename, screen, bGetPixel);
                 if (ret)
                 {
                     pBlock->setTile(pTile);

@@ -45,6 +45,10 @@ public:
 
   void DoPlayer(SDL_Renderer* des);
   void CheckToMap(SDL_Renderer* des);
+  void DoRight();
+  void DoLeft();
+  void DoUp();
+  void DoDown();
 
   void DrawBound(SDL_Renderer* des);
   void HandleBullet(SDL_Renderer* des);
