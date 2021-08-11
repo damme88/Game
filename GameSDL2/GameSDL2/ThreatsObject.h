@@ -20,14 +20,20 @@ public:
 
     enum TypeThreats
     {
-        TH_UNDEF    = 0,
-        TH_GOOMBAS  = 1,
-        TH_BOOM     = 2,
-        TH_MUSHROOM = 3,
+        TH_UNDEF        = 0,
+        TH_GB_MONSTER,
+        TH_FLY_MONSTER,
+        TH_BOOM,
+        TH_MUSHROOM,
     };
 
     bool LoadImg(std::string path, SDL_Renderer* screen);
     void CheckToMap();
+    void DoLeft();
+    void DoRight();
+    void DoUp();
+    void DoDown();
+
     void DoPlayer();
     void DrawBound(SDL_Renderer* des);
 
@@ -45,6 +51,7 @@ public:
     int get_height_frame() const { return height_frame_; }
     bool get_is_alive() { return is_alive_; }
     int GetType() const { return type_; }
+    void ResetXcount() { x_left_count_ = 0; x_right_count_ = 0; }
     SDL_Rect GetRectFrame();
     //Overridde
 public:
@@ -69,6 +76,9 @@ protected:
     float y_val_;
     float x_pos_;
     float y_pos_;
+
+    UINT x_right_count_; //count x_val +
+    UINT x_left_count_;  // count x_val -;
 
     unsigned long passed_time_;
     unsigned int m_DelayTime[NUM_FRAME];

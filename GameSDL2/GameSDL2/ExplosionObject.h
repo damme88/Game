@@ -15,6 +15,7 @@ public:
 public:
     void set_clips();
     void set_frame(const int& fr) { frame_ = fr; }
+    int get_frame() const { return frame_; }
     virtual bool LoadImg(std::string path, SDL_Renderer* screen);
     void Show(SDL_Renderer* screen);
     int get_frame_width() const { return frame_width_; }

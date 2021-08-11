@@ -1,6 +1,7 @@
 #include "ThreatsAds.h"
-#include "Goombas.h"
+#include "GBMonster.h"
 #include "TBoom.h"
+#include "FlyMonster.h"
 
 #define NO_BOOM 
 
@@ -25,10 +26,11 @@ void ThreatsAds::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
         if (obj_threat != NULL)
         {
             obj_threat->HandleInputAction(events, screen);
+
 #ifndef NO_BOOM
-            if (obj_threat->GetType() == ThreatsObject::TH_GOOMBAS)
+            if (obj_threat->GetType() == ThreatsObject::TH_GB_MONSTER)
             {
-                Goombas* pObject = static_cast<Goombas*>(obj_threat);
+                GBMonster* pObject = static_cast<GBMonster*>(obj_threat);
                 if (pObject->GetIsBoom())
                 {
                     pObject->SetIsBoom(false);
@@ -50,25 +52,69 @@ void ThreatsAds::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
 
 void ThreatsAds::BuildThreats(SDL_Renderer* screen)
 {
-    Goombas* pGoombass = new Goombas[1];
-    for (int i = 0; i < 1; i++)
-    {
-        Goombas* pObj = (pGoombass + i);
-        if (pObj != NULL)
-        {
-            pObj->set_is_clip(true);
-            pObj->LoadImg(static_img_name, screen);
-            pObj->set_xpos(15*64 + i*100);
-            pObj->set_ypos(GROUND_POS - pObj->get_height_frame() - 400);
-            pThreatsNormal_.push_back(pObj);
-        }
-    }
-
+    MakeGBMonster(screen);
+    MakeGBTortoise(screen);
+    MakeCrowMonster(screen);
 #ifndef NO_BOOM
     pEx_ = new ExplosionObject();
     pEx_->LoadImg("img//exp5.png", screen);
     pEx_->set_clips();
 #endif
+}
+
+void ThreatsAds::MakeGBMonster(SDL_Renderer* screen)
+{
+    UINT gbNum = sizeof(gbMonsterList) / sizeof(gbMonsterList[0]);
+    if (gbNum > 0)
+    {
+        GBMonster* pGBList = new GBMonster[gbNum];
+        for (int i = 0; i < gbNum; i++)
+        {
+            GBMonster* pGBMonster = (pGBList + i);
+            if (pGBMonster != NULL)
+            {
+                pGBMonster->Init(GBMonster::GB_BASE, true, gbMonsterList[i], 4, screen);
+                pThreatsNormal_.push_back(pGBMonster);
+            }
+        }
+    }
+}
+
+void ThreatsAds::MakeGBTortoise(SDL_Renderer* screen)
+{
+    UINT gbNum = sizeof(gbTortoiseList) / sizeof(gbTortoiseList[0]);
+    if (gbNum > 0)
+    {
+        GBMonster* pGBList = new GBMonster[gbNum];
+        for (int i = 0; i < gbNum; i++)
+        {
+            GBMonster* pGBTortoise = (pGBList + i);
+            if (pGBTortoise != NULL)
+            {
+                pGBTortoise->Init(GBMonster::GB_TORTOISE, true, gbTortoiseList[i], 4, screen);
+                pThreatsNormal_.push_back(pGBTortoise);
+            }
+        }
+    }
+}
+
+void ThreatsAds::MakeCrowMonster(SDL_Renderer* screen)
+{
+    UINT gbNum = sizeof(gbCrowListX) / sizeof(gbCrowListX[0]);
+    if (gbNum > 0)
+    {
+        FlyMonster* pCrowList = new FlyMonster[gbNum];
+        for (int i = 0; i < gbNum; i++)
+        {
+            FlyMonster* pCrow = (pCrowList + i);
+            if (pCrow != NULL)
+            {
+                pCrow->Init(FlyMonster::FL_CROW, true, gbCrowListX[i], gbCrowListY[i], screen);
+                pCrow->set_x_val(-5);
+                pThreatsNormal_.push_back(pCrow);
+            }
+        }
+    }
 }
 
 void ThreatsAds::AddSecondObject(ThreatsObject* pObj)
@@ -86,9 +132,9 @@ void ThreatsAds::Render(SDL_Renderer* screen)
     for (int i = 0; i < pThreatsNormal_.size(); i++)
     {
         ThreatsObject* obj_threat = pThreatsNormal_.at(i);
-        if (obj_threat->GetType() == ThreatsObject::TH_GOOMBAS)
+        if (obj_threat->GetType() == ThreatsObject::TH_GB_MONSTER)
         {
-            Goombas* pObject = static_cast<Goombas*>(obj_threat);
+            GBMonster* pObject = static_cast<GBMonster*>(obj_threat);
             if (pObject->get_is_alive() == true)
             {
                 pObject->DoPlayer();
@@ -100,10 +146,11 @@ void ThreatsAds::Render(SDL_Renderer* screen)
                 pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
             }
         }
-        else if (obj_threat->GetType() == ThreatsObject::TH_BOOM)
+        else if (obj_threat->GetType() == ThreatsObject::TH_FLY_MONSTER)
         {
-            TBoom* pObject = static_cast<TBoom*>(obj_threat);
-            pObject->Show(screen);
+            FlyMonster* pFlyObj = static_cast<FlyMonster*>(obj_threat);
+            pFlyObj->DoPlayer();
+            pFlyObj->Show(screen);
         }
     }
 }
@@ -206,13 +253,12 @@ bool ThreatsAds::CheckCollisionLocal(SDL_Renderer* screen)
                         ret = true;
                         pSecondObject_.erase(pSecondObject_.begin() + i);
 
-                        if (pThreat2->GetType() == ThreatsObject::TH_GOOMBAS)
+                        if (pThreat2->GetType() == ThreatsObject::TH_GB_MONSTER)
                         {
-                            Goombas* pGoombas = static_cast<Goombas*>(pThreat2);
+                            GBMonster* pGoombas = static_cast<GBMonster*>(pThreat2);
                             if (pGoombas != NULL)
                             {
-                                pGoombas->SetIsChange(true);
-                                pGoombas->SetIsType(Goombas::GOOM_X5);
+                                ;// pGoombas->SetIsChange(true);
                             }
                         }
                         break;

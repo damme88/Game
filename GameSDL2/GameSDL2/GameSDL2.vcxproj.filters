@@ -60,9 +60,6 @@
     <ClCompile Include="TileObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Goombas.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Music.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -82,6 +79,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OptionObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GBMonster.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EndObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlyMonster.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,9 +134,6 @@
     <ClInclude Include="TileObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Goombas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Music.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -152,5 +155,27 @@
     <ClInclude Include="OptionObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GBMonster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EndObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FlyMonster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GameSDL2.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -40,6 +40,7 @@ public:
     };
 
     void HandelMove(const int& x_border, const int& y_border);
+    void set_x_Scope(const int& xScope) { x_scope_ = xScope; }
     void set_x_val(const int& x_val) { x_val_ = x_val; }
     void set_y_val(const int& y_val) { y_val_ = y_val; }
     void set_xy_pos(const int& xp, const int& yp) { x_pos_ = xp, y_pos_ = yp; }
@@ -50,11 +51,13 @@ public:
     void set_is_move(const bool& is_move) { is_move_ = is_move; }
     bool get_is_move()const { return is_move_; }
     void set_dir_bullet(const int& dir_type) { bullet_dir_ = dir_type; }
+    void SetFlip(bool bFlip) { is_flip = bFlip; }
     bool CheckToMap();
     BulletObject* Clone();
     void Show(SDL_Renderer* des);
 private:
-
+    int x_scope_;
+    int x_up_;
     int x_pos_;
     int y_pos_;
     int x_val_;
@@ -62,6 +65,7 @@ private:
     bool is_move_;
     int bullet_dir_;
     int move_type_;
+    bool is_flip;
 };
 
 #endif

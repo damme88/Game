@@ -5,7 +5,10 @@ BulletObject::BulletObject()
 {
     x_val_ = 0;
     y_val_ = 0;
+    x_scope_ = 0;
+    x_up_ = 0;
     move_type_ = LINE_TYPE;
+    m_Flip = false;
 }
 
 BulletObject::~BulletObject()
@@ -31,17 +34,21 @@ void BulletObject::HandelMove(const int& x_border, const int& y_border)
     if (bullet_dir_ == DIR_RIGHT)
     {
         x_pos_ += x_val_;
-        if (x_pos_ - map_data->getStartX() > x_border)
+        x_up_ += x_val_;
+        if (x_up_ > x_scope_)
         {
             is_move_ = false;
+            x_up_ = 0;
         }
     }
     else if (bullet_dir_ == DIR_LEFT)
     {
         x_pos_ -= x_val_;
-        if (x_pos_ - map_data->getStartX() < 0)
+        x_up_ -= x_val_;
+        if (abs(x_up_) > x_scope_)
         {
             is_move_ = false;
+            x_up_ = 0;
         }
     }
 }
@@ -63,18 +70,22 @@ bool BulletObject::CheckToMap()
         std::string val = pBlock->getType();
         if ((val != BLANK_TILE))
         {
-            is_move_ = false;
-            x_pos_ = x * 64;
-            int width_tile = pBlock->GetTile()->getWidthFrame();
-            if (bullet_dir_ == DIR_LEFT)
+            bool bSkip = GameMap::GetInstance()->CheckSkipMap(val);
+            if (bSkip == false)
             {
-                rect_.x = x_pos_ - map_data->getStartX() + width_tile;
+                is_move_ = false;
+                x_pos_ = x * 64;
+                int width_tile = pBlock->GetTile()->getWidthFrame();
+                if (bullet_dir_ == DIR_LEFT)
+                {
+                    rect_.x = x_pos_ - map_data->getStartX() + width_tile;
+                }
+                else
+                {
+                    rect_.x = x_pos_ - map_data->getStartX();
+                }
+                return true;
             }
-            else
-            {
-                rect_.x = x_pos_ - map_data->getStartX();
-            }
-            return true;
         }
     }
 
@@ -84,8 +95,9 @@ bool BulletObject::CheckToMap()
 void BulletObject::Show(SDL_Renderer* des)
 {
     Map* map_data = GameMap::GetInstance()->GetMap();
-
     rect_.x = x_pos_ - map_data->getStartX();
     rect_.y = y_pos_ - map_data->getStartY();
+
+    m_Flip = is_flip;
     BaseObject::Render(des);
 }

@@ -12,6 +12,7 @@
 #include "ThreatsAds.h"
 #include "MenuGame.h"
 #include "OptionObject.h"
+#include "EndObject.h"
 
 TTF_Font* g_font = NULL;
 TTF_Font* g_font_text = NULL;
@@ -153,7 +154,11 @@ int main( int argc, char* args[] )
    TextObject money_count;
    money_count.setColor(TextObject::WHITE_TEXT);
 
-   //ThreatsAds::GetInstance()->BuildThreats(g_screen);
+   ThreatsAds::GetInstance()->BuildThreats(g_screen);
+
+   EndObject wDoor;
+   wDoor.LoadImg("img//sman_open_new_world.png", g_screen);
+   wDoor.SetPosTile(197, 8);
 
    ////Init Boss Object
    //BossObject bossObject;
@@ -222,6 +227,15 @@ int main( int argc, char* args[] )
 
        game_map->DrawMap(g_screen);
 
+       int playerPos = p_player.get_x_pos();
+       int doorPos = wDoor.GetXPos();
+       if (doorPos - playerPos <= TILE_SIZE)
+       {
+           wDoor.SetStatus(EndObject::DOOR_OPENING);
+       }
+
+       wDoor.Show(g_screen);
+
        //DRAW OPTION CONTROL
        option_control.Show(g_screen);
        int type_ctrl = option_control.GetTypeCtrl();
@@ -240,9 +254,9 @@ int main( int argc, char* args[] )
 
        ThreatsAds::GetInstance()->Render(g_screen);
 
-       p_player.HandleBullet(g_screen);
        p_player.DoPlayer(g_screen);
        p_player.Show(g_screen);
+       p_player.HandleBullet(g_screen);
 #ifdef USING_OPTION_MOBILE
        p_player.UpdateCtrlState(type_ctrl, g_screen);
 #endif
@@ -301,7 +315,7 @@ int main( int argc, char* args[] )
            p_player.setLevelMushroom();
        }
 
-       //ThreatsAds::GetInstance()->CheckCollisionLocal(g_screen);
+       ThreatsAds::GetInstance()->CheckCollisionLocal(g_screen);
 
        //COLLISION THREAT -> Main Bullet
        std::vector<BulletObject*> bullet_arr = p_player.get_bullet_list();
@@ -315,7 +329,7 @@ int main( int argc, char* args[] )
             {
                 SDL_Rect rc_pos;
                 rc_pos.x = p_bullet->GetRect().x;
-                rc_pos.y = p_bullet->GetRect().y;
+                rc_pos.y = p_bullet->GetRect().y + 25;
                 rc_pos.w = p_bullet->GetRect().w;
                 rc_pos.h = p_bullet->GetRect().h;
                 exp_threats.ImpRender(g_screen, rc_pos);

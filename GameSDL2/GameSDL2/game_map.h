@@ -17,7 +17,8 @@
 #define STATE_MONEY "M1"
 #define  STATE_MONEY2 "24"
 
-const std::string SkipMap[] = { "TR_01", "TR_02", "tre_01", "tre_02", "tre_03", "tre_04" };
+const std::string SkipMap[] = { "TR_01", "TR_02", "tre_01", "tre_02", "tre_03", 
+                                "tre_04","HR1","HR2","HR3","HR4","HR5","HR6" };
 const std::string CoinMap[] = { "M1", "M2" };
 class GameMap
 {

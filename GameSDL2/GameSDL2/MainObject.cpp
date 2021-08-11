@@ -29,7 +29,14 @@ MainObject::MainObject()
     input_type_.up_ = 0;
     input_type_.down_ = 0;
     input_type_.jump_ = 0;
+    m_bAttack = false;
     //is_dead_boom_ = false;
+
+    for (int i = 0; i < PLAYER_FRAMES; i++)
+    {
+        iDelay[i] = 100;
+    }
+    passed_time_ = 0;
 }
 
 MainObject::~MainObject()
@@ -56,7 +63,7 @@ SDL_Rect MainObject::GetRectFrame()
 void MainObject::HandleInputAction(SDL_Event events,
     SDL_Renderer* screen)
 {
-    if (is_falling_)
+    if (is_falling_ || is_death_)
         return;
 
     if (events.type == SDL_KEYDOWN)
@@ -121,8 +128,9 @@ void MainObject::HandleInputAction(SDL_Event events,
     {
         if (events.button.button == SDL_BUTTON_LEFT)
         {
-            if (level_mushroom_ == 2)
+            if (m_bAttack == false)
             {
+                m_bAttack = true;
                 BulletObject* p_bullet = new BulletObject();
                 p_bullet->LoadImg(kImgBullet, screen);
 
@@ -131,14 +139,19 @@ void MainObject::HandleInputAction(SDL_Event events,
                 if (status_ == WALK_LEFT)
                 {
                     p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
-                    p_bullet->set_xy_pos(x_pos_, y_pos_ + height_frame_*0.22);
+                    INT xBul = x_pos_;
+                    INT yBul = y_pos_ + height_frame_*0.25;
+                    p_bullet->set_xy_pos(xBul, yBul);
                 }
                 else
                 {
+                    INT xBul = x_pos_ + width_frame_;
+                    INT yBul = y_pos_ + height_frame_*0.25;
                     p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
-                    p_bullet->set_xy_pos(x_pos_ + width_frame_ - 20, y_pos_ + height_frame_*0.22);
+                    p_bullet->set_xy_pos(xBul, yBul);
                 }
-                p_bullet->set_x_val(20);
+                p_bullet->set_x_val(10);
+                p_bullet->set_x_Scope(45);
                 p_bullet->set_is_move(true);
                 p_bullet_list_.push_back(p_bullet);
             }
@@ -154,7 +167,6 @@ void MainObject::HandleInputAction(SDL_Event events,
     {
         if (events.button.button == SDL_BUTTON_LEFT)
         {
-
         }
         else if (events.button.button == SDL_BUTTON_RIGHT)
         {
@@ -213,6 +225,7 @@ void MainObject::HandleBullet(SDL_Renderer* des)
                 }
                 else
                 {
+                    p_bullet->SetFlip(m_Flip);
                     p_bullet->Show(des);
                 }
             }
@@ -284,25 +297,74 @@ void MainObject::DrawBound(SDL_Renderer* des)
 
 void MainObject::Show(SDL_Renderer* des)
 {
+    if (is_falling_)
+    {
+        return;
+    }
+
     //DrawBound(des);
     UpdateImagePlayer(des);
 
-    if (input_type_.left_ == 1 || input_type_.right_ == 1)
+    if (m_bAttack == true)
     {
-        frame_++;
+        rect_.x = x_pos_ - start_map_x_;
+        rect_.y = y_pos_ - start_map_y_;
+
+        // Create delay times when next frame
+        if (SDL_GetTicks() - iDelay[frame_] > passed_time_)
+        {
+            passed_time_ = SDL_GetTicks();
+            ++frame_;
+            if (frame_ > PLAYER_FRAMES - 1)
+            {
+                frame_ = 0;
+                m_bAttack = false;
+            }
+        }
+
+        SDL_Rect* currentClip = &frame_clip_[frame_];
+        BaseObject::Render(des, currentClip);
+    }
+    else if (is_death_)
+    {
+        rect_.x = x_pos_ - start_map_x_;
+        rect_.y = y_pos_ - start_map_y_;
+
+        // Create delay times when next frame
+        if (SDL_GetTicks() - iDelay[frame_] > passed_time_)
+        {
+            passed_time_ = SDL_GetTicks();
+            ++frame_;
+            if (frame_ > PLAYER_FRAMES - 1)
+            {
+                frame_ = 0;
+                is_falling_ = true;
+            }
+        }
+
+        if (is_falling_ == false)
+        {
+            SDL_Rect* currentClip = &frame_clip_[frame_];
+            BaseObject::Render(des, currentClip);
+        }
     }
     else
     {
-        frame_ = 0;
-    }
+        if (input_type_.left_ == 1 || input_type_.right_ == 1)
+        {
+            frame_++;
+        }
+        else
+        {
+            frame_ = 0;
+        }
 
-    if (frame_ >= PLAYER_FRAMES)
-    {
-        frame_ = 0;
-    }
+        if (frame_ >= PLAYER_FRAMES)
+        {
+            frame_ = 0;
+        }
 
-    if (is_falling_ == false)
-    {
+
         rect_.x = x_pos_ - start_map_x_;
         rect_.y = y_pos_ - start_map_y_;
 
@@ -445,8 +507,8 @@ void MainObject::CheckToMap(SDL_Renderer* des)
     }
     else
     {
-        x_pos_ += 0.5*x_val_;
-        y_pos_ += 0.5*y_val_;
+        ;// x_pos_ += 0.5*x_val_;
+        ;// y_pos_ += 0.5*y_val_;
     }
 
     if (x_pos_ < 0)
@@ -933,15 +995,21 @@ void MainObject::UpdateImagePlayer(SDL_Renderer* des)
     {
         if (on_ground_ == true)
         {
-            if (input_type_.down_ == 0)
+            if (m_bAttack)
             {
-                LoadImg(sPlayerMove, des);
+                LoadImg(sPlayerAttack, des);
             }
-            else if (input_type_.down_ == 1)
+            else
             {
-                LoadImg(sPlayerDown, des);
+                if (input_type_.down_ == 0)
+                {
+                    LoadImg(sPlayerMove, des);
+                }
+                else if (input_type_.down_ == 1)
+                {
+                    LoadImg(sPlayerDown, des);
+                }
             }
-
             if (status_ == WALK_LEFT)
             {
                 m_Flip = true;
@@ -953,15 +1021,22 @@ void MainObject::UpdateImagePlayer(SDL_Renderer* des)
         }
         else
         {
-            // when implement Jump.
-            LoadImg(sPlayerJump, des);
-            if (status_ == WALK_RIGHT)
+            if (m_bAttack)
             {
-                m_Flip = false;
+                LoadImg(sPlayerAttack, des);
             }
             else
             {
-                m_Flip = true;
+                // when implement Jump.
+                LoadImg(sPlayerJump, des);
+                if (status_ == WALK_RIGHT)
+                {
+                    m_Flip = false;
+                }
+                else
+                {
+                    m_Flip = true;
+                }
             }
         }
     }
@@ -971,6 +1046,12 @@ void MainObject::ResetAlive()
 {
     GameMap* pMap = GameMap::GetInstance();
     if (pMap == NULL) return;
+
+    input_type_.left_ = 0;
+    input_type_.right_ = 0;
+    input_type_.jump_ = 0;
+    input_type_.down_ = 0;
+    input_type_.up_ = 0;
 
     int current_xp = x_pos_;
     int current_yp = GROUND_POS - 64;
