@@ -24,6 +24,19 @@ static char kImgBullet[] = {"img//sman_blast.png"};
 
 #define EPXILON 2
 
+struct WorldData
+{
+public:
+    enum WStatus
+    {
+        W_ACTIVE = 0,
+        W_FINISHED = 1,
+        W_PAUSE = 2,
+    };
+    UINT wld_number_;
+    UINT wld_status_;
+};
+
 class MainObject : public BaseObject
 {
 public:
@@ -80,6 +93,10 @@ public:
     void UpdateCtrlState(int ctrl_type, SDL_Renderer* screen);
     //void SetBoomDeadth(bool b) { is_dead_boom_ = b; }
     BlockMap* GetBlockMap(int y, int x);
+    WorldData GetWorldData() const { return m_WorldData; }
+    void SetWorldData(WorldData wData) { m_WorldData = wData; }
+    void SetInfoWorlData(int number, int status);
+    bool CheckInputCondition();
 protected:
     void UpdateImagePlayer(SDL_Renderer* des);
 
@@ -114,6 +131,8 @@ private:
 
     unsigned int iDelay[PLAYER_FRAMES];
     unsigned long passed_time_;
+
+    WorldData m_WorldData;
 };
 
 

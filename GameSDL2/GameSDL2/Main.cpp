@@ -227,18 +227,34 @@ int main( int argc, char* args[] )
 
        game_map->DrawMap(g_screen);
 
-       int playerPos = p_player.get_x_pos();
-       int doorPos = wDoor.GetXPos();
-       if (doorPos - playerPos <= TILE_SIZE)
+       int playerPosX = p_player.get_x_pos();
+       int plPosY = p_player.get_y_pos();
+
+       int doorPosX = wDoor.GetXPos();
+       int doorPosY = wDoor.GetYPos();
+
+       if (doorPosX - playerPosX <= TILE_SIZE && 
+           plPosY > doorPosY)
        {
            wDoor.SetStatus(EndObject::DOOR_OPENING);
-       }
+           UINT dWidth = wDoor.GetWidthFrame();
+           int pPos1 = doorPosX + dWidth*0.2;
+           int pPos2 = doorPosX + dWidth*0.6;
 
+           if (playerPosX > pPos1 && playerPosX < pPos2)
+           {
+               WorldData wData = p_player.GetWorldData();
+               wData.wld_number_++;
+               wData.wld_status_ = WorldData::W_FINISHED;
+               p_player.SetWorldData(wData);
+           }
+       }
        wDoor.Show(g_screen);
 
+
        //DRAW OPTION CONTROL
-       option_control.Show(g_screen);
-       int type_ctrl = option_control.GetTypeCtrl();
+       //option_control.Show(g_screen);
+       //int type_ctrl = option_control.GetTypeCtrl();
 
        //Draw Geometric
        GeometricFormat rectange_size(0, 0, SCREEN_WIDTH, 40);

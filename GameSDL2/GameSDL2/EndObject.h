@@ -19,11 +19,13 @@ public:
     void Show(SDL_Renderer* des);
 
     UINT GetXPos() const { return x_pos_; }
+    UINT GetYPos() const { return y_pos_; }
     void SetPos(int xp, int yp) { x_pos_ = xp; y_pos_ = yp; }
     void SetPosTile(int xTile, int yTile);
     void SetStatus(UINT st) { m_status = st; }
     UINT GetStatus() const { return m_status; }
-
+    UINT GetWidthFrame() const { return width_frame_; }
+    UINT GetHeightFrame() const { return height_frame_; }
     enum StatusDoor
     {
         DOOR_CLOSED = 0,

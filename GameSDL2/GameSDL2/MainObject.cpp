@@ -37,6 +37,9 @@ MainObject::MainObject()
         iDelay[i] = 100;
     }
     passed_time_ = 0;
+
+    m_WorldData.wld_status_ = WorldData::W_ACTIVE;
+    m_WorldData.wld_number_ = 1;
 }
 
 MainObject::~MainObject()
@@ -60,10 +63,28 @@ SDL_Rect MainObject::GetRectFrame()
   return rect;
 }
 
+void MainObject::SetInfoWorlData(int number, int status)
+{ 
+    m_WorldData.wld_number_ = number;
+    m_WorldData.wld_status_ = status; 
+}
+
+bool MainObject::CheckInputCondition()
+{
+    int status = m_WorldData.wld_status_;
+    if (is_falling_ || is_death_ ||
+        status == WorldData::W_FINISHED)
+    {
+        return false;
+    }
+    return true;
+}
+
 void MainObject::HandleInputAction(SDL_Event events,
     SDL_Renderer* screen)
 {
-    if (is_falling_ || is_death_)
+    bool bInput = CheckInputCondition();
+    if (bInput == false)
         return;
 
     if (events.type == SDL_KEYDOWN)
@@ -297,7 +318,8 @@ void MainObject::DrawBound(SDL_Renderer* des)
 
 void MainObject::Show(SDL_Renderer* des)
 {
-    if (is_falling_)
+    if (m_WorldData.wld_status_ == WorldData::W_FINISHED ||
+        is_falling_ == true)
     {
         return;
     }
@@ -375,6 +397,11 @@ void MainObject::Show(SDL_Renderer* des)
 
 void MainObject::DoPlayer(SDL_Renderer* des)
 {
+    if (m_WorldData.wld_status_ == WorldData::W_FINISHED)
+    {
+        return;
+    }
+
     Map* data_map = GameMap::GetInstance()->GetMap();
     start_map_x_ = data_map->getStartX();
     start_map_y_ = data_map->getStartY();
@@ -463,53 +490,48 @@ BlockMap* MainObject::GetBlockMap(int y, int x)
 
 void MainObject::CheckToMap(SDL_Renderer* des)
 {
+    if (is_death_ == true)
+        return;
+
     GameMap* pMap = GameMap::GetInstance();
-    if (pMap == NULL ||  pMap->GetMap() == NULL)
+    if (pMap == NULL || pMap->GetMap() == NULL)
         return;
     Map* data_map = pMap->GetMap();
 
-    if (is_death_ == false)
+    if (x_val_ > 0) // MOVE RIGHT
     {
-        if (x_val_ > 0) // MOVE RIGHT
-        {
-            DoRight();
-        }
-        else if (x_val_ < 0) // MOVE LEFT
-        {
-            DoLeft();
-        }
+        DoRight();
+    }
+    else if (x_val_ < 0) // MOVE LEFT
+    {
+        DoLeft();
+    }
 
-        if (m_bSlopeMoving == true)
+    if (m_bSlopeMoving == true)
+    {
+        if (x_val_ > 0)
         {
-            if (x_val_ > 0)
-            {
-                double angle = M_PI / 4;
-                double x_a = sin(angle)*x_val_;
-                double y_a = cos(angle)*x_val_;
-                x_pos_ += x_a;
-                y_pos_ -= y_a;
-            }
+            double angle = M_PI / 4;
+            double x_a = sin(angle)*x_val_;
+            double y_a = cos(angle)*x_val_;
+            x_pos_ += x_a;
+            y_pos_ -= y_a;
         }
-        else
-        {
-            x_pos_ += x_val_;
-        }
-
-        if (y_val_ > 0)
-        {
-            DoDown();
-        }
-        else if (y_val_ < 0)
-        {
-            DoUp();
-        }
-        y_pos_ += y_val_;
     }
     else
     {
-        ;// x_pos_ += 0.5*x_val_;
-        ;// y_pos_ += 0.5*y_val_;
+        x_pos_ += x_val_;
     }
+
+    if (y_val_ > 0)
+    {
+        DoDown();
+    }
+    else if (y_val_ < 0)
+    {
+        DoUp();
+    }
+    y_pos_ += y_val_;
 
     if (x_pos_ < 0)
     {
@@ -525,6 +547,7 @@ void MainObject::CheckToMap(SDL_Renderer* des)
         is_falling_ = true;
     }
 }
+
 void MainObject::DoLeft()
 {
     GameMap* pMap = GameMap::GetInstance();
