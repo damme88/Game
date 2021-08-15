@@ -18,6 +18,16 @@ ThreatsAds::~ThreatsAds()
 
 }
 
+void ThreatsAds::DestroyInstance()
+{
+    Free();
+    if (instance_ != NULL)
+    {
+        delete instance_;
+        instance_ = 0;
+    }
+}
+
 void ThreatsAds::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
 {
     for (int i = 0; i < pThreatsNormal_.size(); i++)
@@ -275,6 +285,8 @@ void ThreatsAds::Free()
 {
     for (int i = 0; i < pThreatsNormal_.size(); i++)
     {
+        ThreatsObject* pObj = pThreatsNormal_[i];
+        pObj->Free();
         pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
     }
 

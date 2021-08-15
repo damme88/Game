@@ -59,7 +59,7 @@ public:
     int getStartY() const { return start_y_; }
     int getMaxX() const { return max_x_; }
     int getMaxY() const { return max_y_; }
-    VT(VT(BlockMap*)) GetTile() { return m_tile; }
+    VT(VT(BlockMap*)) GetTile() { return m_BlockList; }
 
     void SetStartX(int xs) { start_x_ = xs; }
     void SetStartY(int ys) { start_y_ = ys; }
@@ -67,14 +67,14 @@ public:
     void SetMaxY(int my) { max_y_ = my; }
     void UpdateMapInfo(int xp, int yp);
     void SetFileMap(std::string filemap) { file_name_ = filemap; }
-    void AddList(VT(BlockMap*) list) { m_tile.push_back(list); }
+    void AddList(VT(BlockMap*) list) { m_BlockList.push_back(list); }
 private:
     int start_x_;
     int start_y_;
     int max_x_;
     int max_y_;
     std::string file_name_;
-    VT(VT(BlockMap*)) m_tile;
+    VT(VT(BlockMap*)) m_BlockList;
 };
 
 #endif

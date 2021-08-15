@@ -18,8 +18,8 @@ public:
     void Show(SDL_Renderer* des);
     void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
     void UpdateImg(SDL_Renderer* des);
-    void SetIsBoom(bool boom) { is_boom_ = boom; }
-    bool GetIsBoom() const { return is_boom_; }
+    //void SetIsBoom(bool boom) { is_boom_ = boom; }
+    //bool GetIsBoom() const { return is_boom_; }
     void SetIsType(int bType) { gb_type_ = bType; }
     int GetIsType() const { return gb_type_; }
     enum GoomType
@@ -28,7 +28,6 @@ public:
         GB_TORTOISE = 1,
     };
 private:
-    bool is_boom_;
     int gb_type_;
 };
 

@@ -154,7 +154,8 @@ int main( int argc, char* args[] )
    TextObject money_count;
    money_count.setColor(TextObject::WHITE_TEXT);
 
-   ThreatsAds::GetInstance()->BuildThreats(g_screen);
+   ThreatsAds* pThreatsAd = ThreatsAds::GetInstance();
+   pThreatsAd->BuildThreats(g_screen);
 
    EndObject wDoor;
    wDoor.LoadImg("img//sman_open_new_world.png", g_screen);
@@ -373,7 +374,6 @@ int main( int argc, char* args[] )
        {
            std::string str_val = std::to_string(val_time);
            str_time += str_val;
-
            time_game.SetText(str_time);
            time_game.loadFromRenderedText(g_font_text, g_screen);
            time_game.RenderText(g_screen, SCREEN_WIDTH - 200, 15);
@@ -404,7 +404,7 @@ int main( int argc, char* args[] )
            player_power.Render(g_screen);
        }
 
-       game_map->RenderBlockDe(g_screen);
+       //game_map->RenderBlockDe(g_screen);
 
        //Update screen
        SDL_RenderPresent(g_screen);
@@ -417,8 +417,9 @@ int main( int argc, char* args[] )
        }
   }
 
-  delete game_map;
-  ThreatsAds::GetInstance()->Free();
+  game_map->DestroyInst();
+  ThreatsAds::GetInstance()->DestroyInstance();
+
   close();
   return 0;
 }

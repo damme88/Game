@@ -13,7 +13,22 @@ GameMap::GameMap()
 
 GameMap::~GameMap()
 {
-    delete game_map_;
+    
+}
+
+void GameMap::DestroyInst()
+{
+    if (game_map_ != NULL)
+    {
+        delete game_map_;
+        game_map_ = NULL;
+    }
+
+    if (instance_ != NULL)
+    {
+        delete instance_;
+        instance_ = NULL;
+    }
 }
 
 void GameMap::LoadMap(char* name)

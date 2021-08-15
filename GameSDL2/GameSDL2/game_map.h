@@ -33,6 +33,7 @@ public:
       return instance_;
   }
 
+  void DestroyInst();
   void LoadMap(char* name);
   void DrawMap(SDL_Renderer* des);
   void LoadMapTiles(SDL_Renderer* screen);

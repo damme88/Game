@@ -35,12 +35,13 @@ public:
   void SetIsAngle() { m_angle_ = true; }
   SDL_Rect GetRect() const { return rect_; }
   SDL_Texture* GetObject() { return p_object_; }
-  VT(VT(DataImg*)) GetPixelImg(SDL_Surface* pSurface, int width, int height);
+  VT(VT(DataImg*)) GetPixelImg(SDL_Surface* pSurface);
   DataImg* GetPixelPos(int x, int y);
 protected:
   VT(VT(DataImg*)) m_pixelList;
   float angle_;
   SDL_Texture* p_object_;
+  SDL_Surface* m_surface;
   SDL_Rect rect_;
   bool m_Flip;
   bool m_angle_;

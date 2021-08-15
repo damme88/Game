@@ -27,110 +27,114 @@ bool DataImg::IsColorKey()
 
 BaseObject::BaseObject()
 {
-  p_object_ = NULL;
-  rect_.x = 0;
-  rect_.y = 0;
-  rect_.w = 0;
-  rect_.h = 0;
-  m_Flip = false;
-  m_angle_ = false;
-  angle_ = 0.0;
+    p_object_ = NULL;
+    m_surface = NULL;
+    rect_.x = 0;
+    rect_.y = 0;
+    rect_.w = 0;
+    rect_.h = 0;
+    m_Flip = false;
+    m_angle_ = false;
+    angle_ = 0.0;
 }
 
 BaseObject::~BaseObject()
 {
-  Free();
-
-  if (m_pixelList.size() > 0)
-  {
-      for (int i = 0; i < m_pixelList.size(); i++)
-      {
-          VT(DataImg*) xList = m_pixelList.at(i);
-          for (int j = 0; j < xList.size(); ++j)
-          {
-              DataImg*  pData = xList.at(j);
-              if (pData != NULL)
-              {
-                  delete pData;
-                  pData = NULL;
-              }
-          }
-      }
-      m_pixelList.clear();
-  }
+    Free();
 }
 
 bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen, const bool& bGetPixel)
 {
-  //The final texture
-  Free();
-  SDL_Texture* newTexture = NULL;
+    //The final texture
+    Free();
+    SDL_Texture* newTexture = NULL;
 
-  //Load image at specified path
-  SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-  if( loadedSurface != NULL )
-  {
-    //Color key image
-    Uint32 uKey = SDL_MapRGB(loadedSurface->format, COLOR_KEY_R, COLOR_KEY_G, COLOR_KEY_B);
-    SDL_SetColorKey(loadedSurface, SDL_TRUE, uKey);
-
-    //Create texture from surface pixels
-    newTexture = SDL_CreateTextureFromSurface(screen, loadedSurface );
-    if(newTexture != NULL )
+    //Load image at specified path
+    m_surface = IMG_Load(path.c_str());
+    if (m_surface != NULL)
     {
-      //Get image dimensions
-      rect_.w = loadedSurface->w;
-      rect_.h = loadedSurface->h;
-    }
+        //Color key image
+        Uint32 uKey = SDL_MapRGB(m_surface->format, COLOR_KEY_R, COLOR_KEY_G, COLOR_KEY_B);
+        SDL_SetColorKey(m_surface, SDL_TRUE, uKey);
 
-    if (bGetPixel == true)
-    {
-        if (m_pixelList.size() <= 0)
+        //Create texture from surface pixels
+        newTexture = SDL_CreateTextureFromSurface(screen, m_surface);
+        if (newTexture != NULL)
         {
-            m_pixelList = GetPixelImg(loadedSurface, loadedSurface->w, loadedSurface->h);
+            //Get image dimensions
+            rect_.w = m_surface->w;
+            rect_.h = m_surface->h;
         }
-    }
-    
-    //Get rid of old loaded surface
-    SDL_FreeSurface( loadedSurface );
-  }
 
-  p_object_ = newTexture;
-  return p_object_ != NULL;
+#if 0
+        if (bGetPixel == true)
+        {
+            if (m_pixelList.size() <= 0)
+            {
+                m_pixelList = GetPixelImg(loadedSurface);
+            }
+        }
+#endif
+        //Get rid of old loaded surface
+        //SDL_FreeSurface( loadedSurface );
+    }
+
+    p_object_ = newTexture;
+    return p_object_ != NULL;
 }
 
 void BaseObject::Free()
 {
-  if(p_object_ != NULL)
-  {
-    SDL_DestroyTexture(p_object_);
-    p_object_ = NULL;
-    rect_.w = 0;
-    rect_.h = 0;
-  }
+    if (p_object_ != NULL)
+    {
+        SDL_DestroyTexture(p_object_);
+        p_object_ = NULL;
+        rect_.w = 0;
+        rect_.h = 0;
+        SDL_FreeSurface(m_surface);
+        m_surface = NULL;
+    }
+
+    if (m_pixelList.size() > 0)
+    {
+        for (int i = 0; i < m_pixelList.size(); i++)
+        {
+            VT(DataImg*) xList = m_pixelList.at(i);
+            for (int j = 0; j < xList.size(); ++j)
+            {
+                DataImg*  pData = xList.at(j);
+                if (pData != NULL)
+                {
+                    delete pData;
+                    pData = NULL;
+                }
+            }
+        }
+        m_pixelList.clear();
+    }
 }
 
 void BaseObject::Render(SDL_Renderer* des, const SDL_Rect* clip /*=NULL*/)
 {
-  SDL_Rect renderQuad = { rect_.x, rect_.y, rect_.w, rect_.h};
-  if (clip != NULL)
-  {
-    renderQuad.w = clip->w;
-    renderQuad.h = clip->h;
-  }
-  
-  if (m_Flip == true)
-  {
-      SDL_RenderCopyEx(des, p_object_, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
-  }
-  else if (m_angle_ = true)
-  {
-      SDL_RenderCopyEx(des, p_object_, clip, &renderQuad, angle_, NULL, SDL_FLIP_NONE);
-  }
-  else
-  {
-      SDL_RenderCopy(des, p_object_, clip, &renderQuad);
-  }
+    SDL_Rect renderQuad = { rect_.x, rect_.y, rect_.w, rect_.h };
+    if (clip != NULL)
+    {
+        renderQuad.w = clip->w;
+        renderQuad.h = clip->h;
+    }
+
+    if (m_Flip == true)
+    {
+        SDL_RenderCopyEx(des, p_object_, clip, &renderQuad, 0, NULL, SDL_FLIP_HORIZONTAL);
+    }
+    else if (m_angle_ = true)
+    {
+        SDL_RenderCopyEx(des, p_object_, clip, &renderQuad, angle_, NULL, SDL_FLIP_NONE);
+    }
+    else
+    {
+        SDL_RenderCopy(des, p_object_, clip, &renderQuad);
+    }
 }
 
 void BaseObject::setColor(const Uint8& red, const Uint8& green, const Uint8& blue)
@@ -143,12 +147,15 @@ void BaseObject::setBlendMode(const SDL_BlendMode& blending)
   SDL_SetTextureBlendMode(p_object_, blending);
 }
 
-VT(VT(DataImg*)) BaseObject::GetPixelImg(SDL_Surface * pSurface, int width, int height)
+VT(VT(DataImg*)) BaseObject::GetPixelImg(SDL_Surface * pSurface)
 {
     VT(VT(DataImg*)) pixelList;
     if (pSurface != NULL && pSurface->format != NULL)
     {
         int bpp = pSurface->format->BytesPerPixel;
+        int width = pSurface->w;
+        int height = pSurface->h;
+
         for (int y = 0; y < height; y++)
         {
             VT(DataImg*) xList;
@@ -194,13 +201,16 @@ VT(VT(DataImg*)) BaseObject::GetPixelImg(SDL_Surface * pSurface, int width, int 
             pixelList.push_back(xList);
         }
     }
-
     return pixelList;
 }
 
 DataImg* BaseObject::GetPixelPos(int x, int y)
 {
     DataImg* pDataImg = NULL;
+    if (m_pixelList.empty() == true)
+    {
+        m_pixelList = GetPixelImg(m_surface);
+    }
     
     if (y >= 0 && y < m_pixelList.size())
     {

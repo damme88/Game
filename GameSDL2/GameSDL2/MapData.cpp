@@ -87,9 +87,9 @@ Map::Map()
 
 Map::~Map()
 {
-    for (int i = 0; i < m_tile.size(); i++)
+    for (int i = 0; i < m_BlockList.size(); i++)
     {
-        VT(BlockMap*) temp = m_tile[i];
+        VT(BlockMap*) temp = m_BlockList[i];
         VT(BlockMap*)::iterator it;
         for (it = temp.begin(); it != temp.end(); it++)
         {
