@@ -19,7 +19,7 @@ void TMushroom::Update()
 {
     if (is_fall_ == true)
     {
-        DoPlayer();
+        DoAction();
     }
     else
     {

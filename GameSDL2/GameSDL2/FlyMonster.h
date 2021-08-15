@@ -19,6 +19,7 @@ public:
     void Init(int type, bool bClip, int xTile, int yTile, 
               SDL_Renderer* screen, const INT& xOffset = 0,
               const INT& yOffset = 0);
+    void DoAction();
 private:
     UINT fly_type_;
 };

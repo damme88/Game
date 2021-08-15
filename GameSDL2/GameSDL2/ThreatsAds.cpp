@@ -60,7 +60,24 @@ void ThreatsAds::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
     }
 }
 
-void ThreatsAds::BuildThreats(SDL_Renderer* screen)
+void ThreatsAds::BuildMonster(SDL_Renderer* screen)
+{
+    GameMap* pMap = GameMap::GetInstance();
+    if (pMap != NULL)
+    {
+        UINT iLesson = pMap->GetWorldLesson();
+        if (iLesson == 1)
+        {
+            BuildMonster1(screen);
+        }
+        else if (iLesson == 2)
+        {
+            BuildMonster2(screen);
+        }
+    }
+}
+
+void ThreatsAds::BuildMonster1(SDL_Renderer* screen)
 {
     MakeGBMonster(screen);
     MakeGBTortoise(screen);
@@ -70,6 +87,13 @@ void ThreatsAds::BuildThreats(SDL_Renderer* screen)
     pEx_->LoadImg("img//exp5.png", screen);
     pEx_->set_clips();
 #endif
+}
+
+void ThreatsAds::BuildMonster2(SDL_Renderer* screen)
+{
+    MakeGBMonster(screen);
+    MakeGBTortoise(screen);
+    MakeCrowMonster(screen);
 }
 
 void ThreatsAds::MakeGBMonster(SDL_Renderer* screen)
@@ -83,7 +107,7 @@ void ThreatsAds::MakeGBMonster(SDL_Renderer* screen)
             GBMonster* pGBMonster = (pGBList + i);
             if (pGBMonster != NULL)
             {
-                pGBMonster->Init(GBMonster::GB_BASE, true, gbMonsterList[i], 4, screen);
+                pGBMonster->Init(GBMonster::GB_BASE, true, gbMonsterList[i], 2, screen);
                 pThreatsNormal_.push_back(pGBMonster);
             }
         }
@@ -101,7 +125,7 @@ void ThreatsAds::MakeGBTortoise(SDL_Renderer* screen)
             GBMonster* pGBTortoise = (pGBList + i);
             if (pGBTortoise != NULL)
             {
-                pGBTortoise->Init(GBMonster::GB_TORTOISE, true, gbTortoiseList[i], 4, screen);
+                pGBTortoise->Init(GBMonster::GB_TORTOISE, true, gbTortoiseList[i], 3, screen);
                 pThreatsNormal_.push_back(pGBTortoise);
             }
         }
@@ -147,7 +171,7 @@ void ThreatsAds::Render(SDL_Renderer* screen)
             GBMonster* pObject = static_cast<GBMonster*>(obj_threat);
             if (pObject->get_is_alive() == true)
             {
-                pObject->DoPlayer();
+                pObject->DoAction();
                 pObject->Show(screen);
             }
             else
@@ -159,7 +183,7 @@ void ThreatsAds::Render(SDL_Renderer* screen)
         else if (obj_threat->GetType() == ThreatsObject::TH_FLY_MONSTER)
         {
             FlyMonster* pFlyObj = static_cast<FlyMonster*>(obj_threat);
-            pFlyObj->DoPlayer();
+            pFlyObj->DoAction();
             pFlyObj->Show(screen);
         }
     }

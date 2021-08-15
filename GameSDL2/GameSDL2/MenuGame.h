@@ -10,15 +10,17 @@ public:
     ~MenuGame();
 
     static MenuGame* GetInstance();
-    int StartMenu(SDL_Renderer* g_screen, TTF_Font* font);
-    int PauseMenu(SDL_Renderer* g_screen, TTF_Font* font);
+    int StartMenu(SDL_Renderer* g_screen);
+    int PauseMenu(SDL_Renderer* g_screen);
     int GetMenuType() const { return state_menu_; }
+    int EndWorldScreen(SDL_Renderer* g_screen);
     enum MenuType
     {
         MENU_NONE = 0,
-        MENU_START_GAME = 1,
-        MENU_PAUSE = 2,
-        MENU_ENDGAME = 3
+        MENU_START_GAME,
+        MENU_PAUSE,
+        MENU_ENDGAME,
+        MENU_END_WORLD,
     };
 private:
     static MenuGame* instance_;

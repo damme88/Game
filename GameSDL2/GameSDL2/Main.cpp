@@ -14,13 +14,13 @@
 #include "OptionObject.h"
 #include "EndObject.h"
 
-TTF_Font* g_font = NULL;
 TTF_Font* g_font_text = NULL;
 
 //#define USE_THREAT_PLANE
 #define USE_THREAT_SPACING
 #define USE_THREAT_STATIC
 
+void DoNextWorld(SDL_Renderer* screen);
 bool LoadBackground();
 void close();
 
@@ -71,12 +71,6 @@ bool InitData()
           success = false;
       }
 
-      g_font = TTF_OpenFont("font//ARCADE.ttf", 100);
-      if (g_font == NULL)
-      {
-        return false;
-      }
-
       g_font_text = TTF_OpenFont("font//ARCADE.ttf", 30);
       if (g_font_text == NULL)
       {
@@ -113,6 +107,19 @@ void close()
   SDL_Quit();
 }
 
+void DoNextWorld(SDL_Renderer* screen)
+{
+    GameMap* game_map = GameMap::GetInstance();
+    if (game_map != NULL)
+    {
+        game_map->DoNextWorldMap();
+        game_map->ResetMap();
+        game_map->LoadMap();
+        game_map->LoadMapTiles(screen);
+    }
+}
+
+
 int main( int argc, char* args[] )
 {
   if (InitData() == false)
@@ -128,7 +135,7 @@ int main( int argc, char* args[] )
    }
 
   GameMap* game_map = GameMap::GetInstance();
-  game_map->LoadMap("map//map.tmp");
+  game_map->LoadMap();
   game_map->LoadMapTiles(g_screen);
 
   OptionObject option_control;
@@ -155,7 +162,7 @@ int main( int argc, char* args[] )
    money_count.setColor(TextObject::WHITE_TEXT);
 
    ThreatsAds* pThreatsAd = ThreatsAds::GetInstance();
-   pThreatsAd->BuildThreats(g_screen);
+   pThreatsAd->BuildMonster(g_screen);
 
    EndObject wDoor;
    wDoor.LoadImg("img//sman_open_new_world.png", g_screen);
@@ -175,7 +182,7 @@ int main( int argc, char* args[] )
 
    bool quit = false;
 
-   int ret_menu = MenuGame::GetInstance()->StartMenu(g_screen, g_font);
+   int ret_menu = MenuGame::GetInstance()->StartMenu(g_screen);
    if (ret_menu == 1) 
      quit = true;
 
@@ -197,7 +204,7 @@ int main( int argc, char* args[] )
              {
                  Music::GetInstance()->PauseMusic();
                  Music::GetInstance()->PlaySoundGame(Music::GAME_PAUSE);
-                 int ret = MenuGame::GetInstance()->PauseMenu(g_screen, g_font_text);
+                 int ret = MenuGame::GetInstance()->PauseMenu(g_screen);
                  if (ret == 0)
                  {
                      break;
@@ -224,7 +231,7 @@ int main( int argc, char* args[] )
        SDL_RenderClear(g_screen);
        g_background.Render(g_screen, NULL);
 
-       ThreatsAds::GetInstance()->DrawSecondObject(g_screen);
+       //pThreatsAd->DrawSecondObject(g_screen);
 
        game_map->DrawMap(g_screen);
 
@@ -248,6 +255,19 @@ int main( int argc, char* args[] )
                wData.wld_number_++;
                wData.wld_status_ = WorldData::W_FINISHED;
                p_player.SetWorldData(wData);
+               DoNextWorld(g_screen);
+               p_player.ReStart();
+               pThreatsAd->Free();
+               pThreatsAd->BuildMonster(g_screen);
+               int ret = MenuGame::GetInstance()->EndWorldScreen(g_screen);
+               if (ret == 0)
+               {
+                   continue;
+               }
+               else
+               {
+                   break;
+               }
            }
        }
        wDoor.Show(g_screen);
@@ -269,7 +289,7 @@ int main( int argc, char* args[] )
        player_power.Show(g_screen);
        player_money.Show(g_screen);
 
-       ThreatsAds::GetInstance()->Render(g_screen);
+       pThreatsAd->Render(g_screen);
 
        p_player.DoPlayer(g_screen);
        p_player.Show(g_screen);

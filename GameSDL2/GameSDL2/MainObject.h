@@ -91,12 +91,12 @@ public:
     void InitExp(SDL_Renderer* des);
     void ResetAlive();
     void UpdateCtrlState(int ctrl_type, SDL_Renderer* screen);
-    //void SetBoomDeadth(bool b) { is_dead_boom_ = b; }
     BlockMap* GetBlockMap(int y, int x);
     WorldData GetWorldData() const { return m_WorldData; }
     void SetWorldData(WorldData wData) { m_WorldData = wData; }
     void SetInfoWorlData(int number, int status);
     bool CheckInputCondition();
+    void ReStart();
 protected:
     void UpdateImagePlayer(SDL_Renderer* des);
 

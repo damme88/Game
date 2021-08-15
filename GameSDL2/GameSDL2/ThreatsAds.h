@@ -4,13 +4,12 @@
 #include "ExplosionObject.h"
 
 
-static INT gbMonsterList[] = { 10, 20, 30, 40, 50,
-                               60, 70, 80, 90, 100,
-                               110, 120, 130, 140, 150 };
+static INT gbMonsterList[] = { 10, 20, 26, 48, 53,
+                               62, 80, 92, 110, 120, 131, 148, 173 };
 
-static INT gbTortoiseList[] = { 15, 25, 35, 45, 55,
-                                65, 75, 85, 95, 105,
-                                115, 125, 135, 155, 185 };
+static INT gbTortoiseList[] = { 15, 25, 51, 57,
+                                68, 75, 88, 99, 108,
+                                115, 124, 128, 135, 152, 170, 184 };
 
 static INT gbCrowListX[] = { 25, 100, 155};
 static INT gbCrowListY[] = { 2, 3, 5 };
@@ -34,7 +33,10 @@ public:
     bool CheckCollisionLocal(SDL_Renderer* screen);
     bool GetBoolCol() const { return is_boom_cool_; }
 
-    void BuildThreats(SDL_Renderer* screen);
+    void BuildMonster(SDL_Renderer* screen);
+    void BuildMonster1(SDL_Renderer* screen);
+    void BuildMonster2(SDL_Renderer* screen);
+
     void Render(SDL_Renderer* screen);
     void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
     void Free();

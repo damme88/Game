@@ -177,8 +177,11 @@ void BossObject::CheckToMap(Map* g_map)
     {
         if (x_val_ > 0) // when object is moving by right  ===>
         {
+            BlockMap* pBlock1 = tile_list[y1][x2];
+            BlockMap* pBlock2 = tile_list[y2][x2];
             // Check current position of map. It is not blank_tile.
-            if ((tile_list[y1][x2]->getType() != BLANK_TILE) || (tile_list[y2][x2]->getType() != BLANK_TILE))
+            if ((pBlock1 != NULL && pBlock1->GetTile() != NULL) || 
+                (pBlock2 != NULL && pBlock2->GetTile() != NULL))
             {
                 // Fixed post of object at current post of map.
                 // => Cannot moving when press button
@@ -189,7 +192,11 @@ void BossObject::CheckToMap(Map* g_map)
         }
         else if (x_val_ < 0) // When moving by left    <====
         {
-            if ((tile_list[y1][x1]->getType() != BLANK_TILE) || (tile_list[y2][x1]->getType() != BLANK_TILE))
+            BlockMap* pBlock1 = tile_list[y1][x1];
+            BlockMap* pBlock2 = tile_list[y2][x1];
+
+            if ((pBlock1 && pBlock1->GetTile() != NULL) || 
+                (pBlock2 && pBlock2->GetTile() != NULL))
             {
                 x_pos_ = (x1 + 1) * TILE_SIZE;
                 x_val_ = 0;
@@ -212,7 +219,11 @@ void BossObject::CheckToMap(Map* g_map)
         if (y_val_ > 0)
         {
             //Similar for vertical
-            if ((tile_list[y2][x1]->getType() != BLANK_TILE) || (tile_list[y2][x2]->getType() != BLANK_TILE))
+            BlockMap* pBlock1 = tile_list[y2][x1];
+            BlockMap* pBlock2 = tile_list[y2][x2];
+
+            if ((pBlock1 && pBlock1->GetTile() != NULL) ||
+                (pBlock2 && pBlock2->GetTile() != NULL))
             {
                 y_pos_ = y2 * TILE_SIZE;
                 y_pos_ -= height_frame_;
@@ -224,10 +235,13 @@ void BossObject::CheckToMap(Map* g_map)
         }
         else if (y_val_ < 0)
         {
-            if ((tile_list[y1][x1]->getType() != BLANK_TILE) || (tile_list[y1][x2]->getType() != BLANK_TILE))
+            BlockMap* pBlock1 = tile_list[y1][x1];
+            BlockMap* pBlock2 = tile_list[y1][x2];
+
+            if ((pBlock1 && pBlock1->GetTile() != NULL) || 
+                (pBlock2 && pBlock2->GetTile() != NULL))
             {
                 y_pos_ = (y1 + 1) * TILE_SIZE;
-
                 y_val_ = 0;
             }
         }

@@ -28,13 +28,6 @@ public:
     };
 
     bool LoadImg(std::string path, SDL_Renderer* screen);
-    void CheckToMap();
-    void DoLeft();
-    void DoRight();
-    void DoUp();
-    void DoDown();
-
-    void DoPlayer();
     void DrawBound(SDL_Renderer* des);
 
     void set_x_val(int xp) { x_val_ = xp; }
@@ -51,12 +44,12 @@ public:
     int get_height_frame() const { return height_frame_; }
     bool get_is_alive() { return is_alive_; }
     int GetType() const { return type_; }
-    void ResetXcount() { x_left_count_ = 0; x_right_count_ = 0; }
     SDL_Rect GetRectFrame();
     //Overridde
 public:
     virtual void Show(SDL_Renderer* des);
     virtual void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
+    virtual void DoAction();
 protected:
     Map* pMap_;
     Input input_type_;
@@ -76,9 +69,6 @@ protected:
     float y_val_;
     float x_pos_;
     float y_pos_;
-
-    UINT x_right_count_; //count x_val +
-    UINT x_left_count_;  // count x_val -;
 
     unsigned long passed_time_;
     unsigned int m_DelayTime[NUM_FRAME];

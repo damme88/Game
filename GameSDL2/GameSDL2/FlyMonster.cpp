@@ -11,6 +11,7 @@ FlyMonster::FlyMonster()
 
 FlyMonster::~FlyMonster()
 {
+
 }
 
 void FlyMonster::Init(int type, bool bClip, 
@@ -25,5 +26,14 @@ void FlyMonster::Init(int type, bool bClip,
     if (fly_type_ == FL_CROW)
     {
         this->LoadImg(sCrowName, screen);
+    }
+}
+
+void FlyMonster::DoAction()
+{
+    x_pos_ += x_val_;
+    if (x_pos_ - pMap_->getStartX() < 0)
+    {
+        is_alive_ = false;
     }
 }

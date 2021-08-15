@@ -576,19 +576,18 @@ void MainObject::DoLeft()
         bool bCoin = false;
         int xPrev = 0;
         BlockMap* pBlock = GetBlockMap(curTileY, prevTileX);
-        if (pBlock != NULL && pBlock->GetTile() != NULL)
+        if (pBlock != NULL)
         {
-            std::string sLType = pBlock->getType();
-            bool bBlank = pMap->CheckBlank(sLType);
-            if (!bBlank)
+            if (pBlock->GetTile() != NULL)
             {
+                std::string sLType = pBlock->getType();
                 bool bSkip = pMap->CheckSkipMap(sLType);
                 if (bSkip == false)
                 {
                     bCoin = pMap->CheckCoinMap(sLType);
                     if (bCoin == true)
                     {
-                        pBlock->setType(BLANK_TILE);
+                        pBlock->RemoveTile();
                         this->DoUpCoin();
                     }
                     else
@@ -655,19 +654,18 @@ void MainObject::DoRight()
         bool bCoin = false;
         int xTileCol = 0;
         BlockMap* pBlock = GetBlockMap(curTileY, nextTileX);
-        if (pBlock != NULL && pBlock->GetTile() != NULL)
+        if (pBlock != NULL)
         {
-            std::string sLType = pBlock->getType();
-            bool bBlank = pMap->CheckBlank(sLType);
-            if (!bBlank)
+            if (pBlock->GetTile() != NULL)
             {
+                std::string sLType = pBlock->getType();
                 bool bSkip = pMap->CheckSkipMap(sLType);
                 if (bSkip == false)
                 {
                     bCoin = pMap->CheckCoinMap(sLType);
                     if (bCoin == true)
                     {
-                        pBlock->setType(BLANK_TILE);
+                        pBlock->RemoveTile();
                         this->DoUpCoin();
                     }
                     else
@@ -740,19 +738,18 @@ void MainObject::DoUp()
         bool bCoin1 = false;
         bool bCoin2 = false;
         BlockMap* pBlock1 = GetBlockMap(prevTileY, curTileX1);
-        if (pBlock1 != NULL && pBlock1->GetTile() != NULL)
+        if (pBlock1 != NULL)
         {
-            std::string tp1 = pBlock1->getType();
-            bool bBlank1 = pMap->CheckBlank(tp1);
-            if (!bBlank1)
+            if (pBlock1->GetTile() != NULL)
             {
+                std::string tp1 = pBlock1->getType();
                 bool bSkip1 = pMap->CheckSkipMap(tp1);
                 if (bSkip1 == false)
                 {
                     bCoin1 = pMap->CheckCoinMap(tp1);
                     if (bCoin1 == true)
                     {
-                        pBlock1->setType(BLANK_TILE);
+                        pBlock1->RemoveTile();
                         this->DoUpCoin();
                     }
                     else
@@ -778,19 +775,18 @@ void MainObject::DoUp()
         }
 
         BlockMap* pBlock2 = GetBlockMap(prevTileY, curTileX2);
-        if (pBlock2 != NULL && pBlock2->GetTile() != NULL)
+        if (pBlock2 != NULL)
         {
-            std::string tp2 = pBlock2->getType();
-            bool bBlank2 = pMap->CheckBlank(tp2);
-            if (!bBlank2)
+            if (pBlock2->GetTile() != NULL)
             {
+                std::string tp2 = pBlock2->getType();
                 bool bSkip2 = pMap->CheckSkipMap(tp2);
                 if (bSkip2 == false)
                 {
                     bCoin2 = pMap->CheckCoinMap(tp2);
                     if (bCoin2 == true)
                     {
-                        pBlock2->setType(BLANK_TILE);
+                        pBlock2->RemoveTile();
                         this->DoUpCoin();
                     }
                     else
@@ -885,19 +881,18 @@ void MainObject::DoDown()
         int sTileY1 = 0;
         int sTileY2 = 0;
         BlockMap* pBlock1 = GetBlockMap(nextTileY, curTileX1);
-        if (pBlock1 != NULL && pBlock1->GetTile() != NULL)
+        if (pBlock1 != NULL)
         {
-            std::string tp1 = pBlock1->getType();
-            bool bBlank1 = pMap->CheckBlank(tp1);
-            if (!bBlank1)
+            if (pBlock1->GetTile() != NULL)
             {
+                std::string tp1 = pBlock1->getType();
                 bool bSkip1 = pMap->CheckSkipMap(tp1);
                 if (bSkip1 == false)
                 {
                     bCoin1 = pMap->CheckCoinMap(tp1);
                     if (bCoin1 == true)
                     {
-                        pBlock1->setType(BLANK_TILE);
+                        pBlock1->RemoveTile();
                         this->DoUpCoin();
                     }
                     else
@@ -926,19 +921,18 @@ void MainObject::DoDown()
         }
 
         BlockMap* pBlock2 = GetBlockMap(nextTileY, curTileX2);
-        if (pBlock2 != NULL && pBlock2->GetTile() != NULL)
+        if (pBlock2 != NULL)
         {
-            std::string tp2 = pBlock2->getType();
-            bool bBlank2 = pMap->CheckBlank(tp2);
-            if (!bBlank2)
+            if (pBlock2->GetTile() != NULL)
             {
+                std::string tp2 = pBlock2->getType();
                 bool bSkip2 = pMap->CheckSkipMap(tp2);
                 if (bSkip2 == false)
                 {
                     bCoin1 = pMap->CheckCoinMap(tp2);
                     if (bCoin1 == true)
                     {
-                        pBlock1->setType(BLANK_TILE);
+                        pBlock1->RemoveTile();
                         this->DoUpCoin();
                     }
                     else
@@ -1087,4 +1081,27 @@ void MainObject::ResetAlive()
 
     x_pos_ = current_xp;
     y_pos_ = current_yp;
+}
+
+void MainObject::ReStart()
+{
+    on_ground_ = false;
+    is_falling_ = false;
+    is_death_ = false;
+    fast_run_ = false;
+    m_bSlopeMoving = false;
+
+    frame_ = 0;
+    x_pos_ = 128;
+    y_pos_ = GROUND_POS - TILE_SIZE;
+    x_val_ = 0;
+    y_val_ = 0;
+    alive_time_ = 0;
+    input_type_.left_ = 0;
+    input_type_.right_ = 0;
+    input_type_.up_ = 0;
+    input_type_.down_ = 0;
+    input_type_.jump_ = 0;
+    m_bAttack = false;
+    m_WorldData.wld_status_ = WorldData::W_ACTIVE;
 }

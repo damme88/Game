@@ -68,6 +68,7 @@ public:
     void UpdateMapInfo(int xp, int yp);
     void SetFileMap(std::string filemap) { file_name_ = filemap; }
     void AddList(VT(BlockMap*) list) { m_BlockList.push_back(list); }
+    void RemoveList();
 private:
     int start_x_;
     int start_y_;

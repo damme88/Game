@@ -8,7 +8,7 @@ BlockMap::BlockMap()
     xVal_ = 0;
     yVal_ = 0;
     m_tile = NULL;
-    m_type = "0";
+    m_type = "";
     xp_map_ = 0;
     yp_map_ = 0;
     has_mushroom_ = false;
@@ -57,7 +57,7 @@ void BlockMap::Update()
 
 void BlockMap::Render(SDL_Renderer* screen)
 {
-    if (m_tile && m_type != "0")
+    if (m_tile && m_type != "")
     {
         m_tile->Show(screen);
     }
@@ -65,7 +65,7 @@ void BlockMap::Render(SDL_Renderer* screen)
 
 void BlockMap::RemoveTile()
 {
-    m_type = BLANK_TILE;
+    m_type = "";
     if (m_tile != NULL)
     {
         m_tile->Free();
@@ -119,5 +119,20 @@ void Map::UpdateMapInfo(int xp, int yp)
     else if (this->start_y_ + SCREEN_HEIGHT >= this->max_y_)
     {
         this->start_y_ = this->max_y_ - SCREEN_HEIGHT;
+    }
+}
+
+void Map::RemoveList()
+{
+    if (m_BlockList.size() > 0)
+    {
+        for (int i = 0; i < m_BlockList.size(); i++)
+        {
+            if (m_BlockList.at(i).size() > 0)
+            {
+                m_BlockList.at(i).clear();
+            }
+        }
+        m_BlockList.clear();
     }
 }

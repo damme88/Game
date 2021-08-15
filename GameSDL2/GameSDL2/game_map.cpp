@@ -9,6 +9,8 @@ GameMap::GameMap()
     game_map_ = new Map();
     game_map_->SetMaxX(MAX_MAP_X*TILE_SIZE);
     game_map_->SetMaxY(MAX_MAP_Y*TILE_SIZE);
+    m_path = "map//";
+    m_worldLesson = 1;
 }
 
 GameMap::~GameMap()
@@ -31,12 +33,35 @@ void GameMap::DestroyInst()
     }
 }
 
-void GameMap::LoadMap(char* name)
+std::string GameMap::GetPathImgMap()
+{
+    std::string sWorld = std::to_string(m_worldLesson);
+    std::string mapPath = m_path + "world" + sWorld + "//";
+    return mapPath;
+}
+
+std::string GameMap::GetPathMapName()
+{
+    std::string sWorld = std::to_string(m_worldLesson);
+    std::string mapPath = GetPathImgMap() + "map" + sWorld + ".tmp";
+    return mapPath;
+}
+
+void GameMap::LoadMap()
 {
     int tile_size = TILE_SIZE;
 
+    if (game_map_->GetTile().empty() == false)
+    {
+        return;
+    }
+
+    std::string sWorld = std::to_string(m_worldLesson);
+    std::string mapPath = GetPathMapName();
+    const char *wName = mapPath.c_str();
+
     std::fstream fsFile;
-    fsFile.open(name, std::ios::in);
+    fsFile.open(wName, std::ios::in);
     if (fsFile.is_open() == true)
     {
         int ncount = 0;
@@ -72,7 +97,7 @@ void GameMap::LoadMap(char* name)
     }
 
     fsFile.close();
-    game_map_->SetFileMap((std::string)name);
+    game_map_->SetFileMap(mapPath);
 }
 
 void GameMap::LoadMapTiles(SDL_Renderer* screen)
@@ -92,30 +117,18 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
             if (pBlock != NULL)
             {
                 std::string type = pBlock->getType();
-                std::string str = "map/" + type + ".bmp";
+                std::string str = GetPathImgMap() + type + ".bmp";
 
                 filename = const_cast<char*>(str.c_str());
                 TileMat* pTile = new TileMat();
 
-                if (type == BLOCK_BIRCK_Q ||
-                    type == BLOCK_COIN)
+                bool bCoin = CheckCoinMap(type);
+                if (bCoin)
                 {
                     pTile->SetIsClip(true);
                 }
 
-                bool bGetPixel = true;
-                if (type == "T11" ||
-                    type == "tre_01" ||
-                    type == "tre_02" ||
-                    type == "tre_03" ||
-                    type == "tre_04" ||
-                    type == "TR_01" ||
-                    type == "TR_02")
-                {
-                    bGetPixel = false;
-                }
-
-                bool ret = pTile->LoadImg(filename, screen, bGetPixel);
+                bool ret = pTile->LoadImg(filename, screen);
                 if (ret)
                 {
                     pBlock->setTile(pTile);
@@ -131,6 +144,11 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
 
 }
 
+void GameMap::ResetMap()
+{
+    game_map_->RemoveList();
+}
+
 void GameMap::DrawMap(SDL_Renderer* des)
 {
     int x1 = (game_map_->getStartX() % TILE_SIZE);
@@ -143,16 +161,20 @@ void GameMap::DrawMap(SDL_Renderer* des)
         {
             if (map_x < MAX_MAP_X && map_y < MAX_MAP_Y)
             {
-                BlockMap* pBlock = game_map_->GetTile()[map_y][map_x];
-                if (pBlock != NULL && pBlock->GetTile() != NULL)
+                VT(VT(BlockMap*)) bList = game_map_->GetTile();
+                if (bList.empty() == false)
                 {
-                    // x_pos - x1, render tile lui 1 khoang x1, la phan du cua map da bi keo.
-                    pBlock->setXpMap(x_pos - x1);
-                    pBlock->setYpMap(y_pos);
-                    pBlock->Update();
-                    pBlock->Render(des);
+                    BlockMap* pBlock = bList.at(map_y).at(map_x);
+                    if (pBlock != NULL && pBlock->GetTile() != NULL)
+                    {
+                        // x_pos - x1, render tile lui 1 khoang x1, la phan du cua map da bi keo.
+                        pBlock->setXpMap(x_pos - x1);
+                        pBlock->setYpMap(y_pos);
+                        pBlock->Update();
+                        pBlock->Render(des);
+                    }
+                    map_x++;
                 }
-                map_x++;
             }
         }
         map_x = game_map_->getStartX() / TILE_SIZE;
@@ -194,13 +216,6 @@ bool GameMap::CheckSkipMap(const std::string& tile)
     }
 
     return bRet;
-}
-
-bool GameMap::CheckBlank(const std::string& tile)
-{
-    if (tile == BLANK_TILE)
-        return true;
-    return false;
 }
 
 void GameMap::RenderBlockDe(SDL_Renderer* des)

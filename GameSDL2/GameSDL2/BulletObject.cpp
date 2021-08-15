@@ -66,10 +66,10 @@ bool BulletObject::CheckToMap()
 
     if (IsInside)
     {
-        BlockMap* pBlock = map_data->GetTile()[y][x];
-        std::string val = pBlock->getType();
-        if ((val != BLANK_TILE))
+        BlockMap* pBlock = map_data->GetTile().at(y).at(x);
+        if (pBlock->GetTile() != NULL)
         {
+            std::string val = pBlock->getType();
             bool bSkip = GameMap::GetInstance()->CheckSkipMap(val);
             if (bSkip == false)
             {
