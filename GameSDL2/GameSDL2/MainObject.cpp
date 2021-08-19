@@ -40,6 +40,15 @@ MainObject::MainObject()
 
     m_WorldData.wld_status_ = WorldData::W_ACTIVE;
     m_WorldData.wld_number_ = 1;
+
+    m_SptKni.kni_status_ = KnifeData::W_UNACTIVE;
+    m_SptKni.kni_number_ = 0;
+}
+
+void MainObject::SetInfoKni()
+{
+    m_SptKni.kni_status_ = KnifeData::W_ACTIVE;
+    m_SptKni.kni_number_ += 3;
 }
 
 MainObject::~MainObject()
@@ -120,6 +129,43 @@ void MainObject::HandleInputAction(SDL_Event events,
             fast_run_ = true;
         }
         break;
+        case SDLK_RETURN:
+        {
+            BulletObject* p_bullet = new BulletObject();
+            p_bullet->LoadImg(kImgKni, screen);
+
+            if (m_SptKni.kni_number_ > 0)
+            {
+                m_bAttack = true;
+                //Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
+                if (status_ == WALK_LEFT)
+                {
+                    p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
+                    INT xBul = x_pos_;
+                    INT yBul = y_pos_ + height_frame_*0.25;
+                    p_bullet->set_xy_pos(xBul, yBul);
+                }
+                else
+                {
+                    INT xBul = x_pos_ + width_frame_;
+                    INT yBul = y_pos_ + height_frame_*0.25;
+                    p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
+                    p_bullet->set_xy_pos(xBul, yBul);
+                }
+                p_bullet->set_x_val(20);
+                p_bullet->set_is_move(true);
+                p_bullet->SetBLType(BulletObject::BL_KNI_THROWING);
+                p_bullet_list_.push_back(p_bullet);
+                m_SptKni.kni_number_--;
+                break;
+            }
+            else
+            {
+                m_bAttack = false;
+                m_SptKni.kni_number_ = 0;
+                m_SptKni.kni_status_ = KnifeData::W_UNACTIVE;
+            }
+        }
         }
     }
     else if (events.type == SDL_KEYUP)
@@ -171,6 +217,8 @@ void MainObject::HandleInputAction(SDL_Event events,
                     p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
                     p_bullet->set_xy_pos(xBul, yBul);
                 }
+
+                p_bullet->SetBLType(BulletObject::BL_CUT);
                 p_bullet->set_x_val(10);
                 p_bullet->set_x_Scope(45);
                 p_bullet->set_is_move(true);
@@ -592,23 +640,33 @@ void MainObject::DoLeft()
                     }
                     else
                     {
-                        if (pX >= 0 && pY >= 0)
+                        bool bSptKni = pMap->CheckSptKni(sLType);
+                        if (bSptKni)
                         {
-                            for (int j = TILE_SIZE - 1; j > pX; j--)
+                            pBlock->RemoveTile();
+                            this->SetInfoKni();
+                        }
+                        else
+                        {
+                            if (pX >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
-                                if (pData != NULL)
+                                for (int j = TILE_SIZE - 1; j > pX; j--)
                                 {
-                                    if (pData->IsColorKey() == false)
+                                    DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
+                                    if (pData != NULL)
                                     {
-                                        bCol = true;
-                                        xLimit = j + 1;
-                                        xPrev = prevTileX;
-                                        break;
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            bCol = true;
+                                            xLimit = j + 1;
+                                            xPrev = prevTileX;
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
+                        
                     }
 
                     if (bCol == true)
@@ -670,19 +728,28 @@ void MainObject::DoRight()
                     }
                     else
                     {
-                        if (pX >= 0 && pY >= 0)
+                        bool bSptKni = pMap->CheckSptKni(sLType);
+                        if (bSptKni)
                         {
-                            for (int j = 0; j < pX; j++)
+                            pBlock->RemoveTile();
+                            this->SetInfoKni();
+                        }
+                        else
+                        {
+                            if (pX >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
-                                if (pData != NULL)
+                                for (int j = 0; j < pX; j++)
                                 {
-                                    if (pData->IsColorKey() == false)
+                                    DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
+                                    if (pData != NULL)
                                     {
-                                        bCol = true;
-                                        xTileCol = nextTileX;
-                                        xPixelCol = j;
-                                        break;
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            bCol = true;
+                                            xTileCol = nextTileX;
+                                            xPixelCol = j;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -754,18 +821,27 @@ void MainObject::DoUp()
                     }
                     else
                     {
-                        if (pX1 >= 0 && pY >= 0)
+                        bool bSptKni = pMap->CheckSptKni(tp1);
+                        if (bSptKni)
                         {
-                            // Tim ra diem va cham pixel tren tile gan nhat voi player
-                            for (int p = TILE_SIZE - 1; p > pY; p--)
+                            pBlock1->RemoveTile();
+                            this->SetInfoKni();
+                        }
+                        else
+                        {
+                            if (pX1 >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
-                                if (pData != NULL && pData->IsColorKey() == false)
+                                // Tim ra diem va cham pixel tren tile gan nhat voi player
+                                for (int p = TILE_SIZE - 1; p > pY; p--)
                                 {
-                                    yLimit1 = p;
-                                    bCol1 = true;
-                                    yPre1 = prevTileY;
-                                    break;
+                                    DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
+                                    if (pData != NULL && pData->IsColorKey() == false)
+                                    {
+                                        yLimit1 = p;
+                                        bCol1 = true;
+                                        yPre1 = prevTileY;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -791,18 +867,26 @@ void MainObject::DoUp()
                     }
                     else
                     {
-                        if (pX2 >= 0 && pY >= 0)
+                        bool bSptKni = pMap->CheckSptKni(tp2);
+                        if (bSptKni)
                         {
-                            for (int p = TILE_SIZE - 1; p > pY; p--)
+                            pBlock2->RemoveTile();
+                            this->SetInfoKni();
+                        }
+                        else
+                        {
+                            if (pX2 >= 0 && pY >= 0)
                             {
-
-                                DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
-                                if (pData != NULL && pData->IsColorKey() == false)
+                                for (int p = TILE_SIZE - 1; p > pY; p--)
                                 {
-                                    yLimit2 = p;
-                                    bCol2 = true;
-                                    yPre2 = prevTileY;
-                                    break;
+                                    DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
+                                    if (pData != NULL && pData->IsColorKey() == false)
+                                    {
+                                        yLimit2 = p;
+                                        bCol2 = true;
+                                        yPre2 = prevTileY;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -897,25 +981,34 @@ void MainObject::DoDown()
                     }
                     else
                     {
-                        if (pX1 >= 0 && pY >= 0)
+                        bool bSptKni = pMap->CheckSptKni(tp1);
+                        if (bSptKni)
                         {
-                            for (int p = 0; p < pY; p++)
+                            pBlock1->RemoveTile();
+                            this->SetInfoKni();
+                        }
+                        else
+                        {
+                            if (pX1 >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
-                                if (pData != NULL)
+                                for (int p = 0; p < pY; p++)
                                 {
-                                    if (pData->IsColorKey() == false)
+                                    DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
+                                    if (pData != NULL)
                                     {
-                                        yLimit1 = p;
-                                        bCol1 = true;
-                                        sTileY1 = nextTileY;
-                                        break;
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            yLimit1 = p;
+                                            bCol1 = true;
+                                            sTileY1 = nextTileY;
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
+                        
                     }
-
                 }
             }
         }
@@ -932,28 +1025,38 @@ void MainObject::DoDown()
                     bCoin1 = pMap->CheckCoinMap(tp2);
                     if (bCoin1 == true)
                     {
-                        pBlock1->RemoveTile();
+                        pBlock2->RemoveTile();
                         this->DoUpCoin();
                     }
                     else
                     {
-                        if (pX2 >= 0 && pY >= 0)
+                        bool bSptKni = pMap->CheckSptKni(tp2);
+                        if (bSptKni)
                         {
-                            for (int p = 0; p < pY; p++)
+                            pBlock2->RemoveTile();
+                            this->SetInfoKni();
+                        }
+                        else
+                        {
+                            if (pX2 >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
-                                if (pData != NULL)
+                                for (int p = 0; p < pY; p++)
                                 {
-                                    if (pData->IsColorKey() == false)
+                                    DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
+                                    if (pData != NULL)
                                     {
-                                        yLimit2 = p;
-                                        bCol2 = true;
-                                        sTileY2 = nextTileY;
-                                        break;
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            yLimit2 = p;
+                                            bCol2 = true;
+                                            sTileY2 = nextTileY;
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
+                        
                     }
                 }
             }

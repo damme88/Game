@@ -146,20 +146,20 @@ int main( int argc, char* args[] )
    //p_player.InitExp(g_screen);
 
    PlayerPower player_power;
-   player_power.Init(g_screen);
+   bool bPower = player_power.Init(g_screen);
 
-   PlayerMoney player_money;
-   player_money.Init(g_screen);
-   player_money.SetPos(SCREEN_WIDTH*0.5 - 300, 8);
+   PlayerCoin playerCoin;
+   bool bCoin = playerCoin.Init(g_screen);
+
+   PlayerWeapon player_kni;
+   player_kni.SetType(PlayerWeapon::WP_KNI_THRW);
+   bool bKni = player_kni.Init(g_screen);
 
    TextObject time_game;
    time_game.setColor(TextObject::WHITE_TEXT);
 
    TextObject mark_game;
    mark_game.setColor(TextObject::WHITE_TEXT);
-
-   TextObject money_count;
-   money_count.setColor(TextObject::WHITE_TEXT);
 
    ThreatsAds* pThreatsAd = ThreatsAds::GetInstance();
    pThreatsAd->BuildMonster(g_screen);
@@ -188,44 +188,45 @@ int main( int argc, char* args[] )
 
 
    unsigned int mark_value = 0;
+   INT val_time = 0;
    int num_die = 0;
-   while(!quit)
+   while (!quit)
    {
-     fps.start();
-      while( SDL_PollEvent(&g_event) != 0 )
-      {
-         if(g_event.type == SDL_QUIT )
-         {
-            quit = true;
-         }
-         else if (g_event.type == SDL_KEYDOWN)
-         {
-             if (g_event.key.keysym.sym == SDLK_ESCAPE)
-             {
-                 Music::GetInstance()->PauseMusic();
-                 Music::GetInstance()->PlaySoundGame(Music::GAME_PAUSE);
-                 int ret = MenuGame::GetInstance()->PauseMenu(g_screen);
-                 if (ret == 0)
-                 {
-                     break;
-                 }
-                 else
-                 {
-                     quit = true;
-                 }
-             }
-         }
+       fps.start();
+       while (SDL_PollEvent(&g_event) != 0)
+       {
+           if (g_event.type == SDL_QUIT)
+           {
+               quit = true;
+           }
+           else if (g_event.type == SDL_KEYDOWN)
+           {
+               if (g_event.key.keysym.sym == SDLK_ESCAPE)
+               {
+                   Music::GetInstance()->PauseMusic();
+                   Music::GetInstance()->PlaySoundGame(Music::GAME_PAUSE);
+                   int ret = MenuGame::GetInstance()->PauseMenu(g_screen);
+                   if (ret == 0)
+                   {
+                       break;
+                   }
+                   else
+                   {
+                       quit = true;
+                   }
+               }
+           }
 
-         option_control.HandleInputAction(g_event, g_screen);
-         p_player.HandleInputAction(g_event, g_screen);
-         ThreatsAds::GetInstance()->HandleInputAction(g_event, g_screen);
-      }
+           option_control.HandleInputAction(g_event, g_screen);
+           p_player.HandleInputAction(g_event, g_screen);
+           ThreatsAds::GetInstance()->HandleInputAction(g_event, g_screen);
+       }
 
 
-      if (Music::GetInstance()->PlayMusic() == PT_FAILED)
-      {
-          return PT_FAILED;
-      }
+       if (Music::GetInstance()->PlayMusic() == PT_FAILED)
+       {
+           return PT_FAILED;
+       }
 
        SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
        SDL_RenderClear(g_screen);
@@ -241,7 +242,7 @@ int main( int argc, char* args[] )
        int doorPosX = wDoor.GetXPos();
        int doorPosY = wDoor.GetYPos();
 
-       if (doorPosX - playerPosX <= TILE_SIZE && 
+       if (doorPosX - playerPosX <= TILE_SIZE &&
            plPosY > doorPosY)
        {
            wDoor.SetStatus(EndObject::DOOR_OPENING);
@@ -255,6 +256,7 @@ int main( int argc, char* args[] )
                wData.wld_number_++;
                wData.wld_status_ = WorldData::W_FINISHED;
                p_player.SetWorldData(wData);
+               p_player.Show(g_screen);
                DoNextWorld(g_screen);
                p_player.ReStart();
                pThreatsAd->Free();
@@ -282,12 +284,9 @@ int main( int argc, char* args[] )
        ColorData color_data(36, 36, 36);
        Gemometric::RenderRectange(rectange_size, color_data, g_screen);
 
-       GeometricFormat outlie_size(1, 1, SCREEN_WIDTH-1, 38);
+       GeometricFormat outlie_size(1, 1, SCREEN_WIDTH - 1, 38);
        ColorData color_data1(255, 255, 255);
        Gemometric::RenderOutline(outlie_size, color_data1, g_screen);
-
-       player_power.Show(g_screen);
-       player_money.Show(g_screen);
 
        pThreatsAd->Render(g_screen);
 
@@ -306,10 +305,6 @@ int main( int argc, char* args[] )
                Music::GetInstance()->PlaySoundGame(Music::DEATH_SOUND);
                p_player.set_is_death(true);
                p_player.set_alive_time(100);
-               //if (pThreatAds.GetBoolCol() == true)
-               //{
-               //    p_player.SetBoomDeadth(true);
-               //}
            }
        }
 
@@ -328,7 +323,7 @@ int main( int argc, char* args[] )
                {
                    p_player.ResetAlive();
                    player_power.Decrease();
-                   player_power.Render(g_screen);
+                   player_power.Show(g_screen);
                    continue;
                }
                else
@@ -358,36 +353,40 @@ int main( int argc, char* args[] )
        std::vector<BulletObject*> bullet_arr = p_player.get_bullet_list();
        for (int am = 0; am < bullet_arr.size(); am++)
        {
-         BulletObject* p_bullet = bullet_arr.at(am);
-         if (p_bullet)
-         {
-            bool bRet = ThreatsAds::GetInstance()->CheckCollision(g_screen, p_bullet->GetRect());
-            if (bRet)
-            {
-                SDL_Rect rc_pos;
-                rc_pos.x = p_bullet->GetRect().x;
-                rc_pos.y = p_bullet->GetRect().y + 25;
-                rc_pos.w = p_bullet->GetRect().w;
-                rc_pos.h = p_bullet->GetRect().h;
-                exp_threats.ImpRender(g_screen, rc_pos);
+           BulletObject* p_bullet = bullet_arr.at(am);
+           if (p_bullet)
+           {
+               bool bRet = ThreatsAds::GetInstance()->CheckCollision(g_screen, p_bullet->GetRect());
+               if (bRet)
+               {
+                   SDL_Rect rc_pos;
+                   rc_pos.x = p_bullet->GetRect().x;
+                   rc_pos.y = p_bullet->GetRect().y + 25;
+                   rc_pos.w = p_bullet->GetRect().w;
+                   rc_pos.h = p_bullet->GetRect().h;
+                   exp_threats.ImpRender(g_screen, rc_pos);
 
-                mark_value++;
-                p_player.RemoveBullet(am);
-            }
-         }
+                   mark_value++;
+                   p_player.RemoveBullet(am);
+               }
+           }
        }
 
        //Show time for game
        std::string str_time = "Time: ";
-       Uint32 time_val = SDL_GetTicks()/1000;
-       Uint32 val_time = 300 - time_val;
+       WorldData wData = p_player.GetWorldData();
+       Uint32 time_val = SDL_GetTicks() / 1000;
+       val_time = 300 - time_val;
 
        if (val_time <= 0)
        {
-           if(MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
+           if (wData.wld_status_ != WorldData::W_FINISHED)
            {
-               quit = true;
-               break;
+               if (MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
+               {
+                   quit = true;
+                   break;
+               }
            }
        }
        else
@@ -408,20 +407,35 @@ int main( int argc, char* args[] )
        mark_game.loadFromRenderedText(g_font_text, g_screen);
        mark_game.RenderText(g_screen, SCREEN_WIDTH*0.5 - 50, 15);
 
-       int money_val = p_player.GetMoneyCount();
-       std::string money_count_str = std::to_string(money_val);
-       money_count.SetText(money_count_str);
-       money_count.loadFromRenderedText(g_font_text, g_screen);
-       money_count.RenderText(g_screen, SCREEN_WIDTH*0.5 - 250, 15);
-
-
-       if (p_player.GetMoneyCount() >= 100)
+       // Show Knife
+       if (bKni)
        {
-           int reVal = p_player.GetMoneyCount() - 10;
-           p_player.SetCoinCount(reVal);
+           KnifeData kniData = p_player.GetKniData();
+           if (kniData.kni_status_ == KnifeData::W_ACTIVE)
+           {
+               player_kni.SetCount(kniData.kni_number_);
+               player_kni.Show(g_screen);
+           }
+       }
+       
+       // Show Coin
+       if (bCoin)
+       {
+           int coinCount = p_player.GetMoneyCount();
+           playerCoin.SetCount(coinCount);
+           playerCoin.Show(g_screen);
 
-           player_power.InCrease();
-           player_power.Render(g_screen);
+           if (coinCount >= 100)
+           {
+               int reCoinCount = coinCount - 100;
+               p_player.SetCoinCount(reCoinCount);
+               player_power.InCrease();
+           }
+       }
+       //show power
+       if (bPower)
+       {
+           player_power.Show(g_screen);
        }
 
        //game_map->RenderBlockDe(g_screen);
@@ -431,11 +445,11 @@ int main( int argc, char* args[] )
 
        //Cap the frame rate
        int val1 = fps.get_ticks();
-       if(fps.get_ticks() < 1000/FRAMES_PER_SECOND)
+       if (fps.get_ticks() < 1000 / FRAMES_PER_SECOND)
        {
-         SDL_Delay((1000/FRAMES_PER_SECOND ) - fps.get_ticks());
+           SDL_Delay((1000 / FRAMES_PER_SECOND) - fps.get_ticks());
        }
-  }
+   }
 
   game_map->DestroyInst();
   ThreatsAds::GetInstance()->DestroyInstance();

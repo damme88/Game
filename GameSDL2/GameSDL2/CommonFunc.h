@@ -39,11 +39,6 @@ static char g_threat_bullet[] = { "img//bullet_threat.png" };
 static char g_plane_bullet[] = { "img//plane_bullet.png" };
 
 
-static char g_name_money[] = { "img//sman_coin_num.png" };
-
-static char g_name_main_alive[] = {"img//sman_live.png"};
-
-
 const int COLOR_KEY_R = 125;
 const int COLOR_KEY_G = 125;
 const int COLOR_KEY_B = 125;

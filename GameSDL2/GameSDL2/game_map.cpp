@@ -182,6 +182,24 @@ void GameMap::DrawMap(SDL_Renderer* des)
     }
 }
 
+bool GameMap::CheckSptKni(const std::string& tile)
+{
+    bool bRet = false;
+    int nSize = sizeof(SptKni) / sizeof(SptKni[0]);
+    for (int i = 0; i < nSize; ++i)
+    {
+        std::string sType = SptKni[i];
+        std::string sInput(tile);
+        if (sInput == sType)
+        {
+            bRet = true;
+            break;
+        }
+    }
+
+    return bRet;
+}
+
 bool GameMap::CheckCoinMap(const std::string& tile)
 {
     bool bRet = false;

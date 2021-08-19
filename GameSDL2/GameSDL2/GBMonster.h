@@ -16,7 +16,6 @@ public:
     void Init(int type, bool bClip, int xTile, int yTile, SDL_Renderer* screen, const INT& xOffset = 0, const INT& yOffset = 0);
     void Update();
     void Show(SDL_Renderer* des);
-    void HandleInputAction(SDL_Event events, SDL_Renderer* screen);
     void UpdateImg(SDL_Renderer* des);
     void SetIsType(int bType) { gb_type_ = bType; }
     int GetIsType() const { return gb_type_; }

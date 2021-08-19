@@ -8,6 +8,7 @@ BulletObject::BulletObject()
     x_scope_ = 0;
     x_up_ = 0;
     move_type_ = LINE_TYPE;
+    m_blType = BL_NONE;
     m_Flip = false;
 }
 
@@ -21,6 +22,7 @@ BulletObject* BulletObject::Clone()
     p_object_clone->bullet_dir_ = this->bullet_dir_;
     p_object_clone->is_move_ = this->is_move_;
     p_object_clone->move_type_ = this->move_type_;
+    p_object_clone->m_blType = this->m_blType;
     p_object_clone->x_val_ = this->x_val_;
     p_object_clone->y_val_ = this->y_val_;
 
@@ -31,24 +33,47 @@ BulletObject* BulletObject::Clone()
 void BulletObject::HandelMove(const int& x_border, const int& y_border)
 {
     Map* map_data = GameMap::GetInstance()->GetMap();
-    if (bullet_dir_ == DIR_RIGHT)
+
+    if (m_blType == BulletType::BL_CUT)
     {
-        x_pos_ += x_val_;
-        x_up_ += x_val_;
-        if (x_up_ > x_scope_)
+        if (bullet_dir_ == DIR_RIGHT)
         {
-            is_move_ = false;
-            x_up_ = 0;
+            x_pos_ += x_val_;
+            x_up_ += x_val_;
+            if (x_up_ > x_scope_)
+            {
+                is_move_ = false;
+                x_up_ = 0;
+            }
+        }
+        else if (bullet_dir_ == DIR_LEFT)
+        {
+            x_pos_ -= x_val_;
+            x_up_ -= x_val_;
+            if (abs(x_up_) > x_scope_)
+            {
+                is_move_ = false;
+                x_up_ = 0;
+            }
         }
     }
-    else if (bullet_dir_ == DIR_LEFT)
+    else if (m_blType == BulletType::BL_KNI_THROWING)
     {
-        x_pos_ -= x_val_;
-        x_up_ -= x_val_;
-        if (abs(x_up_) > x_scope_)
+        if (bullet_dir_ == DIR_RIGHT)
         {
-            is_move_ = false;
-            x_up_ = 0;
+            x_pos_ += x_val_;
+            if (x_pos_ > map_data->getMaxX())
+            {
+                is_move_ = false;
+            }
+        }
+        else if (bullet_dir_ == DIR_LEFT)
+        {
+            x_pos_ -= x_val_;
+            if (x_pos_ < 0)
+            {
+                is_move_ = false;
+            }
         }
     }
 }

@@ -2,83 +2,120 @@
 #include "Music.h"
 
 
+ImgTextObj::ImgTextObj()
+{
+    m_font = NULL;
+    m_count = 0;
+    m_text.setColor(TextObject::WHITE_TEXT);
+}
+
+ImgTextObj::~ImgTextObj()
+{
+
+}
+
+bool ImgTextObj::LoadImg(std::string path, SDL_Renderer* screen)
+{
+   return BaseObject::LoadImg(path, screen);
+}
+
+void ImgTextObj::SetRect(int x, int y)
+{
+    rect_.x = x;
+    rect_.y = y;
+}
+
+void ImgTextObj::Show(SDL_Renderer* screen)
+{
+    std::string sCount = std::to_string(m_count);
+    sCount = "X " + sCount;
+    m_text.SetText(sCount);
+    m_text.loadFromRenderedText(m_font, screen);
+    m_text.RenderText(screen, m_xpText, m_ypText);
+    Render(screen);
+}
+
+
+
 PlayerPower::PlayerPower(void)
 {
+
 }
 
 
 PlayerPower::~PlayerPower(void)
 {
+    
 }
 
 
-void PlayerPower::AddPos(const int& xPos)
+bool PlayerPower::Init(SDL_Renderer* screen)
 {
-  position_list_.push_back(xPos);
-}
-
-void PlayerPower::Show(SDL_Renderer* screen)
-{
-  for (int i = 0; i < position_list_.size(); i++)
-  {
-    rect_.x = position_list_.at(i);
-    rect_.y = 0;
-    Render(screen);
-  }
-}
-
-void PlayerPower::Init(SDL_Renderer* screen)
-{
-  LoadImg(g_name_main_alive, screen);
-  number_ = 3;
-  if (position_list_.size() > 0)
-  {
-    position_list_.clear();
-  }
-
-  AddPos(20);
-  AddPos(60);
-  AddPos(100);
+    bool bRet = false;
+    m_count = 3;
+    bRet = LoadImg(gSnamePlayerAlive, screen);
+    SetRect(20, 0);
+    m_font = TTF_OpenFont("font//ARCADE.ttf", 30);
+    m_xpText = 70;
+    m_ypText = 15;
+    return bRet;
 }
 
 void PlayerPower::Decrease()
 {
-  number_--;
-  position_list_.pop_back();
+    m_count--;
 }
 
 void PlayerPower::InCrease()
 {
-    number_++;
-    int last_post = position_list_.back();
-    last_post += 40;
-    position_list_.push_back(last_post);
-
+    m_count++;
     Music::GetInstance()->PlaySoundGame(Music::POWER_UP);
 }
 
 //Player Money
 
-PlayerMoney::PlayerMoney()
+PlayerCoin::PlayerCoin()
+{
+}
+
+PlayerCoin::~PlayerCoin()
 {
 
 }
 
-PlayerMoney::~PlayerMoney()
+bool PlayerCoin::Init(SDL_Renderer* screen)
+{
+    int bRet = false;
+    m_font = TTF_OpenFont("font//ARCADE.ttf", 30);
+    m_xpText = SCREEN_WIDTH*0.5 - 260;
+    m_ypText = 15;
+    SetRect(SCREEN_WIDTH*0.5 - 300, 8);
+    bRet = LoadImg(gSnameCoin, screen);
+    return bRet;
+}
+
+// Weapon
+PlayerWeapon::PlayerWeapon()
+{
+    m_type = WP_NONE;
+}
+
+PlayerWeapon::~PlayerWeapon()
 {
 
 }
 
 
-void PlayerMoney::Init(SDL_Renderer* screen)
+bool PlayerWeapon::Init(SDL_Renderer* screen)
 {
-    LoadImg(g_name_money, screen);
-}
-
-
-void PlayerMoney::Show(SDL_Renderer* screen)
-{
-   rect_.x = x_pos_;
-   rect_.y = y_pos_;
-   Render(screen);
+    bool bRet = false;
+    m_xpText = SCREEN_WIDTH*0.5 - 420;
+    m_ypText = 15;
+    m_font = TTF_OpenFont("font//ARCADE.ttf", 30);
+    if (m_type == WP_KNI_THRW)
+    {
+        bRet = LoadImg(gSnameWpKni, screen);
+    }
+    SetRect(SCREEN_WIDTH*0.5 - 450, 8);
+    return bRet;
 }

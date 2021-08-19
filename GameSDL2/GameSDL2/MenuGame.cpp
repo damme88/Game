@@ -49,13 +49,11 @@ int MenuGame::StartMenu(SDL_Renderer* g_screen)
     TextObject text_object[kMenuNum];
     text_object[0].SetText(labels[0]);
     text_object[0].setColor(color[0].r, color[0].g, color[0].b);
-
     text_object[0].loadFromRenderedText(g_font_start, g_screen);
 
     text_object[1].SetText(labels[1]);
     text_object[1].setColor(color[0].r, color[0].g, color[0].b);
     text_object[1].loadFromRenderedText(g_font_start, g_screen);
-
 
     SDL_Rect pos[kMenuNum];
     pos[0].x = SCREEN_WIDTH*0.3 - 150;
@@ -271,7 +269,6 @@ int MenuGame::PauseMenu(SDL_Renderer* g_screen)
             pos[i].w = text_object[i].getWidth();
             pos[i].h = text_object[i].getHeight();
         }
-
 
         SDL_RenderPresent(g_screen);
         if (1000 / 30 > (SDL_GetTicks() - time))

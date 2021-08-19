@@ -13,7 +13,6 @@ public:
     BulletObject();
     ~BulletObject();
 
-
     enum BulletDir
     {
         DIR_RIGHT = 20,
@@ -28,9 +27,9 @@ public:
 
     enum BulletType
     {
-        NONE,
-        LASER,
-        SPHERE
+        BL_NONE = 100,
+        BL_CUT,
+        BL_KNI_THROWING,
     };
 
     enum MoveType
@@ -52,6 +51,7 @@ public:
     bool get_is_move()const { return is_move_; }
     void set_dir_bullet(const int& dir_type) { bullet_dir_ = dir_type; }
     void SetFlip(bool bFlip) { is_flip = bFlip; }
+    void SetBLType(const int& type) { m_blType = type; }
     bool CheckToMap();
     BulletObject* Clone();
     void Show(SDL_Renderer* des);
@@ -65,6 +65,7 @@ private:
     bool is_move_;
     int bullet_dir_;
     int move_type_;
+    int m_blType;
     bool is_flip;
 };
 

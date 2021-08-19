@@ -575,24 +575,6 @@ void GBMonster::Update()
     }
 }
 
-void GBMonster::HandleInputAction(SDL_Event events, SDL_Renderer* screen)
-{
-    if (events.type == SDL_KEYDOWN)
-    {
-        switch (events.key.keysym.sym)
-        {
-        case SDLK_g:
-        {
-            break;
-        }
-        case SDLK_h:
-        {
-            break;
-        }
-        }
-    }
-}
-
 void GBMonster::UpdateImg(SDL_Renderer* des)
 {
     switch (gb_type_)
