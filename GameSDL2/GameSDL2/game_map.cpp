@@ -117,7 +117,16 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
             if (pBlock != NULL)
             {
                 std::string type = pBlock->getType();
-                std::string str = GetPathImgMap() + type + ".bmp";
+                std::string str;
+                if (type == "KNI1" ||
+                    type == "VIAXE")
+                {
+                    str = GetPathImgMap() + type + ".png";
+                }
+                else
+                {
+                    str = GetPathImgMap() + type + ".bmp";
+                }
 
                 filename = const_cast<char*>(str.c_str());
                 TileMat* pTile = new TileMat();
@@ -182,9 +191,9 @@ void GameMap::DrawMap(SDL_Renderer* des)
     }
 }
 
-bool GameMap::CheckSptKni(const std::string& tile)
+int GameMap::CheckSptKni(const std::string& tile)
 {
-    bool bRet = false;
+    int bRet = -1;
     int nSize = sizeof(SptKni) / sizeof(SptKni[0]);
     for (int i = 0; i < nSize; ++i)
     {
@@ -192,7 +201,7 @@ bool GameMap::CheckSptKni(const std::string& tile)
         std::string sInput(tile);
         if (sInput == sType)
         {
-            bRet = true;
+            bRet = i;
             break;
         }
     }

@@ -22,7 +22,7 @@ const std::string SkipMap[] = { "BR1", "BR2", "BR3", "TR11", "TR12", "TR13",
                                 "WB31", "WB32", "WB33", "WB34" };
 const std::string CoinMap[] = { "CO1", "CO2", "DIA1", "DIA2" };
 
-const std::string SptKni[] = { "KNI1" };
+const std::string SptKni[] = { "KNI1", "VIAXE" };
 class GameMap
 {
 public:
@@ -47,7 +47,7 @@ public:
   void ResetMap();
   bool CheckCoinMap(const std::string& tile);
   bool CheckSkipMap(const std::string& tile);
-  bool CheckSptKni(const std::string& tile);
+  int CheckSptKni(const std::string& tile);
   Map* GetMap() const { return game_map_; }
   void RenderBlockDe(SDL_Renderer* des);
   void DoNextWorldMap() { m_worldLesson++; }

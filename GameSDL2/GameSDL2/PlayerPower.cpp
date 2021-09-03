@@ -55,7 +55,7 @@ bool PlayerPower::Init(SDL_Renderer* screen)
     m_count = 3;
     bRet = LoadImg(gSnamePlayerAlive, screen);
     SetRect(20, 0);
-    m_font = TTF_OpenFont("font//ARCADE.ttf", 30);
+    m_font = TTF_OpenFont(g_NameFont, 30);
     m_xpText = 70;
     m_ypText = 15;
     return bRet;
@@ -86,7 +86,7 @@ PlayerCoin::~PlayerCoin()
 bool PlayerCoin::Init(SDL_Renderer* screen)
 {
     int bRet = false;
-    m_font = TTF_OpenFont("font//ARCADE.ttf", 30);
+    m_font = TTF_OpenFont(g_NameFont, 30);
     m_xpText = SCREEN_WIDTH*0.5 - 260;
     m_ypText = 15;
     SetRect(SCREEN_WIDTH*0.5 - 300, 8);
@@ -105,17 +105,21 @@ PlayerWeapon::~PlayerWeapon()
 
 }
 
-
 bool PlayerWeapon::Init(SDL_Renderer* screen)
 {
     bool bRet = false;
     m_xpText = SCREEN_WIDTH*0.5 - 420;
     m_ypText = 15;
-    m_font = TTF_OpenFont("font//ARCADE.ttf", 30);
+    m_font = TTF_OpenFont(g_NameFont, 30);
     if (m_type == WP_KNI_THRW)
     {
         bRet = LoadImg(gSnameWpKni, screen);
     }
+    else if (m_type == WP_VIKING_AXE)
+    {
+        bRet = LoadImg(gSnameWpViAxe, screen);
+    }
+
     SetRect(SCREEN_WIDTH*0.5 - 450, 8);
     return bRet;
 }

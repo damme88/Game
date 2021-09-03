@@ -7,6 +7,10 @@
 #include "ExplosionObject.h"
 #include "game_map.h"
 
+static char kImgCutting[] = { "img//sman_bl_cut.png" };
+static char kImgKni[] = { "img//sman_bl_kn1.png" };
+static char kImgVikingAxe[] = { "img//sman_bl_viking_axe.png" };
+
 class BulletObject : public BaseObject
 {
 public:
@@ -30,6 +34,7 @@ public:
         BL_NONE = 100,
         BL_CUT,
         BL_KNI_THROWING,
+        BL_VIKING_AXE,
     };
 
     enum MoveType
@@ -38,6 +43,7 @@ public:
         SIN_TYPE = 11
     };
 
+    bool Init(SDL_Renderer* screen);
     void HandelMove(const int& x_border, const int& y_border);
     void set_x_Scope(const int& xScope) { x_scope_ = xScope; }
     void set_x_val(const int& x_val) { x_val_ = x_val; }
@@ -67,6 +73,7 @@ private:
     int move_type_;
     int m_blType;
     bool is_flip;
+    bool m_Rotate;
 };
 
 #endif

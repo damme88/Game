@@ -41,14 +41,26 @@ MainObject::MainObject()
     m_WorldData.wld_status_ = WorldData::W_ACTIVE;
     m_WorldData.wld_number_ = 1;
 
-    m_SptKni.kni_status_ = KnifeData::W_UNACTIVE;
+    m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
     m_SptKni.kni_number_ = 0;
 }
 
 void MainObject::SetInfoKni()
 {
-    m_SptKni.kni_status_ = KnifeData::W_ACTIVE;
+    m_SptKni.kni_status_ = KniAxeData::W_ACTIVE;
     m_SptKni.kni_number_ += 3;
+
+    m_SptVikingAxe.kni_status_ = KniAxeData::W_UNACTIVE;
+    m_SptVikingAxe.kni_number_ = 0;
+}
+
+void MainObject::SetInfoWikingAxe()
+{
+    m_SptVikingAxe.kni_status_ = KniAxeData::W_ACTIVE;
+    m_SptVikingAxe.kni_number_ += 3;
+
+    m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
+    m_SptKni.kni_number_ = 0;
 }
 
 MainObject::~MainObject()
@@ -131,40 +143,21 @@ void MainObject::HandleInputAction(SDL_Event events,
         break;
         case SDLK_RETURN:
         {
-            BulletObject* p_bullet = new BulletObject();
-            p_bullet->LoadImg(kImgKni, screen);
-
             if (m_SptKni.kni_number_ > 0)
             {
-                m_bAttack = true;
-                //Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
-                if (status_ == WALK_LEFT)
-                {
-                    p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
-                    INT xBul = x_pos_;
-                    INT yBul = y_pos_ + height_frame_*0.25;
-                    p_bullet->set_xy_pos(xBul, yBul);
-                }
-                else
-                {
-                    INT xBul = x_pos_ + width_frame_;
-                    INT yBul = y_pos_ + height_frame_*0.25;
-                    p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
-                    p_bullet->set_xy_pos(xBul, yBul);
-                }
-                p_bullet->set_x_val(20);
-                p_bullet->set_is_move(true);
-                p_bullet->SetBLType(BulletObject::BL_KNI_THROWING);
-                p_bullet_list_.push_back(p_bullet);
-                m_SptKni.kni_number_--;
-                break;
+                CreateKniBL(screen);
+            }
+            else if (m_SptVikingAxe.kni_number_ > 0)
+            {
+                CreateWikingAxeBL(screen);
             }
             else
             {
                 m_bAttack = false;
                 m_SptKni.kni_number_ = 0;
-                m_SptKni.kni_status_ = KnifeData::W_UNACTIVE;
+                m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
             }
+            break;
         }
         }
     }
@@ -195,39 +188,11 @@ void MainObject::HandleInputAction(SDL_Event events,
     {
         if (events.button.button == SDL_BUTTON_LEFT)
         {
-            if (m_bAttack == false)
-            {
-                m_bAttack = true;
-                BulletObject* p_bullet = new BulletObject();
-                p_bullet->LoadImg(kImgBullet, screen);
-
-                Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
-
-                if (status_ == WALK_LEFT)
-                {
-                    p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
-                    INT xBul = x_pos_;
-                    INT yBul = y_pos_ + height_frame_*0.25;
-                    p_bullet->set_xy_pos(xBul, yBul);
-                }
-                else
-                {
-                    INT xBul = x_pos_ + width_frame_;
-                    INT yBul = y_pos_ + height_frame_*0.25;
-                    p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
-                    p_bullet->set_xy_pos(xBul, yBul);
-                }
-
-                p_bullet->SetBLType(BulletObject::BL_CUT);
-                p_bullet->set_x_val(10);
-                p_bullet->set_x_Scope(45);
-                p_bullet->set_is_move(true);
-                p_bullet_list_.push_back(p_bullet);
-            }
+            CreateCutBL(screen);
         }
         else if (events.button.button == SDL_BUTTON_RIGHT)
         {
-            Music::GetInstance()->PlaySoundGame(Music::JUMP_SOUND);
+            //Music::GetInstance()->PlaySoundGame(Music::JUMP_SOUND);
             input_type_.jump_ = 1;
             input_type_.down_ = 0;
         }
@@ -241,6 +206,96 @@ void MainObject::HandleInputAction(SDL_Event events,
         {
             input_type_.jump_ = 0;
         }
+    }
+}
+
+void MainObject::CreateCutBL(SDL_Renderer* screen)
+{
+    if (m_bAttack == false)
+    {
+        m_bAttack = true;
+        BulletObject* p_bullet = new BulletObject();
+        p_bullet->SetBLType(BulletObject::BL_CUT);
+        bool bRet = p_bullet->Init(screen);
+
+        if (bRet == true)
+        {
+            //Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
+            INT xBul = x_pos_;
+            if (status_ == WALK_LEFT)
+            {
+                p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
+            }
+            else
+            {
+                p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
+                xBul += width_frame_;
+            }
+
+            INT yBul = y_pos_ + height_frame_*0.25;
+            p_bullet->set_xy_pos(xBul, yBul);
+            p_bullet->set_x_val(10);
+            p_bullet->set_x_Scope(45);
+            p_bullet->set_is_move(true);
+            p_bullet_list_.push_back(p_bullet);
+        }
+    }
+}
+
+void MainObject::CreateKniBL(SDL_Renderer* screen)
+{
+    m_bAttack = true;
+
+    BulletObject* p_bullet = new BulletObject();
+    p_bullet->SetBLType(BulletObject::BL_KNI_THROWING);
+    bool bRet = p_bullet->Init(screen);
+    if (bRet == true)
+    {
+        //Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
+        INT xBul = x_pos_;
+        if (status_ == WALK_LEFT)
+        {
+            p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
+        }
+        else
+        {
+            p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
+            xBul += width_frame_;
+        }
+
+        INT yBul = y_pos_ + height_frame_*0.35;
+        p_bullet->set_xy_pos(xBul, yBul);
+        p_bullet->set_x_val(15);
+        p_bullet_list_.push_back(p_bullet);
+        m_SptKni.kni_number_--;
+    }
+}
+
+void MainObject::CreateWikingAxeBL(SDL_Renderer* screen)
+{
+    m_bAttack = true;
+    BulletObject* p_bullet = new BulletObject();
+    p_bullet->SetBLType(BulletObject::BL_VIKING_AXE);
+    bool bRet = p_bullet->Init(screen);
+    if (bRet == true)
+    {
+        //Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
+        INT xBul = x_pos_;
+        if (status_ == WALK_LEFT)
+        {
+            p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
+        }
+        else
+        {
+            p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
+            xBul += width_frame_;
+        }
+
+        INT yBul = y_pos_ + height_frame_*0.35;
+        p_bullet->set_xy_pos(xBul, yBul);
+        p_bullet->set_x_val(18);
+        p_bullet_list_.push_back(p_bullet);
+        m_SptVikingAxe.kni_number_--;
     }
 }
 
@@ -640,11 +695,18 @@ void MainObject::DoLeft()
                     }
                     else
                     {
-                        bool bSptKni = pMap->CheckSptKni(sLType);
-                        if (bSptKni)
+                        int iSptKni = pMap->CheckSptKni(sLType);
+                        if (iSptKni >= 0)
                         {
                             pBlock->RemoveTile();
-                            this->SetInfoKni();
+                            if (iSptKni == 0)
+                            {
+                                this->SetInfoKni();
+                            }
+                            else if (iSptKni == 1)
+                            {
+                                this->SetInfoWikingAxe();
+                            }
                         }
                         else
                         {
@@ -728,11 +790,18 @@ void MainObject::DoRight()
                     }
                     else
                     {
-                        bool bSptKni = pMap->CheckSptKni(sLType);
-                        if (bSptKni)
+                        int iSptKni = pMap->CheckSptKni(sLType);
+                        if (iSptKni >= 0)
                         {
                             pBlock->RemoveTile();
-                            this->SetInfoKni();
+                            if (iSptKni == 0)
+                            {
+                                this->SetInfoKni();
+                            }
+                            else if (iSptKni == 1)
+                            {
+                                this->SetInfoWikingAxe();
+                            }
                         }
                         else
                         {
@@ -821,11 +890,18 @@ void MainObject::DoUp()
                     }
                     else
                     {
-                        bool bSptKni = pMap->CheckSptKni(tp1);
-                        if (bSptKni)
+                        int iSptKni = pMap->CheckSptKni(tp1);
+                        if (iSptKni >= 0)
                         {
                             pBlock1->RemoveTile();
-                            this->SetInfoKni();
+                            if (iSptKni == 0)
+                            {
+                                this->SetInfoKni();
+                            }
+                            else if (iSptKni == 1)
+                            {
+                                this->SetInfoWikingAxe();
+                            }
                         }
                         else
                         {
@@ -867,11 +943,18 @@ void MainObject::DoUp()
                     }
                     else
                     {
-                        bool bSptKni = pMap->CheckSptKni(tp2);
-                        if (bSptKni)
+                        int iSptKni = pMap->CheckSptKni(tp2);
+                        if (iSptKni >= 0)
                         {
                             pBlock2->RemoveTile();
-                            this->SetInfoKni();
+                            if (iSptKni == 0)
+                            {
+                                this->SetInfoKni();
+                            }
+                            else if (iSptKni == 1)
+                            {
+                                this->SetInfoWikingAxe();
+                            }
                         }
                         else
                         {
@@ -981,11 +1064,18 @@ void MainObject::DoDown()
                     }
                     else
                     {
-                        bool bSptKni = pMap->CheckSptKni(tp1);
-                        if (bSptKni)
+                        int iSptKni = pMap->CheckSptKni(tp1);
+                        if (iSptKni >= 0)
                         {
                             pBlock1->RemoveTile();
-                            this->SetInfoKni();
+                            if (iSptKni == 0)
+                            {
+                                this->SetInfoKni();
+                            }
+                            else if (iSptKni == 1)
+                            {
+                                this->SetInfoWikingAxe();
+                            }
                         }
                         else
                         {
@@ -1030,11 +1120,18 @@ void MainObject::DoDown()
                     }
                     else
                     {
-                        bool bSptKni = pMap->CheckSptKni(tp2);
-                        if (bSptKni)
+                        int iSptKni = pMap->CheckSptKni(tp2);
+                        if (iSptKni >= 0)
                         {
                             pBlock2->RemoveTile();
-                            this->SetInfoKni();
+                            if (iSptKni == 0)
+                            {
+                                this->SetInfoKni();
+                            }
+                            else if (iSptKni == 1)
+                            {
+                                this->SetInfoWikingAxe();
+                            }
                         }
                         else
                         {

@@ -14,6 +14,7 @@ public:
     int PauseMenu(SDL_Renderer* g_screen);
     int GetMenuType() const { return state_menu_; }
     int EndWorldScreen(SDL_Renderer* g_screen);
+    bool OnRect(int x, int y, SDL_Rect& rect);
     enum MenuType
     {
         MENU_NONE = 0,

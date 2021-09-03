@@ -38,6 +38,7 @@ static char g_name_threat_right[] = { "img//thread1_right.png" };
 static char g_threat_bullet[] = { "img//bullet_threat.png" };
 static char g_plane_bullet[] = { "img//plane_bullet.png" };
 
+static char g_NameFont[] = { "font/Sman.ttf" };
 
 const int COLOR_KEY_R = 125;
 const int COLOR_KEY_G = 125;

@@ -71,7 +71,7 @@ bool InitData()
           success = false;
       }
 
-      g_font_text = TTF_OpenFont("font//ARCADE.ttf", 30);
+      g_font_text = TTF_OpenFont(g_NameFont, 30);
       if (g_font_text == NULL)
       {
         return false;
@@ -154,6 +154,10 @@ int main( int argc, char* args[] )
    PlayerWeapon player_kni;
    player_kni.SetType(PlayerWeapon::WP_KNI_THRW);
    bool bKni = player_kni.Init(g_screen);
+
+   PlayerWeapon player_vAxe;
+   player_vAxe.SetType(PlayerWeapon::WP_VIKING_AXE);
+   bool bVAxe = player_vAxe.Init(g_screen);
 
    TextObject time_game;
    time_game.setColor(TextObject::WHITE_TEXT);
@@ -410,14 +414,24 @@ int main( int argc, char* args[] )
        // Show Knife
        if (bKni)
        {
-           KnifeData kniData = p_player.GetKniData();
-           if (kniData.kni_status_ == KnifeData::W_ACTIVE)
+           KniAxeData kniData = p_player.GetKniData();
+           if (kniData.kni_status_ == KniAxeData::W_ACTIVE)
            {
                player_kni.SetCount(kniData.kni_number_);
                player_kni.Show(g_screen);
            }
        }
        
+       if (bVAxe)
+       {
+           KniAxeData VAxeData = p_player.GetVikingAxeData();
+           if (VAxeData.kni_status_ == KniAxeData::W_ACTIVE)
+           {
+               player_vAxe.SetCount(VAxeData.kni_number_);
+               player_vAxe.Show(g_screen);
+           }
+       }
+
        // Show Coin
        if (bCoin)
        {

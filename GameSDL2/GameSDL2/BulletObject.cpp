@@ -10,6 +10,7 @@ BulletObject::BulletObject()
     move_type_ = LINE_TYPE;
     m_blType = BL_NONE;
     m_Flip = false;
+    m_Rotate = false;
 }
 
 BulletObject::~BulletObject()
@@ -29,6 +30,25 @@ BulletObject* BulletObject::Clone()
     return p_object_clone;
 }
 
+bool BulletObject::Init(SDL_Renderer* screen)
+{
+    bool bRet = false;
+    if (m_blType == BL_CUT)
+    {
+        bRet = LoadImg(kImgCutting, screen);
+    }
+    else if (m_blType == BL_KNI_THROWING)
+    {
+        bRet = LoadImg(kImgKni, screen);
+    }
+    else if (m_blType == BL_VIKING_AXE)
+    {
+        bRet = LoadImg(kImgVikingAxe, screen);
+        m_Rotate = true;
+    }
+    is_move_ = true;
+    return bRet;
+}
 
 void BulletObject::HandelMove(const int& x_border, const int& y_border)
 {
@@ -57,11 +77,21 @@ void BulletObject::HandelMove(const int& x_border, const int& y_border)
             }
         }
     }
-    else if (m_blType == BulletType::BL_KNI_THROWING)
+    else if (m_blType == BulletType::BL_KNI_THROWING ||
+             m_blType == BulletType::BL_VIKING_AXE)
     {
         if (bullet_dir_ == DIR_RIGHT)
         {
             x_pos_ += x_val_;
+            if (m_Rotate == true)
+            {
+                angle_ += 60.0;
+                if (angle_ >= 360.0)
+                {
+                    angle_ = 0.0;
+                }
+            }
+            
             if (x_pos_ > map_data->getMaxX())
             {
                 is_move_ = false;
@@ -70,6 +100,15 @@ void BulletObject::HandelMove(const int& x_border, const int& y_border)
         else if (bullet_dir_ == DIR_LEFT)
         {
             x_pos_ -= x_val_;
+            if (m_Rotate == true)
+            {
+                angle_ += 60.0;
+                if (angle_ >= 360)
+                {
+                    angle_ = 0.0;
+                }
+            }
+
             if (x_pos_ < 0)
             {
                 is_move_ = false;

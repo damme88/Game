@@ -20,9 +20,6 @@ static char sPlayerDown[] = {"img//player_down.png" };
 static char sPlayerExp[] = { "img//player_exp.png" };
 static char sPlayerDeath[] = {"img//sman_die.png" };
 
-static char kImgBullet[] = {"img//sman_blast.png"};
-static char kImgKni[] = { "img//sman_kn1.png" };
-
 #define EPXILON 2
 
 struct WorldData
@@ -38,7 +35,7 @@ public:
     UINT wld_status_;
 };
 
-struct KnifeData
+struct KniAxeData
 {
 public:
     enum KStatus
@@ -46,7 +43,6 @@ public:
         W_ACTIVE = 0,
         W_UNACTIVE = 1,
     };
-
     INT kni_number_;
     UINT kni_status_;
 };
@@ -107,12 +103,17 @@ public:
     void UpdateCtrlState(int ctrl_type, SDL_Renderer* screen);
     BlockMap* GetBlockMap(int y, int x);
     WorldData GetWorldData() const { return m_WorldData; }
-    KnifeData GetKniData() { return m_SptKni; }
+    KniAxeData GetKniData() { return m_SptKni; }
+    KniAxeData GetVikingAxeData() { return m_SptVikingAxe; }
     void SetWorldData(WorldData wData) { m_WorldData = wData; }
     void SetInfoWorlData(int number, int status);
     bool CheckInputCondition();
     void ReStart();
     void SetInfoKni();
+    void SetInfoWikingAxe();
+    void CreateCutBL(SDL_Renderer* screen);
+    void CreateKniBL(SDL_Renderer* screen);
+    void CreateWikingAxeBL(SDL_Renderer* screen);
 protected:
     void UpdateImagePlayer(SDL_Renderer* des);
 
@@ -148,7 +149,9 @@ private:
     unsigned int iDelay[PLAYER_FRAMES];
     unsigned long passed_time_;
     WorldData m_WorldData;
-    KnifeData m_SptKni;
+    KniAxeData m_SptKni;
+    KniAxeData m_SptVikingAxe;
+
 };
 
 

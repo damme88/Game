@@ -8,6 +8,7 @@
 static char gSnameCoin[] = { "img//sman_icon_coin_num.png" };
 static char gSnamePlayerAlive[] = { "img//sman_icon_live.png" };
 static char gSnameWpKni[] = { "img//sman_icon_kni.png" };
+static char gSnameWpViAxe[] = { "img//sman_icon_vi_axe.png" };
 
 class ImgTextObj : BaseObject
 {
@@ -58,6 +59,7 @@ public:
     {
         WP_NONE = 30,
         WP_KNI_THRW,
+        WP_VIKING_AXE,
     };
 private:
     int m_type;
