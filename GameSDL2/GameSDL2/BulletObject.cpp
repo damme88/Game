@@ -46,6 +46,10 @@ bool BulletObject::Init(SDL_Renderer* screen)
         bRet = LoadImg(kImgVikingAxe, screen);
         m_Rotate = true;
     }
+    else if (m_blType == BL_GUN)
+    {
+        bRet = LoadImg(kImgGunBullet, screen);
+    }
     is_move_ = true;
     return bRet;
 }
@@ -78,7 +82,8 @@ void BulletObject::HandelMove(const int& x_border, const int& y_border)
         }
     }
     else if (m_blType == BulletType::BL_KNI_THROWING ||
-             m_blType == BulletType::BL_VIKING_AXE)
+             m_blType == BulletType::BL_VIKING_AXE ||
+             m_blType == BulletType::BL_GUN)
     {
         if (bullet_dir_ == DIR_RIGHT)
         {
@@ -120,6 +125,9 @@ void BulletObject::HandelMove(const int& x_border, const int& y_border)
 bool BulletObject::CheckToMap()
 {
     Map* map_data = GameMap::GetInstance()->GetMap();
+    SDL_Rect blRect = GetRect();
+    blRect.x = x_pos_ - map_data->getStartX();
+    blRect.y = y_pos_ - map_data->getStartY();
 
     int x = (x_pos_) / TILE_SIZE;
     int y = (y_pos_) / TILE_SIZE;
@@ -137,18 +145,54 @@ bool BulletObject::CheckToMap()
             bool bSkip = GameMap::GetInstance()->CheckSkipMap(val);
             if (bSkip == false)
             {
-                is_move_ = false;
-                x_pos_ = x * 64;
-                int width_tile = pBlock->GetTile()->getWidthFrame();
-                if (bullet_dir_ == DIR_LEFT)
+                SDL_Rect rectBlock = pBlock->GetTile()->GetRect();
+                bool bColision = false;
+                TPoint pCol;
+                bool bColRect = SDLCommonFunc::CheckCollisionEx(rectBlock, blRect, pCol);
+                INT xLimit = 0;
+                if (bColRect)
                 {
-                    rect_.x = x_pos_ - map_data->getStartX() + width_tile;
+                    int xPixel = pCol.x - rectBlock.x;
+                    int yPixel = pCol.y - rectBlock.y;
+                    yPixel += blRect.h;
+                    if (xPixel >= 0 && yPixel >= 0)
+                    {
+                        if (bullet_dir_ == DIR_LEFT)
+                        {
+                            for (int i = rectBlock.w - 1; i >= xPixel; i--)
+                            {
+                                DataImg* dImg = pBlock->GetTile()->GetPixelPos(i, yPixel);
+                                if (dImg && !dImg->IsColorKey() && !dImg->IsWhiteKey())
+                                {
+                                    xLimit = i;
+                                    bColision = true;
+                                    break;
+                                }
+                            }
+                        }
+                        else if (bullet_dir_ == DIR_RIGHT)
+                        {
+                            for (int i = 0; i < xPixel; i++)
+                            {
+                                DataImg* dImg = pBlock->GetTile()->GetPixelPos(i, yPixel);
+                                if (dImg && !dImg->IsColorKey() && !dImg->IsWhiteKey())
+                                {
+                                    xLimit = i - blRect.w;;
+                                    bColision = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
-                else
+
+                if (bColision == true)
                 {
+                    is_move_ = false;
+                    x_pos_ = x * TILE_SIZE + xLimit;
                     rect_.x = x_pos_ - map_data->getStartX();
+                    return true;
                 }
-                return true;
             }
         }
     }
@@ -158,10 +202,13 @@ bool BulletObject::CheckToMap()
 
 void BulletObject::Show(SDL_Renderer* des)
 {
+    if (bullet_dir_ == DIR_LEFT)
+    {
+        m_Flip = true;
+    }
+
     Map* map_data = GameMap::GetInstance()->GetMap();
     rect_.x = x_pos_ - map_data->getStartX();
     rect_.y = y_pos_ - map_data->getStartY();
-
-    m_Flip = is_flip;
     BaseObject::Render(des);
 }

@@ -25,6 +25,17 @@ bool DataImg::IsColorKey()
     return false;
 }
 
+bool DataImg::IsWhiteKey()
+{
+    if (m_Color.r == 255 &&
+        m_Color.g == 255 &&
+        m_Color.b == 255)
+    {
+        return true;
+    }
+    return false;
+}
+
 BaseObject::BaseObject()
 {
     p_object_ = NULL;
@@ -91,6 +102,10 @@ void BaseObject::Free()
         p_object_ = NULL;
         rect_.w = 0;
         rect_.h = 0;
+    }
+    
+    if (m_surface != NULL)
+    {
         SDL_FreeSurface(m_surface);
         m_surface = NULL;
     }
@@ -217,7 +232,6 @@ DataImg* BaseObject::GetPixelPos(int x, int y)
     
     return pDataImg;
 }
-
 
 
 void BaseObject::setAlpha(const Uint8& alpha)

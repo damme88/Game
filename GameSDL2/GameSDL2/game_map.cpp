@@ -119,7 +119,8 @@ void GameMap::LoadMapTiles(SDL_Renderer* screen)
                 std::string type = pBlock->getType();
                 std::string str;
                 if (type == "KNI1" ||
-                    type == "VIAXE")
+                    type == "VIAXE" ||
+                    type == "GUN")
                 {
                     str = GetPathImgMap() + type + ".png";
                 }

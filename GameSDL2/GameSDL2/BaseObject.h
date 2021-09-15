@@ -13,6 +13,7 @@ public:
     ~DataImg();
     SDL_Color m_Color;
     bool IsColorKey();
+    bool IsWhiteKey();
 };
 
 

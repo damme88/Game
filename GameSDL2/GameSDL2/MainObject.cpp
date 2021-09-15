@@ -43,6 +43,9 @@ MainObject::MainObject()
 
     m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
     m_SptKni.kni_number_ = 0;
+
+    m_bChangeImg = false;
+    m_bGun = false;
 }
 
 void MainObject::SetInfoKni()
@@ -52,6 +55,7 @@ void MainObject::SetInfoKni()
 
     m_SptVikingAxe.kni_status_ = KniAxeData::W_UNACTIVE;
     m_SptVikingAxe.kni_number_ = 0;
+    m_bGun = false;
 }
 
 void MainObject::SetInfoWikingAxe()
@@ -61,6 +65,7 @@ void MainObject::SetInfoWikingAxe()
 
     m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
     m_SptKni.kni_number_ = 0;
+    m_bGun = false;
 }
 
 MainObject::~MainObject()
@@ -188,12 +193,20 @@ void MainObject::HandleInputAction(SDL_Event events,
     {
         if (events.button.button == SDL_BUTTON_LEFT)
         {
-            CreateCutBL(screen);
+            if (m_bGun == true)
+            {
+                CreateGunBullet(screen);
+            }
+            else
+            {
+                CreateCutBL(screen);
+            }
         }
         else if (events.button.button == SDL_BUTTON_RIGHT)
         {
             //Music::GetInstance()->PlaySoundGame(Music::JUMP_SOUND);
             input_type_.jump_ = 1;
+            m_bChangeImg = true;
             input_type_.down_ = 0;
         }
     }
@@ -201,6 +214,7 @@ void MainObject::HandleInputAction(SDL_Event events,
     {
         if (events.button.button == SDL_BUTTON_LEFT)
         {
+
         }
         else if (events.button.button == SDL_BUTTON_RIGHT)
         {
@@ -209,11 +223,43 @@ void MainObject::HandleInputAction(SDL_Event events,
     }
 }
 
+void MainObject::CreateGunBullet(SDL_Renderer* screen)
+{
+    m_bAttack = true;
+    m_bChangeImg = true;
+    BulletObject* p_bullet = new BulletObject();
+    p_bullet->SetBLType(BulletObject::BL_GUN);
+    bool bRet = p_bullet->Init(screen);
+    if (bRet == true)
+    {
+        //Music::GetInstance()->PlaySoundGame(Music::FIRE_SOUND);
+        INT xBul = x_pos_;
+        if (status_ == WALK_LEFT)
+        {
+            p_bullet->set_dir_bullet(BulletObject::DIR_LEFT);
+            xBul -= p_bullet->GetRect().w;
+            xBul -= x_val_;
+        }
+        else
+        {
+            p_bullet->set_dir_bullet(BulletObject::DIR_RIGHT);
+            xBul += width_frame_;
+            xBul += x_val_;
+        }
+
+        INT yBul = y_pos_ + height_frame_*0.55;
+        p_bullet->set_xy_pos(xBul, yBul);
+        p_bullet->set_x_val(45);
+        p_bullet_list_.push_back(p_bullet);
+    }
+}
+
 void MainObject::CreateCutBL(SDL_Renderer* screen)
 {
     if (m_bAttack == false)
     {
         m_bAttack = true;
+        m_bChangeImg = true;
         BulletObject* p_bullet = new BulletObject();
         p_bullet->SetBLType(BulletObject::BL_CUT);
         bool bRet = p_bullet->Init(screen);
@@ -245,7 +291,7 @@ void MainObject::CreateCutBL(SDL_Renderer* screen)
 void MainObject::CreateKniBL(SDL_Renderer* screen)
 {
     m_bAttack = true;
-
+    m_bChangeImg = true;
     BulletObject* p_bullet = new BulletObject();
     p_bullet->SetBLType(BulletObject::BL_KNI_THROWING);
     bool bRet = p_bullet->Init(screen);
@@ -274,6 +320,7 @@ void MainObject::CreateKniBL(SDL_Renderer* screen)
 void MainObject::CreateWikingAxeBL(SDL_Renderer* screen)
 {
     m_bAttack = true;
+    m_bChangeImg = true;
     BulletObject* p_bullet = new BulletObject();
     p_bullet->SetBLType(BulletObject::BL_VIKING_AXE);
     bool bRet = p_bullet->Init(screen);
@@ -339,18 +386,25 @@ void MainObject::HandleBullet(SDL_Renderer* des)
         {
             if (p_bullet->get_is_move())
             {
+                p_bullet->Show(des);
                 p_bullet->HandelMove(SCREEN_WIDTH, SCREEN_HEIGHT);
                 bool ret = p_bullet->CheckToMap();
                 if (ret == true)
                 {
-                    SDL_Rect rect_pos = p_bullet->GetRect();
-                    //exp_.ImpRender(des, rect_pos);
+                    p_bullet->set_is_move(false);
+
+                    ExplosionObject* pExp = new ExplosionObject();
+                    bool ret = pExp->LoadImg("img//exp1.png", des);
+                    if (ret)
+                    {
+                        SDL_Rect rc_pos = p_bullet->GetRect();
+                        //rc_pos.x += p_bullet->GetRect().w*0.5;
+                        //rc_pos.y += p_bullet->GetRect().h*0.5;
+                        pExp->SetXP(rc_pos);
+                        ExpAds::GetInstance()->Add(pExp);
+                    }
+
                     continue;
-                }
-                else
-                {
-                    p_bullet->SetFlip(m_Flip);
-                    p_bullet->Show(des);
                 }
             }
             else
@@ -444,6 +498,7 @@ void MainObject::Show(SDL_Renderer* des)
             {
                 frame_ = 0;
                 m_bAttack = false;
+                m_bChangeImg = true;
             }
         }
 
@@ -541,6 +596,7 @@ void MainObject::DoPlayer(SDL_Renderer* des)
             if (on_ground_ == true)
             {
                 y_val_ = -PLAYER_HIGHT_VAL;
+                m_bChangeImg = true;
             }
 
             input_type_.jump_ = 0;
@@ -707,6 +763,14 @@ void MainObject::DoLeft()
                             {
                                 this->SetInfoWikingAxe();
                             }
+                            else if (iSptKni == 2)
+                            {
+                                this->SetGun(true);
+                                m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptKni.kni_number_ = 0;
+                                m_SptVikingAxe.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptVikingAxe.kni_number_ = 0;
+                            }
                         }
                         else
                         {
@@ -801,6 +865,14 @@ void MainObject::DoRight()
                             else if (iSptKni == 1)
                             {
                                 this->SetInfoWikingAxe();
+                            }
+                            else if (iSptKni == 2)
+                            {
+                                this->SetGun(true);
+                                m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptKni.kni_number_ = 0;
+                                m_SptVikingAxe.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptVikingAxe.kni_number_ = 0;
                             }
                         }
                         else
@@ -902,6 +974,14 @@ void MainObject::DoUp()
                             {
                                 this->SetInfoWikingAxe();
                             }
+                            else if (iSptKni == 2)
+                            {
+                                this->SetGun(true);
+                                m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptKni.kni_number_ = 0;
+                                m_SptVikingAxe.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptVikingAxe.kni_number_ = 0;
+                            }
                         }
                         else
                         {
@@ -954,6 +1034,14 @@ void MainObject::DoUp()
                             else if (iSptKni == 1)
                             {
                                 this->SetInfoWikingAxe();
+                            }
+                            else if (iSptKni == 2)
+                            {
+                                this->SetGun(true);
+                                m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptKni.kni_number_ = 0;
+                                m_SptVikingAxe.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptVikingAxe.kni_number_ = 0;
                             }
                         }
                         else
@@ -1076,6 +1164,14 @@ void MainObject::DoDown()
                             {
                                 this->SetInfoWikingAxe();
                             }
+                            else if (iSptKni == 2)
+                            {
+                                this->SetGun(true);
+                                m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptKni.kni_number_ = 0;
+                                m_SptVikingAxe.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptVikingAxe.kni_number_ = 0;
+                            }
                         }
                         else
                         {
@@ -1132,6 +1228,14 @@ void MainObject::DoDown()
                             {
                                 this->SetInfoWikingAxe();
                             }
+                            else if (iSptKni == 2)
+                            {
+                                this->SetGun(true);
+                                m_SptKni.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptKni.kni_number_ = 0;
+                                m_SptVikingAxe.kni_status_ = KniAxeData::W_UNACTIVE;
+                                m_SptVikingAxe.kni_number_ = 0;
+                            }
                         }
                         else
                         {
@@ -1186,7 +1290,12 @@ void MainObject::DoDown()
             sPos = curTileY*TILE_SIZE + yLimit;
             y_pos_ = sPos;
             y_val_ = 0;
-            on_ground_ = true;
+            if (on_ground_ == false)
+            {
+                on_ground_ = true;
+                m_bChangeImg = true;
+            }
+            
             if (status_ == WALK_NONE)
             {
                 status_ = WALK_RIGHT;
@@ -1204,57 +1313,76 @@ void MainObject::DoUpCoin()
 
 void MainObject::UpdateImagePlayer(SDL_Renderer* des)
 {
-    if (is_death_ == true)
+    if (status_ == WALK_LEFT)
     {
-        LoadImg(sPlayerDeath, des);
+        m_Flip = true;
     }
     else
     {
-        if (on_ground_ == true)
+        m_Flip = false;
+    }
+
+    if (m_bChangeImg == false)
+    {
+        return;
+    }
+    else
+    {
+        m_bChangeImg = false;
+    }
+
+    if (is_death_ == true)
+    {
+        LoadImg(sPlayerDeath, des);
+        return;
+    }
+
+    if (m_bAttack == true)
+    {
+        if (m_bGun == true)
         {
-            if (m_bAttack)
+            if (input_type_.left_ == 0 && input_type_.right_ == 0)
             {
-                LoadImg(sPlayerAttack, des);
-            }
-            else
-            {
-                if (input_type_.down_ == 0)
-                {
-                    LoadImg(sPlayerMove, des);
-                }
-                else if (input_type_.down_ == 1)
-                {
-                    LoadImg(sPlayerDown, des);
-                }
-            }
-            if (status_ == WALK_LEFT)
-            {
-                m_Flip = true;
-            }
-            else
-            {
-                m_Flip = false;
+                LoadImg(sPlayerAttackGun, des);
             }
         }
         else
         {
-            if (m_bAttack)
+            LoadImg(sPlayerAttack, des);
+        }
+        return;
+    }
+
+    if (on_ground_ == true)
+    {
+        if (m_bGun == true)
+        {
+            LoadImg(sPlayerMoveGun, des);
+            return;
+        }
+        else
+        {
+            if (input_type_.down_ == 1)
             {
-                LoadImg(sPlayerAttack, des);
+                LoadImg(sPlayerDown, des);
+                return;
             }
             else
             {
-                // when implement Jump.
-                LoadImg(sPlayerJump, des);
-                if (status_ == WALK_RIGHT)
-                {
-                    m_Flip = false;
-                }
-                else
-                {
-                    m_Flip = true;
-                }
+                LoadImg(sPlayerMove, des);
+                return;
             }
+        }
+    }
+    else
+    {
+        if (m_bGun == true)
+        {
+            LoadImg(sPlayerJumpGun, des);
+        }
+        else
+        {
+            LoadImg(sPlayerJump, des);
         }
     }
 }
@@ -1281,6 +1409,7 @@ void MainObject::ResetAlive()
 
     x_pos_ = current_xp;
     y_pos_ = current_yp;
+    m_bChangeImg = true;
 }
 
 void MainObject::ReStart()

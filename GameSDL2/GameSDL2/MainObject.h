@@ -14,8 +14,11 @@
 #define PLAYER_FRAMES       8
 
 static char sPlayerAttack[] = { "img//sman_attack.png" };
+static char sPlayerAttackGun[] = { "img//sman_attack_gun.png" };
 static char sPlayerMove[] = {"img//sman_walk.png"};
+static char sPlayerMoveGun[] = { "img//sman_walk_gun.png" };
 static char sPlayerJump[] = {"img//sman_jump.png"};
+static char sPlayerJumpGun[] = { "img//sman_jump_gun.png" };
 static char sPlayerDown[] = {"img//player_down.png" };
 static char sPlayerExp[] = { "img//player_exp.png" };
 static char sPlayerDeath[] = {"img//sman_die.png" };
@@ -93,7 +96,15 @@ public:
     void setLevelMushroom() { level_mushroom_++; }
     void setXYPos(const int& xp, const int& yp) { x_pos_ = xp; y_pos_ = yp; }
     void set_is_falling(const bool& is_falling) { is_falling_ = is_falling; }
-    void set_is_death(const bool& is_death) { is_death_ = is_death; }
+    void set_is_death(const bool& is_death) 
+    { 
+        is_death_ = is_death;
+        if (is_death == true)
+        {
+            m_bChangeImg = true;
+        }
+    }
+
     void set_alive_time(const int& live_time) { alive_time_ = live_time; }
     void SetCoinCount(const int& mCoin) { m_CoinCount = mCoin; }
     void DoUpCoin();
@@ -114,6 +125,16 @@ public:
     void CreateCutBL(SDL_Renderer* screen);
     void CreateKniBL(SDL_Renderer* screen);
     void CreateWikingAxeBL(SDL_Renderer* screen);
+    void CreateGunBullet(SDL_Renderer* screen);
+    void SetGun(bool bGun)
+    { 
+        m_bGun = bGun;
+        if (m_bGun == true)
+        {
+            m_bChangeImg = true;
+        }
+    }
+    bool GetGun() const { return m_bGun; }
 protected:
     void UpdateImagePlayer(SDL_Renderer* des);
 
@@ -151,7 +172,8 @@ private:
     WorldData m_WorldData;
     KniAxeData m_SptKni;
     KniAxeData m_SptVikingAxe;
-
+    bool       m_bGun;
+    bool       m_bChangeImg;
 };
 
 

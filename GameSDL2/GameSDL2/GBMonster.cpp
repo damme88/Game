@@ -121,19 +121,23 @@ void GBMonster::DoLeft()
                     bCoin = pMap->CheckCoinMap(sLType);
                     if (bCoin == false)
                     {
-                        if (pX >= 0 && pY >= 0)
+                        int bKni = pMap->CheckSptKni(sLType);
+                        if (bKni < 0)
                         {
-                            for (int j = TILE_SIZE - 1; j > pX; j--)
+                            if (pX >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
-                                if (pData != NULL)
+                                for (int j = TILE_SIZE - 1; j > pX; j--)
                                 {
-                                    if (pData->IsColorKey() == false)
+                                    DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
+                                    if (pData != NULL)
                                     {
-                                        bCol = true;
-                                        xLimit = j + 1;
-                                        xPrev = prevTileX;
-                                        break;
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            bCol = true;
+                                            xLimit = j + 1;
+                                            xPrev = prevTileX;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -217,19 +221,23 @@ void GBMonster::DoRight()
                     bool bCoin = pMap->CheckCoinMap(sLType);
                     if (bCoin == false)
                     {
-                        if (pX >= 0 && pY >= 0)
+                        int bKni = pMap->CheckSptKni(sLType);
+                        if (bKni < 0)
                         {
-                            for (int j = 0; j < pX; j++)
+                            if (pX >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
-                                if (pData != NULL)
+                                for (int j = 0; j < pX; j++)
                                 {
-                                    if (pData->IsColorKey() == false)
+                                    DataImg* pData = pBlock->GetTile()->GetPixelPos(j, pY);
+                                    if (pData != NULL)
                                     {
-                                        bCol = true;
-                                        xTileCol = nextTX;
-                                        xPixelCol = j;
-                                        break;
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            bCol = true;
+                                            xTileCol = nextTX;
+                                            xPixelCol = j;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -322,18 +330,22 @@ void GBMonster::DoUp()
                     bCoin1 = pMap->CheckCoinMap(tp1);
                     if (bCoin1 == false)
                     {
-                        if (pX1 >= 0 && pY >= 0)
+                        int bKni = pMap->CheckSptKni(tp1);
+                        if (bKni < 0)
                         {
-                            // Tim ra diem va cham pixel tren tile gan nhat voi player
-                            for (int p = TILE_SIZE - 1; p > pY; p--)
+                            if (pX1 >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
-                                if (pData != NULL && pData->IsColorKey() == false)
+                                // Tim ra diem va cham pixel tren tile gan nhat voi player
+                                for (int p = TILE_SIZE - 1; p > pY; p--)
                                 {
-                                    yLimit1 = p;
-                                    bCol1 = true;
-                                    yPre1 = prevTileY;
-                                    break;
+                                    DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
+                                    if (pData != NULL && pData->IsColorKey() == false)
+                                    {
+                                        yLimit1 = p;
+                                        bCol1 = true;
+                                        yPre1 = prevTileY;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -354,18 +366,22 @@ void GBMonster::DoUp()
                     bCoin2 = pMap->CheckCoinMap(tp2);
                     if (bCoin2 == false)
                     {
-                        if (pX2 >= 0 && pY >= 0)
+                        int bKni = pMap->CheckSptKni(tp2);
+                        if (bKni < 0)
                         {
-                            for (int p = TILE_SIZE - 1; p > pY; p--)
+                            if (pX2 >= 0 && pY >= 0)
                             {
-
-                                DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
-                                if (pData != NULL && pData->IsColorKey() == false)
+                                for (int p = TILE_SIZE - 1; p > pY; p--)
                                 {
-                                    yLimit2 = p;
-                                    bCol2 = true;
-                                    yPre2 = prevTileY;
-                                    break;
+
+                                    DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
+                                    if (pData != NULL && pData->IsColorKey() == false)
+                                    {
+                                        yLimit2 = p;
+                                        bCol2 = true;
+                                        yPre2 = prevTileY;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -455,19 +471,23 @@ void GBMonster::DoDown()
                     bCoin1 = pMap->CheckCoinMap(tp1);
                     if (bCoin1 == false)
                     {
-                        if (pX1 >= 0 && pY >= 0)
+                        int bKni = pMap->CheckSptKni(tp1);
+                        if (bKni < 0)
                         {
-                            for (int p = 0; p < pY; p++)
+                            if (pX1 >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
-                                if (pData != NULL)
+                                for (int p = 0; p < pY; p++)
                                 {
-                                    if (pData->IsColorKey() == false)
+                                    DataImg* pData = pBlock1->GetTile()->GetPixelPos(pX1, p);
+                                    if (pData != NULL)
                                     {
-                                        yLimit1 = p;
-                                        bCol1 = true;
-                                        sTileY1 = nextTileY;
-                                        break;
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            yLimit1 = p;
+                                            bCol1 = true;
+                                            sTileY1 = nextTileY;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -490,19 +510,23 @@ void GBMonster::DoDown()
                     bCoin1 = pMap->CheckCoinMap(tp2);
                     if (bCoin1 == false)
                     {
-                        if (pX2 >= 0 && pY >= 0)
+                        int bKni = pMap->CheckSptKni(tp2);
+                        if (bKni < 0)
                         {
-                            for (int p = 0; p < pY; p++)
+                            if (pX2 >= 0 && pY >= 0)
                             {
-                                DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
-                                if (pData != NULL)
+                                for (int p = 0; p < pY; p++)
                                 {
-                                    if (pData->IsColorKey() == false)
+                                    DataImg* pData = pBlock2->GetTile()->GetPixelPos(pX2, p);
+                                    if (pData != NULL)
                                     {
-                                        yLimit2 = p;
-                                        bCol2 = true;
-                                        sTileY2 = nextTileY;
-                                        break;
+                                        if (pData->IsColorKey() == false)
+                                        {
+                                            yLimit2 = p;
+                                            bCol2 = true;
+                                            sTileY2 = nextTileY;
+                                            break;
+                                        }
                                     }
                                 }
                             }

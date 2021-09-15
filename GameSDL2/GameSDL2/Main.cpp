@@ -172,24 +172,24 @@ int main( int argc, char* args[] )
    wDoor.LoadImg("img//sman_open_new_world.png", g_screen);
    wDoor.SetPosTile(197, 8);
 
+   GeometricFormat rectange_size(0, 0, SCREEN_WIDTH, 40);
+   ColorData color_data(36, 36, 36);
+
+   GeometricFormat outlie_size(1, 1, SCREEN_WIDTH - 1, 38);
+   ColorData color_data1(255, 255, 255);
    ////Init Boss Object
    //BossObject bossObject;
    //bossObject.LoadImg("img//boss_object.png", g_screen);
    //int xPosBoss = MAX_MAP_X*TILE_SIZE - SCREEN_WIDTH*0.6;
    //bossObject.set_xpos(xPosBoss);
    //bossObject.set_ypos(10);
-
-   ExplosionObject exp_threats;
-
-   bool ret = exp_threats.LoadImg("img//exp3.png", g_screen);
-   if (!ret) return PT_FAILED;
+   
+   ExpAds* pExpAds = ExpAds::GetInstance();
 
    bool quit = false;
-
    int ret_menu = MenuGame::GetInstance()->StartMenu(g_screen);
    if (ret_menu == 1) 
      quit = true;
-
 
    unsigned int mark_value = 0;
    INT val_time = 0;
@@ -223,9 +223,8 @@ int main( int argc, char* args[] )
 
            option_control.HandleInputAction(g_event, g_screen);
            p_player.HandleInputAction(g_event, g_screen);
-           ThreatsAds::GetInstance()->HandleInputAction(g_event, g_screen);
+           pThreatsAd->HandleInputAction(g_event, g_screen);
        }
-
 
        if (Music::GetInstance()->PlayMusic() == PT_FAILED)
        {
@@ -284,23 +283,18 @@ int main( int argc, char* args[] )
        //int type_ctrl = option_control.GetTypeCtrl();
 
        //Draw Geometric
-       GeometricFormat rectange_size(0, 0, SCREEN_WIDTH, 40);
-       ColorData color_data(36, 36, 36);
        Gemometric::RenderRectange(rectange_size, color_data, g_screen);
-
-       GeometricFormat outlie_size(1, 1, SCREEN_WIDTH - 1, 38);
-       ColorData color_data1(255, 255, 255);
        Gemometric::RenderOutline(outlie_size, color_data1, g_screen);
 
        pThreatsAd->Render(g_screen);
 
        p_player.DoPlayer(g_screen);
-       p_player.Show(g_screen);
        p_player.HandleBullet(g_screen);
+       p_player.Show(g_screen);
 #ifdef USING_OPTION_MOBILE
        p_player.UpdateCtrlState(type_ctrl, g_screen);
 #endif
-       bool bRet = ThreatsAds::GetInstance()->CheckCollision(g_screen, p_player.GetRectFrame(), false);
+       bool bRet = pThreatsAd->CheckCollision(p_player.GetRectFrame(), false);
        if (bRet == true)
        {
            if (p_player.get_is_death() == false)
@@ -336,7 +330,7 @@ int main( int argc, char* args[] )
                    SDL_Delay(3000);
                    if (MessageBox(NULL, L"GAME OVER", L"Info", MB_OK | MB_ICONSTOP) == IDOK)
                    {
-                       ThreatsAds::GetInstance()->Free();
+                       pThreatsAd->Free();
                        close();
                        SDL_Quit();
                        return 0;
@@ -345,36 +339,39 @@ int main( int argc, char* args[] )
            }
        }
 
-       bool ret2 = ThreatsAds::GetInstance()->CheckCollisionSecond(g_screen, p_player.GetRectFrame(), true);
+       bool ret2 = pThreatsAd->CheckCollisionSecond(g_screen, p_player.GetRectFrame(), true);
        if (ret2 == true)
        {
            p_player.setLevelMushroom();
        }
 
-       ThreatsAds::GetInstance()->CheckCollisionLocal(g_screen);
+       pThreatsAd->CheckCollisionLocal(g_screen);
 
-       //COLLISION THREAT -> Main Bullet
+       // Player Attack vs Monster
        std::vector<BulletObject*> bullet_arr = p_player.get_bullet_list();
        for (int am = 0; am < bullet_arr.size(); am++)
        {
            BulletObject* p_bullet = bullet_arr.at(am);
            if (p_bullet)
            {
-               bool bRet = ThreatsAds::GetInstance()->CheckCollision(g_screen, p_bullet->GetRect());
+               bool bRet = pThreatsAd->CheckCollision(p_bullet->GetRect());
                if (bRet)
                {
-                   SDL_Rect rc_pos;
-                   rc_pos.x = p_bullet->GetRect().x;
-                   rc_pos.y = p_bullet->GetRect().y + 25;
-                   rc_pos.w = p_bullet->GetRect().w;
-                   rc_pos.h = p_bullet->GetRect().h;
-                   exp_threats.ImpRender(g_screen, rc_pos);
-
+                   ExplosionObject* pExp = new ExplosionObject();
+                   bool ret = pExp->LoadImg("img//exp3.png", g_screen);
+                   if (ret)
+                   {
+                       SDL_Rect rc_pos = p_bullet->GetRect();
+                       pExp->SetXP(rc_pos);
+                       pExpAds->Add(pExp);
+                   }
                    mark_value++;
                    p_player.RemoveBullet(am);
                }
            }
        }
+
+       pExpAds->Render(g_screen);
 
        //Show time for game
        std::string str_time = "Time: ";

@@ -10,6 +10,7 @@
 static char kImgCutting[] = { "img//sman_bl_cut.png" };
 static char kImgKni[] = { "img//sman_bl_kn1.png" };
 static char kImgVikingAxe[] = { "img//sman_bl_viking_axe.png" };
+static char kImgGunBullet[] = { "img//sman_bl_gun.png" };
 
 class BulletObject : public BaseObject
 {
@@ -35,6 +36,7 @@ public:
         BL_CUT,
         BL_KNI_THROWING,
         BL_VIKING_AXE,
+        BL_GUN
     };
 
     enum MoveType

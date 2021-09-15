@@ -19,10 +19,10 @@
 
 const std::string SkipMap[] = { "BR1", "BR2", "BR3", "TR11", "TR12", "TR13", 
                                 "TR14","HR1","HR2","HR3","HR4","HR5","HR6",
-                                "WB31", "WB32", "WB33", "WB34" };
+                                "WB31", "WB32", "WB33", "WB34"};
 const std::string CoinMap[] = { "CO1", "CO2", "DIA1", "DIA2" };
 
-const std::string SptKni[] = { "KNI1", "VIAXE" };
+const std::string SptKni[] = { "KNI1", "VIAXE", "GUN" };
 class GameMap
 {
 public:

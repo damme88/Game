@@ -12,6 +12,84 @@ int SDLCommonFunc::GetMin(const int& a, const int& b)
     return (a < b) ? a : b;
 }
 
+
+bool SDLCommonFunc::CheckCollisionEx(const SDL_Rect& rt1, const SDL_Rect& rt2, TPoint& colPt)
+{
+    // rect1 <= rect2
+    TPoint pp1(rt1.x, rt1.y);
+    TPoint pp2(rt1.x, rt1.y + rt1.h);
+    TPoint pp3(rt1.x + rt1.w, rt1.y + rt1.h);
+    TPoint pp4(rt1.x + rt1.w, rt1.y);
+
+    TRect geoRect;
+    geoRect.MakeRect(rt2);
+
+    if (geoRect.CheckRelPoint(pp1) != 2)
+    {
+        colPt = pp1;
+        return true;
+    }
+
+    if (geoRect.CheckRelPoint(pp2) != 2)
+    {
+        colPt = pp2;
+        return true;
+    }
+
+    if (geoRect.CheckRelPoint(pp3) != 2)
+    {
+        colPt = pp3;
+        return true;
+    }
+
+    if (geoRect.CheckRelPoint(pp4) != 2)
+    {
+        colPt = pp4;
+        return true;
+    }
+
+    // rect2 <= rect1
+    pp1.x = rt2.x;
+    pp1.y = rt2.y;
+
+    pp2.x = rt2.x;
+    pp2.y = rt2.y + rt2.h;
+
+    pp3.x = rt2.x + rt2.w;
+    pp3.y = rt2.y + rt2.h;
+
+    pp4.x = rt2.x + rt2.w;
+    pp4.y = rt2.y;
+
+    geoRect.MakeRect(rt1);
+
+    if (geoRect.CheckRelPoint(pp1) != 2)
+    {
+        colPt = pp1;
+        return true;
+    }
+
+    if (geoRect.CheckRelPoint(pp2) != 2)
+    {
+        colPt = pp2;
+        return true;
+    }
+
+    if (geoRect.CheckRelPoint(pp2) != 2)
+    {
+        colPt = pp3;
+        return true;
+    }
+
+    if (geoRect.CheckRelPoint(pp3) != 2)
+    {
+        colPt = pp4;
+        return true;
+    }
+
+    return false;
+}
+
 bool SDLCommonFunc::CheckCollision(const SDL_Rect& object1, const SDL_Rect& object2)
 {
     int left_a = object1.x;

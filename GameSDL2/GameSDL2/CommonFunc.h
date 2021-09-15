@@ -12,6 +12,7 @@
 #include <SDL_ttf.h>
 #include "TextObject.h"
 #include "BaseObject.h"
+#include "Geometric.h"
 
 //#define MACRO
 #define VT(T) std::vector<T>
@@ -58,7 +59,7 @@ const int RENDER_DRAW_COLOR = 0XFF;
 #define MAX_MAP_Y 10
 
 //Screen
-const int FRAMES_PER_SECOND = 25;
+const int FRAMES_PER_SECOND = 35;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
@@ -67,36 +68,6 @@ const int SPEED_SCREEN = 2;
 //ground pos
 
 const int GROUND_POS = SCREEN_HEIGHT - 4*TILE_SIZE;
-
-typedef struct GeometricFormat
-{
-public:
-    GeometricFormat(int left, int top, int width, int height) 
-    { 
-        left_ = left; top_ = top; 
-        width_ = width; 
-        height_ = height;
-    }
-    int left_;
-    int top_;
-    int width_;
-    int height_;
-};
-
-typedef struct ColorData
-{
-public:
-    ColorData(Uint8 r, Uint8 g, Uint8 b) 
-    {
-        red_ = r;
-        green_ = g; 
-        blue_ = b;
-    }
-
-    Uint8 red_;
-    Uint8 green_;
-    Uint8 blue_;
-};
 
 typedef struct Input
 {
@@ -112,6 +83,7 @@ namespace SDLCommonFunc
   int GetMax(const int& a, const int& b);
   int GetMin(const int& a, const int& b);
   bool CheckCollision(const SDL_Rect& object1, const SDL_Rect& object2);
+  bool CheckCollisionEx(const SDL_Rect& rt1, const SDL_Rect& rt2, TPoint& colPt);
   bool CheckInsideMapX(UINT x1, UINT x2);
   bool CheckInsideMapY(UINT y1, UINT y2);
   bool CheckInsideMap(UINT x, UINT y);

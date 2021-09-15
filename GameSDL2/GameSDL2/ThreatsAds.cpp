@@ -2,6 +2,7 @@
 #include "GBMonster.h"
 #include "TBoom.h"
 #include "FlyMonster.h"
+#include "Geometric.h"
 
 #define NO_BOOM 
 
@@ -71,6 +72,10 @@ void ThreatsAds::BuildMonster(SDL_Renderer* screen)
             BuildMonster1(screen);
         }
         else if (iLesson == 2)
+        {
+            BuildMonster2(screen);
+        }
+        else if (iLesson == 3)
         {
             BuildMonster2(screen);
         }
@@ -198,7 +203,7 @@ void ThreatsAds::DrawSecondObject(SDL_Renderer* des)
     }
 }
 
-bool ThreatsAds::CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_object, const bool& isDel/*true*/)
+bool ThreatsAds::CheckCollision(const SDL_Rect& rect_object, const bool& isDel/*true*/)
 {
     bool bRet = false;
     for (int i = 0; i < pThreatsNormal_.size(); i++)
@@ -207,29 +212,25 @@ bool ThreatsAds::CheckCollision(SDL_Renderer* screen, const SDL_Rect& rect_objec
         if (pThreat)
         {
             SDL_Rect rect = pThreat->GetRectFrame();
-            bool bCollision = SDLCommonFunc::CheckCollision(rect_object, rect);
-
-            if (bCollision)
+            TPoint pCol;
+            bool bColRect = SDLCommonFunc::CheckCollisionEx(rect_object, rect, pCol);
+            if (bColRect)
             {
-                bRet = true;
-            /*    if (pThreat->GetType() == ThreatsObject::TH_BOOM)
+                int xPixel = pCol.x - rect.x;
+                int yPixel = pCol.y - rect.y;
+                if (xPixel >= 0 && yPixel >= 0)
                 {
-                    pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
-                    SDL_Rect rect;
-                    rect = pThreat->GetRect();
-                    pEx_->ImpRender(screen, rect);
-                    Music::GetInstance()->PlaySoundGame(Music::EXP_BOOM);
-                    is_boom_cool_ = true;
-                }
-                else
-                {*/
-                    if (isDel == true)
+                    DataImg* dImg = pThreat->GetPixelPos(xPixel, yPixel);
+                    if (dImg && !dImg->IsColorKey() && !dImg->IsWhiteKey())
                     {
-                        pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
+                        bRet = true;
+                        if (isDel == true)
+                        {
+                            pThreatsNormal_.erase(pThreatsNormal_.begin() + i);
+                        }
+                        break;
                     }
-                    //Music::GetInstance()->PlaySoundGame(Music::EXP_SOUND);
-                //}
-                break;
+                }
             }
         }
     }
